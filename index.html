@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>制作部ツール</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+    background: #f0f2f5;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  header {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 24px 20px 20px;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  header p {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  main {
+    padding: 24px 16px;
+    max-width: 480px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  a.card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px 18px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.1s, box-shadow 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a.card:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .icon {
+    font-size: 32px;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .icon-blue  { background: #e8f0fe; }
+  .icon-green { background: #e6f4ea; }
+  .icon-orange{ background: #fef3e2; }
+
+  .card-text h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+
+  .card-text p {
+    font-size: 12px;
+    color: #888;
+    margin-top: 3px;
+  }
+
+  .arrow {
+    margin-left: auto;
+    color: #ccc;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>制作部ツール</h1>
+  <p>テレビドラマ制作部向けツール集</p>
+</header>
+
+<main>
+  <a class="card" href="./ロケハンメニュー作成アプリ/lokehun_menu.html">
+    <div class="icon icon-blue">🗺️</div>
+    <div class="card-text">
+      <h2>ロケハンメニュー作成</h2>
+      <p>移動スケジュールの自動計算・ルート最適化</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="card" href="./乗り切り確認アプリ/">
+    <div class="icon icon-green">🚐</div>
+    <div class="card-text">
+      <h2>乗り切り定員確認</h2>
+      <p>撮影当日の車両配車管理</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="card" href="./弁当発注管理アプリ/">
+    <div class="icon icon-orange">🍱</div>
+    <div class="card-text">
+      <h2>弁当発注管理</h2>
+      <p>発注記録・月次経理レポート出力</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+</main>
+
+</body>
+</html>
