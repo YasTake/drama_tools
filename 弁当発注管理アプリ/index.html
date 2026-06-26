@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>弁当発注管理</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #1c2b4a;
+            --primary-dark: #121d33;
+            --accent: #3b5998;
+            --accent-light: #eaedfa;
+            --bg: #eceff5;
+            --card: #ffffff;
+            --border: #c4c9d8;
+            --text: #1a1f2e;
+            --text-sub: #505870;
+            --text-light: #8890a8;
+            --danger: #b03030;
+            --danger-light: #ffeaea;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== HEADER ===== */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--primary);
+            color: white;
+            padding-top: env(safe-area-inset-top);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 16px;
+        }
+
+        .header-title {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .header-sub {
+            font-size: 10px;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.12em;
+            margin-top: 2px;
+        }
+
+        .btn-export {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.32);
+            color: white;
+            padding: 7px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-export:active { background: rgba(255,255,255,0.22); }
+
+        .month-nav {
+            background: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 9px 16px;
+        }
+
+        .month-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.85);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 3px 14px;
+            border-radius: 3px;
+            line-height: 1.5;
+        }
+
+        .month-btn:active { background: rgba(255,255,255,0.18); }
+
+        .month-label {
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            min-width: 112px;
+            text-align: center;
+        }
+
+        /* ===== SUMMARY ===== */
+        .summary-bar {
+            background: var(--accent-light);
+            border-bottom: 1px solid #b8c0d4;
+            padding: 8px 16px;
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .summary-item strong {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-left: 3px;
+        }
+
+        /* ===== MAIN ===== */
+        .main-content {
+            padding: 12px;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .date-group { margin-bottom: 14px; }
+
+        .date-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+            letter-spacing: 0.1em;
+            padding: 5px 3px 6px;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .date-subtotal {
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        /* ===== CARD ===== */
+        .order-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            margin-bottom: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+
+        .card-top {
+            background: var(--primary);
+            padding: 7px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .meal-badge {
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.06em;
+            background: rgba(255,255,255,0.15);
+            padding: 2px 9px;
+            border-radius: 10px;
+        }
+
+        .payment-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 10px;
+            letter-spacing: 0.02em;
+        }
+
+        .pay-invoice { background: #fff3cc; color: #7a5200; }
+        .pay-cash    { background: #d4f0e0; color: #1a5a30; }
+
+        .card-body { padding: 10px 12px; }
+
+        .vendor-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+
+        .vendor-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .vendor-phone {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .vendor-phone a { color: var(--accent); text-decoration: none; }
+
+        .bento-item { padding: 4px 0; font-size: 13px; }
+
+        .bento-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .bento-item-name { color: var(--text-sub); flex: 1; margin-right: 6px; }
+        .bento-item-val  { font-weight: 600; color: var(--text); white-space: nowrap; }
+        .bento-item-sub  {
+            font-size: 11px;
+            color: var(--text-light);
+            text-align: right;
+            margin-top: 1px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding-top: 7px;
+            margin-top: 5px;
+            border-top: 1px solid var(--border);
+        }
+
+        .total-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sub);
+            letter-spacing: 0.05em;
+        }
+
+        .total-count {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+
+        .total-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .card-memo {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-sub);
+            white-space: pre-line;
+            line-height: 1.5;
+        }
+
+        .memo-tag {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--text-light);
+            margin-bottom: 3px;
+        }
+
+        .card-actions {
+            border-top: 1px solid var(--border);
+            display: flex;
+            background: #f6f7fa;
+        }
+
+        .card-act {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 9px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            color: var(--text-sub);
+            letter-spacing: 0.03em;
+        }
+
+        .card-act + .card-act { border-left: 1px solid var(--border); }
+        .card-act:active { background: var(--accent-light); }
+        .card-act.del  { color: var(--danger); }
+        .card-act.del:active  { background: var(--danger-light); }
+        .card-act.copy { color: var(--accent); }
+        .card-act.copy:active { background: var(--accent-light); }
+
+        .delivery-info {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 3px;
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+            line-height: 1.4;
+        }
+
+        .delivery-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: white;
+            background: var(--text-light);
+            padding: 1px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: calc(92px + env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            background: #1c2b4a;
+            color: white;
+            padding: 9px 22px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            opacity: 0;
+            transition: opacity 0.18s, transform 0.18s;
+            pointer-events: none;
+            z-index: 300;
+            white-space: nowrap;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ===== EMPTY ===== */
+        .empty-state {
+            text-align: center;
+            padding: 64px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon { font-size: 44px; margin-bottom: 12px; }
+        .empty-text { font-size: 14px; line-height: 1.7; }
+
+        /* ===== FAB ===== */
+        .fab {
+            position: fixed;
+            bottom: calc(22px + env(safe-area-inset-bottom));
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .fab:active { transform: scale(0.93); background: var(--accent); }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-sheet {
+            background: var(--card);
+            width: 100%;
+            max-width: 600px;
+            max-height: 94dvh;
+            border-radius: 14px 14px 0 0;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .modal-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 16px;
+            border-radius: 14px 14px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.16);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 17px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+            background: #f6f7fa;
+        }
+
+        /* ===== FORM ===== */
+        .f-section {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-sub);
+            letter-spacing: 0.14em;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+            margin: 14px 0 12px;
+        }
+
+        .f-section:first-child { margin-top: 0; }
+
+        .f-group { margin-bottom: 13px; }
+
+        .f-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+            letter-spacing: 0.06em;
+            margin-bottom: 5px;
+        }
+
+        .f-label .req { color: var(--danger); margin-left: 2px; }
+
+        .f-input,
+        .f-textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 10px 12px;
+            font-size: 16px;
+            font-family: inherit;
+            color: var(--text);
+            background: white;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .f-input:focus,
+        .f-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(59,89,152,0.15);
+        }
+
+        .f-textarea {
+            min-height: 72px;
+            resize: vertical;
+            font-size: 14px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .radio-opt { flex: 1; min-width: 55px; }
+
+        .radio-opt input { display: none; }
+
+        .radio-opt label {
+            display: block;
+            text-align: center;
+            padding: 10px 6px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-sub);
+            user-select: none;
+        }
+
+        .radio-opt input:checked + label {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: 700;
+        }
+
+        .bento-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .bento-input-row .f-input.iname  { flex: 3; min-width: 0; font-size: 14px; }
+        .bento-input-row .f-input.iqty   { flex: 1; min-width: 0; text-align: right; font-size: 14px; }
+        .bento-input-row .f-input.iprice { flex: 1.5; min-width: 0; text-align: right; font-size: 14px; }
+
+        .btn-rm {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--danger);
+            width: 36px;
+            height: 40px;
+            border-radius: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-rm:active { background: var(--danger-light); }
+
+        .btn-add-bento {
+            width: 100%;
+            background: var(--accent-light);
+            border: 1px dashed var(--accent);
+            color: var(--accent);
+            padding: 9px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-add-bento:active { background: #d2d9f0; }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 4px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 0.04em;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:active { background: var(--accent); }
+        .btn-ghost   { background: white; color: var(--text-sub); border: 1px solid var(--border); }
+        .btn-ghost:active { background: var(--bg); }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="app-header">
+    <div class="header-inner">
+        <div>
+            <div class="header-title">弁当発注管理</div>
+            <div class="header-sub">BENTO ORDER MANAGEMENT</div>
+        </div>
+        <button class="btn-export" onclick="printMonth()">月次出力</button>
+    </div>
+    <div class="month-nav">
+        <button class="month-btn" onclick="prevMonth()">&#8249;</button>
+        <div class="month-label" id="monthLabel"></div>
+        <button class="month-btn" onclick="nextMonth()">&#8250;</button>
+    </div>
+</div>
+
+<!-- ===== SUMMARY ===== -->
+<div class="summary-bar" id="summaryBar"></div>
+
+<!-- ===== MAIN ===== -->
+<div class="main-content" id="mainContent"></div>
+
+<!-- ===== FAB ===== -->
+<button class="fab" onclick="openModal()">＋</button>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay" onclick="overlayClick(event)">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">発注記録を追加</span>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="f-section">基本情報</div>
+
+            <div class="f-group">
+                <label class="f-label">日付<span class="req">*</span></label>
+                <input type="date" class="f-input" id="fDate">
+            </div>
+
+            <div class="f-group">
+                <label class="f-label">食事区分<span class="req">*</span></label>
+                <div class="radio-group">
+                    <div class="radio-opt"><input type="radio" name="meal" id="m0" value="朝食"><label for="m0">朝食</label></div>
+                    <div class="radio-opt"><input type="radio" name="meal" id="m1" value="昼食"><label for="m1">昼食</label></div>
+                    <div class="radio-opt"><input type="radio" name="meal" id="m2" value="夕食"><label for="m2">夕食</label></div>
+                    <div class="radio-opt"><input type="radio" name="meal" id="m3" value="夜食"><label for="m3">夜食</label></div>
+                </div>
+            </div>
+
+            <div class="f-section">発注先</div>
+
+            <div class="f-group">
+                <label class="f-label">店名<span class="req">*</span></label>
+                <input type="text" class="f-input" id="fVendor" placeholder="○○弁当" autocomplete="off">
+            </div>
+
+            <div class="f-group">
+                <label class="f-label">電話番号</label>
+                <input type="tel" class="f-input" id="fPhone" placeholder="03-0000-0000">
+            </div>
+
+            <div class="f-group">
+                <label class="f-label">配達場所</label>
+                <input type="text" class="f-input" id="fDelivery" placeholder="例：○○スタジオ 正面玄関">
+            </div>
+
+            <div class="f-group">
+                <label class="f-label">配達時間</label>
+                <input type="time" class="f-input" id="fDeliveryTime">
+            </div>
+
+            <div class="f-section">お弁当内訳</div>
+
+            <div id="bentoRows"></div>
+            <button type="button" class="btn-add-bento" onclick="addBentoRow()">＋ 品目を追加</button>
+
+            <div class="f-section" style="margin-top:16px;">支払方法</div>
+
+            <div class="f-group">
+                <div class="radio-group">
+                    <div class="radio-opt"><input type="radio" name="pay" id="p0" value="請求書払い"><label for="p0">請求書払い</label></div>
+                    <div class="radio-opt"><input type="radio" name="pay" id="p1" value="現金払い"><label for="p1">現金払い</label></div>
+                </div>
+            </div>
+
+            <div class="f-section">メモ</div>
+
+            <div class="f-group">
+                <textarea class="f-textarea" id="fMemo" placeholder="特記事項・変更点など"></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+            <button class="btn btn-primary" onclick="saveOrder()">保存</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const STORAGE_KEY = 'bento_v1';
+    const MEAL_ORDER  = ['朝食','昼食','夕食','夜食'];
+
+    let orders = [];
+    let cur    = new Date();
+    let editId = null;
+
+    /* ---------- persistence ---------- */
+    function load() {
+        const d = localStorage.getItem(STORAGE_KEY);
+        orders = d ? JSON.parse(d) : [];
+    }
+
+    function persist() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+    }
+
+    /* ---------- helpers ---------- */
+    function esc(s) {
+        return String(s ?? '')
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function sumItems(o) {
+        return o.items.reduce((s, i) => s + (parseInt(i.qty) || 0), 0);
+    }
+
+    function sumAmount(o) {
+        return o.items.reduce((s, i) => s + (parseInt(i.qty)||0) * (parseInt(i.price)||0), 0);
+    }
+
+    function fmtYen(n) {
+        return n.toLocaleString('ja-JP') + '円';
+    }
+
+    function monthOrders() {
+        const y = cur.getFullYear(), m = cur.getMonth();
+        return orders.filter(o => {
+            const d = new Date(o.date);
+            return d.getFullYear() === y && d.getMonth() === m;
+        }).sort((a, b) =>
+            a.date !== b.date
+                ? a.date.localeCompare(b.date)
+                : MEAL_ORDER.indexOf(a.meal) - MEAL_ORDER.indexOf(b.meal)
+        );
+    }
+
+    function dayLabel(dateStr) {
+        const d = new Date(dateStr + 'T00:00:00');
+        const dn = ['日','月','火','水','木','金','土'];
+        return dateStr.replace(/-/g, '/') + '（' + dn[d.getDay()] + '）';
+    }
+
+    /* ---------- render ---------- */
+    function render() {
+        const y = cur.getFullYear(), m = cur.getMonth() + 1;
+        document.getElementById('monthLabel').textContent = `${y}年${m}月`;
+
+        const mo   = monthOrders();
+        const tot  = mo.reduce((s, o) => s + sumItems(o), 0);
+        const inv  = mo.filter(o => o.pay === '請求書払い').length;
+        const cash = mo.filter(o => o.pay === '現金払い').length;
+
+        document.getElementById('summaryBar').innerHTML =
+            `<span class="summary-item">件数<strong>${mo.length}件</strong></span>` +
+            `<span class="summary-item">総数量<strong>${tot}個</strong></span>` +
+            `<span class="summary-item">請求書<strong>${inv}件</strong></span>` +
+            `<span class="summary-item">現金<strong>${cash}件</strong></span>`;
+
+        const main = document.getElementById('mainContent');
+
+        if (mo.length === 0) {
+            main.innerHTML =
+                `<div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <div class="empty-text">この月の発注記録はありません<br>右下の＋ボタンで追加できます</div>
+                </div>`;
+            return;
+        }
+
+        /* group by date */
+        const groups = {};
+        for (const o of mo) {
+            if (!groups[o.date]) groups[o.date] = [];
+            groups[o.date].push(o);
+        }
+
+        let html = '';
+        for (const date of Object.keys(groups).sort()) {
+            const grp      = groups[date];
+            const dayTotal = grp.reduce((s, o) => s + sumItems(o), 0);
+
+            html += `<div class="date-group">
+                <div class="date-header">
+                    <span>${dayLabel(date)}</span>
+                    <span class="date-subtotal">計 ${dayTotal}個</span>
+                </div>`;
+
+            for (const o of grp) {
+                const tc       = sumItems(o);
+                const payClass = o.pay === '請求書払い' ? 'pay-invoice' : 'pay-cash';
+                const orderAmt  = sumAmount(o);
+                const itemsHtml = o.items.map(i => {
+                    const iPrice = parseInt(i.price) || 0;
+                    const iAmt   = (parseInt(i.qty)||0) * iPrice;
+                    const valStr = iPrice > 0 ? fmtYen(iAmt) : `${i.qty}個`;
+                    const subStr = iPrice > 0
+                        ? `<div class="bento-item-sub">×${i.qty}個　@${iPrice.toLocaleString('ja-JP')}円</div>`
+                        : '';
+                    return `<div class="bento-item">
+                        <div class="bento-item-row">
+                            <span class="bento-item-name">${esc(i.name)}</span>
+                            <span class="bento-item-val">${valStr}</span>
+                        </div>${subStr}
+                    </div>`;
+                }).join('');
+
+                const phoneHtml = o.phone
+                    ? `<div class="vendor-phone"><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>`
+                    : '';
+
+                const deliveryPlace = o.delivery    ? esc(o.delivery)    : '';
+                const deliveryTime  = o.deliveryTime ? esc(o.deliveryTime) : '';
+                const deliveryHtml  = (deliveryPlace || deliveryTime)
+                    ? `<div class="delivery-info"><span class="delivery-label">配達</span>${[deliveryTime, deliveryPlace].filter(Boolean).join('　')}</div>`
+                    : '';
+
+                const memoHtml = o.memo
+                    ? `<div class="card-memo"><span class="memo-tag">MEMO</span><br>${esc(o.memo)}</div>`
+                    : '';
+
+                html += `<div class="order-card">
+                    <div class="card-top">
+                        <span class="meal-badge">${esc(o.meal)}</span>
+                        <span class="payment-badge ${payClass}">${esc(o.pay)}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="vendor-row">
+                            <div>
+                                <div class="vendor-name">${esc(o.vendor)}</div>
+                                ${phoneHtml}
+                                ${deliveryHtml}
+                            </div>
+                        </div>
+                        ${itemsHtml}
+                        <div class="total-row">
+                            <span class="total-label">合　計</span>
+                            <span class="total-count">${tc}個</span>
+                            ${orderAmt > 0 ? `<span class="total-amount">${fmtYen(orderAmt)}</span>` : ''}
+                        </div>
+                        ${memoHtml}
+                    </div>
+                    <div class="card-actions">
+                        <button class="card-act" onclick="openModal('${o.id}')">編集</button>
+                        <button class="card-act copy" onclick="copyOrder('${o.id}')">コピー</button>
+                        <button class="card-act del" onclick="deleteOrder('${o.id}')">削除</button>
+                    </div>
+                </div>`;
+            }
+
+            html += '</div>';
+        }
+
+        main.innerHTML = html;
+    }
+
+    /* ---------- month nav ---------- */
+    function prevMonth() {
+        cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1);
+        render();
+    }
+
+    function nextMonth() {
+        cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+        render();
+    }
+
+    /* ---------- modal ---------- */
+    function openModal(id = null) {
+        editId = id;
+        document.getElementById('modalTitle').textContent = id ? '発注記録を編集' : '発注記録を追加';
+
+        if (id) {
+            const o = orders.find(x => x.id === id);
+            document.getElementById('fDate').value     = o.date;
+            document.getElementById('fVendor').value   = o.vendor;
+            document.getElementById('fPhone').value    = o.phone    || '';
+            document.getElementById('fDelivery').value     = o.delivery     || '';
+            document.getElementById('fDeliveryTime').value = o.deliveryTime || '';
+            document.getElementById('fMemo').value         = o.memo         || '';
+            const mr = document.querySelector(`input[name="meal"][value="${o.meal}"]`);
+            if (mr) mr.checked = true;
+            const pr = document.querySelector(`input[name="pay"][value="${o.pay}"]`);
+            if (pr) pr.checked = true;
+            document.getElementById('bentoRows').innerHTML = '';
+            for (const i of o.items) addBentoRow(i.name, i.qty, i.price || '');
+        } else {
+            const t  = new Date();
+            const ds = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+            document.getElementById('fDate').value     = ds;
+            document.getElementById('fVendor').value   = '';
+            document.getElementById('fPhone').value    = '';
+            document.getElementById('fDelivery').value     = '';
+            document.getElementById('fDeliveryTime').value = '';
+            document.getElementById('fMemo').value         = '';
+            document.getElementById('m1').checked    = true;  /* 昼食 default */
+            document.getElementById('p0').checked    = true;  /* 請求書払い default */
+            document.getElementById('bentoRows').innerHTML = '';
+            addBentoRow();
+        }
+
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('open');
+        editId = null;
+    }
+
+    function overlayClick(e) {
+        if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    function addBentoRow(name = '', qty = '', price = '') {
+        const wrap = document.getElementById('bentoRows');
+        const row  = document.createElement('div');
+        row.className = 'bento-input-row';
+        row.innerHTML =
+            `<input type="text"   class="f-input iname"  placeholder="品名" value="${esc(name)}">` +
+            `<input type="number" class="f-input iqty"   placeholder="個数"     value="${esc(qty)}"   min="0">` +
+            `<input type="number" class="f-input iprice" placeholder="単価(円)" value="${esc(price)}" min="0">` +
+            `<button type="button" class="btn-rm" onclick="this.parentElement.remove()">×</button>`;
+        wrap.appendChild(row);
+    }
+
+    /* ---------- CRUD ---------- */
+    function saveOrder() {
+        const date     = document.getElementById('fDate').value.trim();
+        const vendor   = document.getElementById('fVendor').value.trim();
+        const phone    = document.getElementById('fPhone').value.trim();
+        const delivery     = document.getElementById('fDelivery').value.trim();
+        const deliveryTime = document.getElementById('fDeliveryTime').value.trim();
+        const memo     = document.getElementById('fMemo').value.trim();
+        const meal     = (document.querySelector('input[name="meal"]:checked') || {}).value;
+        const pay      = (document.querySelector('input[name="pay"]:checked')  || {}).value;
+
+        if (!date || !meal || !vendor) {
+            alert('日付・食事区分・店名は必須項目です。');
+            return;
+        }
+
+        const rows  = document.querySelectorAll('.bento-input-row');
+        const items = [];
+        for (const row of rows) {
+            const name  = row.querySelector('.iname').value.trim();
+            const qty   = parseInt(row.querySelector('.iqty').value)   || 0;
+            const price = parseInt(row.querySelector('.iprice').value) || 0;
+            if (name) items.push({ name, qty, price });
+        }
+
+        if (items.length === 0) {
+            alert('お弁当の品目を1つ以上入力してください。');
+            return;
+        }
+
+        if (editId) {
+            const idx = orders.findIndex(o => o.id === editId);
+            if (idx !== -1) orders[idx] = { ...orders[idx], date, meal, vendor, phone, delivery, deliveryTime, pay, memo, items };
+        } else {
+            orders.push({ id: Date.now().toString(36), date, meal, vendor, phone, delivery, deliveryTime, pay, memo, items });
+        }
+
+        persist();
+        closeModal();
+        render();
+    }
+
+    function deleteOrder(id) {
+        if (!confirm('この発注記録を削除しますか？')) return;
+        orders = orders.filter(o => o.id !== id);
+        persist();
+        render();
+    }
+
+    /* ---------- copy ---------- */
+    function copyOrder(id) {
+        const o = orders.find(x => x.id === id);
+        if (!o) return;
+        const tc = sumItems(o);
+
+        const lines = [];
+        lines.push(`【弁当発注】${o.meal}`);
+        lines.push(dayLabel(o.date));
+        lines.push('');
+        lines.push(`発注先　：${o.vendor}`);
+        if (o.phone)        lines.push(`TEL　　　：${o.phone}`);
+        if (o.deliveryTime) lines.push(`配達時間：${o.deliveryTime}`);
+        if (o.delivery)     lines.push(`配達場所：${o.delivery}`);
+        lines.push('');
+        lines.push('── 内訳 ──');
+        for (const i of o.items) {
+            const iPrice = parseInt(i.price) || 0;
+            if (iPrice > 0) {
+                const iAmt = (parseInt(i.qty)||0) * iPrice;
+                lines.push(`${i.name}　×${i.qty}個　@${iPrice.toLocaleString('ja-JP')}円　= ${fmtYen(iAmt)}`);
+            } else {
+                lines.push(`${i.name}　×${i.qty}個`);
+            }
+        }
+        const orderAmt = sumAmount(o);
+        lines.push(`────────`);
+        lines.push(`合計　${tc}個${orderAmt > 0 ? '　' + fmtYen(orderAmt) : ''}`);
+        lines.push(`支払　${o.pay}`);
+        if (o.memo) {
+            lines.push('');
+            lines.push(`備考：${o.memo}`);
+        }
+
+        const text = lines.join('\n');
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(() => showToast('コピーしました'))
+                .catch(() => fallbackCopy(text));
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); showToast('コピーしました'); }
+        catch { showToast('コピーに失敗しました'); }
+        document.body.removeChild(ta);
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._tid);
+        t._tid = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    /* ---------- print ---------- */
+    function printMonth() {
+        const mo = monthOrders();
+        if (mo.length === 0) { alert('この月の発注記録がありません。'); return; }
+
+        const y   = cur.getFullYear();
+        const m   = cur.getMonth() + 1;
+        const tot = mo.reduce((s, o) => s + sumItems(o), 0);
+        const lastDay = new Date(y, m, 0).getDate();
+
+        /* summary by meal type */
+        const mealSum = {};
+        for (const o of mo) {
+            if (!mealSum[o.meal]) mealSum[o.meal] = { count: 0, amount: 0 };
+            mealSum[o.meal].count  += sumItems(o);
+            mealSum[o.meal].amount += sumAmount(o);
+        }
+
+        const mealSumHtml = MEAL_ORDER
+            .filter(t => mealSum[t])
+            .map(t => `<tr><td>${t}</td><td class="num">${mealSum[t].count}個</td><td class="num">${mealSum[t].amount > 0 ? fmtYen(mealSum[t].amount) : '—'}</td></tr>`)
+            .join('');
+
+        const inv     = mo.filter(o => o.pay === '請求書払い').length;
+        const cash    = mo.filter(o => o.pay === '現金払い').length;
+        const invAmt  = mo.filter(o => o.pay === '請求書払い').reduce((s, o) => s + sumAmount(o), 0);
+        const cashAmt = mo.filter(o => o.pay === '現金払い').reduce((s, o) => s + sumAmount(o), 0);
+        const grandAmt = invAmt + cashAmt;
+
+        /* main rows */
+        const rowsHtml = mo.map((o, idx) => {
+            const tc       = sumItems(o);
+            const rowAmt   = sumAmount(o);
+            const itemsStr = o.items.map(i => {
+                const p = parseInt(i.price) || 0;
+                return p > 0 ? `${i.name} ×${i.qty} @${p.toLocaleString('ja-JP')}円` : `${i.name} ×${i.qty}`;
+            }).join('　');
+            const bg = idx % 2 === 1 ? 'background:#f5f6f9;' : '';
+            return `<tr style="${bg}">
+                <td>${esc(dayLabel(o.date))}</td>
+                <td>${esc(o.meal)}</td>
+                <td>${esc(o.vendor)}</td>
+                <td>${esc(o.phone || '—')}</td>
+                <td>${esc(itemsStr)}</td>
+                <td class="num">${tc}個</td>
+                <td class="num">${rowAmt > 0 ? fmtYen(rowAmt) : '—'}</td>
+                <td>${esc(o.pay)}</td>
+                <td style="white-space:pre-line;">${esc(o.memo || '')}</td>
+            </tr>`;
+        }).join('');
+
+        const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>${y}年${m}月 弁当発注一覧</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;font-size:9.5pt;color:#111;background:white;}
+.wrap{padding:14px 16px;}
+.doc-header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:10px;border-bottom:2.5px solid #1c2b4a;margin-bottom:10px;}
+.doc-title{font-size:17pt;font-weight:700;color:#1c2b4a;letter-spacing:0.04em;}
+.doc-sub{font-size:9pt;color:#666;margin-top:3px;letter-spacing:0.1em;}
+.doc-meta{text-align:right;font-size:8.5pt;color:#555;line-height:1.7;}
+.stat-row{display:flex;gap:0;margin-bottom:12px;border:1px solid #c4c9d8;}
+.stat-cell{flex:1;padding:7px 12px;border-right:1px solid #c4c9d8;font-size:9pt;color:#505870;}
+.stat-cell:last-child{border-right:none;}
+.stat-cell strong{display:block;font-size:11pt;color:#1c2b4a;margin-top:1px;}
+.split{display:flex;gap:14px;margin-bottom:12px;}
+.tbl-wrap{flex:3;}
+.side-wrap{flex:1;}
+.side-title{font-size:8pt;font-weight:700;color:#505870;letter-spacing:0.1em;padding-bottom:4px;border-bottom:1px solid #c4c9d8;margin-bottom:6px;}
+table{width:100%;border-collapse:collapse;}
+th{background:#1c2b4a;color:white;padding:6px 7px;font-size:8.5pt;font-weight:600;letter-spacing:0.04em;text-align:left;border:1px solid #1c2b4a;}
+td{padding:5px 7px;border:1px solid #c4c9d8;vertical-align:top;font-size:8.5pt;}
+.num{text-align:right;font-weight:600;}
+.footer{margin-top:14px;padding-top:8px;border-top:1px solid #c4c9d8;display:flex;justify-content:space-between;font-size:8pt;color:#777;}
+@media print{@page{size:A4 landscape;margin:10mm;}body{font-size:8.5pt;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="doc-header">
+    <div>
+      <div class="doc-title">${y}年${m}月　弁当発注一覧</div>
+      <div class="doc-sub">BENTO ORDER REPORT</div>
+    </div>
+    <div class="doc-meta">
+      出力日：${new Date().toLocaleDateString('ja-JP')}<br>
+      対象期間：${y}/${String(m).padStart(2,'0')}/01 〜 ${y}/${String(m).padStart(2,'0')}/${lastDay}
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-cell">発注件数<strong>${mo.length}件</strong></div>
+    <div class="stat-cell">合計数量<strong>${tot}個</strong></div>
+    <div class="stat-cell">合計金額<strong>${grandAmt > 0 ? fmtYen(grandAmt) : '—'}</strong></div>
+    <div class="stat-cell">請求書払い<strong>${inv}件　${invAmt > 0 ? fmtYen(invAmt) : '—'}</strong></div>
+    <div class="stat-cell">現金払い<strong>${cash}件　${cashAmt > 0 ? fmtYen(cashAmt) : '—'}</strong></div>
+  </div>
+
+  <div class="split">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="min-width:100px;">日付</th>
+            <th style="min-width:36px;">区分</th>
+            <th style="min-width:90px;">発注先</th>
+            <th style="min-width:80px;">電話番号</th>
+            <th>内訳（品名×数 @単価）</th>
+            <th style="min-width:42px;">合計数</th>
+            <th style="min-width:72px;">金額</th>
+            <th style="min-width:62px;">支払</th>
+            <th style="min-width:80px;">備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </div>
+    <div class="side-wrap">
+      <div class="side-title">食事区分別合計</div>
+      <table>
+        <thead><tr><th>区分</th><th>数量</th><th>金額</th></tr></thead>
+        <tbody>${mealSumHtml}</tbody>
+      </table>
+      <div class="side-title" style="margin-top:12px;">支払方法別合計</div>
+      <table>
+        <thead><tr><th>支払</th><th>件数</th><th>金額</th></tr></thead>
+        <tbody>
+          <tr><td>請求書払い</td><td class="num">${inv}件</td><td class="num">${invAmt > 0 ? fmtYen(invAmt) : '—'}</td></tr>
+          <tr><td>現金払い</td><td class="num">${cash}件</td><td class="num">${cashAmt > 0 ? fmtYen(cashAmt) : '—'}</td></tr>
+          <tr style="font-weight:700;background:#e8eef6;"><td>合　計</td><td class="num">${mo.length}件</td><td class="num">${grandAmt > 0 ? fmtYen(grandAmt) : '—'}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>弁当発注管理システム</span>
+    <span>合計 ${mo.length}件 / ${tot}個${grandAmt > 0 ? ' / ' + fmtYen(grandAmt) : ''}</span>
+  </div>
+</div>
+<script>window.onload=()=>window.print();<\/script>
+</body>
+</html>`;
+
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url  = URL.createObjectURL(blob);
+        window.open(url);
+        setTimeout(() => URL.revokeObjectURL(url), 15000);
+    }
+
+    /* ---------- init ---------- */
+    load();
+    render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>乗り切り確認</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="乗り切り確認">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1a73e8;
+      --blue-d: #1557b0;
+      --blue-light: #e8f0fe;
+      --green: #1e8e3e;
+      --yellow: #e37400;
+      --red: #d93025;
+      --gray: #80868b;
+      --bg: #f1f3f4;
+      --text: #202124;
+      --text2: #5f6368;
+      --border: #dadce0;
+      --sh: 0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.08);
+      --r: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--blue);
+      color: #fff;
+      padding: 0 16px;
+      padding-top: env(safe-area-inset-top, 0px);
+      height: calc(56px + env(safe-area-inset-top, 0px));
+      display: flex; align-items: flex-end; padding-bottom: 10px;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    header h1 { font-size: 18px; font-weight: 700; letter-spacing: .02em; }
+    .hbtns { display: flex; gap: 6px; }
+    .hbtn {
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,.18); color: #fff; font-size: 17px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .hbtn:active { background: rgba(255,255,255,.35); }
+
+    /* ── Project strip ── */
+    .proj-strip {
+      background: var(--blue-d); color: rgba(255,255,255,.85);
+      font-size: 13px; padding: 6px 16px;
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .proj-strip span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── Summary ── */
+    .summary { background: #fff; display: flex; border-bottom: 1px solid var(--border); }
+    .s-item {
+      flex: 1; padding: 10px 4px;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .s-item + .s-item { border-left: 1px solid var(--border); }
+    .s-num { font-size: 24px; font-weight: 800; line-height: 1; color: var(--blue); }
+    .s-num.red { color: var(--red); }
+    .s-num.green { color: var(--green); }
+    .s-num.orange { color: var(--yellow); }
+    .s-label { font-size: 10px; color: var(--text2); text-align: center; }
+
+    /* ── Vehicle list ── */
+    .vlist { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── Vehicle card ── */
+    .vcard { background: #fff; border-radius: var(--r); box-shadow: var(--sh); overflow: hidden; }
+    .vtop { padding: 13px 14px 10px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+    .vdot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .dot-empty { background: #ccc; }
+    .dot-ok    { background: var(--green); }
+    .dot-warn  { background: var(--yellow); }
+    .dot-full  { background: var(--red); }
+    .vinfo { flex: 1; min-width: 0; }
+    .vname { font-size: 15px; font-weight: 600; }
+    .vmeta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .vcnt { font-size: 22px; font-weight: 800; line-height: 1; white-space: nowrap; }
+    .vcnt.empty { color: #ccc; }
+    .vcnt.ok    { color: var(--green); }
+    .vcnt.warn  { color: var(--yellow); }
+    .vcnt.full  { color: var(--red); }
+    .vcnt .sep  { font-size: 13px; font-weight: 400; color: var(--text2); }
+    .vchev { font-size: 18px; color: var(--text2); transition: transform .2s; margin-top: 2px; }
+    .vcard.open .vchev { transform: rotate(180deg); }
+
+    /* progress */
+    .vpbar { height: 4px; background: #e8eaed; margin: 0 14px 10px; border-radius: 2px; overflow: hidden; }
+    .vpfill { height: 100%; border-radius: 2px; transition: width .3s; }
+    .pfill-ok   { background: var(--green); }
+    .pfill-warn { background: var(--yellow); }
+    .pfill-full { background: var(--red); }
+
+    /* members */
+    .vmembers { padding: 0 14px 12px; display: flex; flex-wrap: wrap; gap: 5px; min-height: 24px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: var(--blue-light); color: var(--blue);
+      padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    }
+    .chip-x {
+      background: none; border: none; color: var(--blue);
+      cursor: pointer; padding: 0 0 0 2px; font-size: 15px; line-height: 1;
+      opacity: .55; display: none;
+    }
+    .vcard.open .chip-x { display: inline; }
+    .chip-x:active { opacity: 1; }
+    .vcard.open .chip { cursor: pointer; }
+    .vcard.open .chip:active { background: #c5d8fd; }
+    .no-m { font-size: 12px; color: #aaa; font-style: italic; }
+
+    /* 出発時刻バッジ */
+    .depart-badge {
+      display: inline-block;
+      background: #fff8e1;
+      color: #e65100;
+      border: 1px solid #ffcc80;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 6px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .p-depart { color: #e65100; font-weight: 700; }
+
+    /* move destination buttons */
+    .move-dest-btn {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid var(--border); border-radius: 10px; background: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; margin-bottom: 8px; font-size: 14px; font-family: inherit;
+      color: var(--text); text-align: left;
+    }
+    .move-dest-btn:active { background: var(--bg); }
+    .move-dest-btn.ua-dest { border-color: var(--red); color: var(--red); background: #fce8e6; }
+    .move-dest-btn.ua-dest:active { background: #f9d0cd; }
+    .move-dest-name { font-weight: 500; flex: 1; }
+    .move-dest-cnt { font-size: 13px; color: var(--text2); white-space: nowrap; }
+    .move-dest-cnt.cnt-full { color: var(--red); font-weight: 600; }
+    .move-dest-sep {
+      margin: 8px 0; border: none; border-top: 1px solid var(--border);
+    }
+    .rename-row {
+      display: flex; gap: 8px; align-items: center;
+      margin-bottom: 14px;
+    }
+    .rename-row .finput { flex: 1; }
+    .rename-btn {
+      background: var(--blue); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 10px 16px; font-size: 14px; font-weight: 600;
+      white-space: nowrap; cursor: pointer; font-family: inherit;
+    }
+    .rename-btn:active { opacity: .8; }
+
+    /* 自車 / 未配車 cards */
+    .self-card { border-left: 4px solid #607d8b; }
+    .self-chip { background: #eceff1; color: #37474f; }
+    .self-chip .chip-x { color: #607d8b; }
+
+    /* actions */
+    .vactions { display: none; padding: 0 14px 14px; gap: 7px; }
+    .vcard.open .vactions { display: flex; }
+    .abtn {
+      flex: 1; padding: 9px 6px; border-radius: 8px; border: 1px solid var(--border);
+      background: #fff; font-size: 13px; cursor: pointer; text-align: center; font-weight: 500;
+    }
+    .abtn:active { opacity: .75; }
+    .abtn-add  { color: var(--blue); border-color: var(--blue); background: var(--blue-light); }
+    .abtn-edit { color: var(--text2); }
+    .abtn-del  { color: var(--red); border-color: #fce8e6; background: #fce8e6; }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed;
+      bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+      right: 16px;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--blue); color: #fff; font-size: 30px; border: none;
+      cursor: pointer; box-shadow: 0 4px 16px rgba(26,115,232,.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50; transition: transform .1s;
+    }
+    .fab:active { transform: scale(.92); }
+
+    /* ── Unassigned floating bar ── */
+    .ua-bar {
+      position: fixed;
+      bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+      left: 12px; right: 12px;
+      background: rgba(200, 30, 22, 0.93);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 11px 14px 13px;
+      color: #fff;
+      z-index: 45;
+      box-shadow: 0 4px 24px rgba(200,30,22,.45);
+      display: none;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .ua-bar.visible { display: block; }
+    .ua-bar-hd {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 9px;
+    }
+    .ua-bar-title { font-size: 13px; font-weight: 700; flex: 1; }
+    .ua-bar-add {
+      background: rgba(255,255,255,.22); border: none; color: #fff;
+      border-radius: 50%; width: 28px; height: 28px; font-size: 20px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .ua-bar-add:active { background: rgba(255,255,255,.38); }
+    .ua-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .ua-chip {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: rgba(255,255,255,.2); color: #fff;
+      padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+      border: 1px solid rgba(255,255,255,.35); cursor: pointer;
+    }
+    .ua-chip:active { background: rgba(255,255,255,.35); }
+    .ua-chip-x {
+      background: none; border: none; color: rgba(255,255,255,.7);
+      cursor: pointer; padding: 0 0 0 2px; font-size: 14px; line-height: 1;
+    }
+    .ua-chip-x:active { color: #fff; }
+
+    /* ── Modals ── */
+    .mbg {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.48); z-index: 200;
+      align-items: flex-end; justify-content: center;
+    }
+    .mbg.show { display: flex; }
+    .mbox {
+      background: #fff; border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 640px;
+      padding: 0 20px calc(28px + env(safe-area-inset-bottom, 0px));
+      max-height: 90dvh; overflow-y: auto;
+      animation: su .22s ease;
+    }
+    @keyframes su { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .mhandle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 16px; }
+    .mtitle { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+    .frow { display: flex; gap: 10px; }
+    .fg { flex: 1; margin-bottom: 13px; }
+    .fl { display: block; font-size: 12px; color: var(--text2); font-weight: 500; margin-bottom: 4px; }
+    .fi {
+      width: 100%; padding: 11px 12px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 16px; color: var(--text); outline: none; font-family: inherit; background: #fff;
+    }
+    .fi:focus { border-color: var(--blue); }
+    textarea.fi { resize: vertical; }
+    .mbtns { display: flex; gap: 10px; margin-top: 6px; }
+    .mbtn {
+      flex: 1; padding: 13px; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .mbtn:active { opacity: .8; }
+    .mc   { background: var(--bg); color: var(--text2); }
+    .mok  { background: var(--blue); color: #fff; }
+    .mdel { background: var(--red); color: #fff; }
+
+    /* ── Toast (top position to avoid bar overlap) ── */
+    .toast {
+      position: fixed;
+      top: calc(70px + env(safe-area-inset-top, 0px));
+      left: 50%;
+      transform: translateX(-50%) translateY(-16px);
+      background: #323232; color: #fff;
+      padding: 10px 18px; border-radius: 8px; font-size: 13px;
+      pointer-events: none; opacity: 0;
+      transition: opacity .2s, transform .2s;
+      white-space: nowrap; z-index: 300;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Print ── */
+    @media print {
+      @page { size: A4 landscape; margin: 10mm 12mm; }
+      body { background: #fff; font-size: 10px; }
+      header, .proj-strip, .summary, .fab, .toast,
+      .mbg, .vactions, .chip-x, .vchev, .hbtns,
+      .ua-bar { display: none !important; }
+      #app    { display: none !important; }
+      #pview  { display: block !important; }
+    }
+
+    /* ── Print layout ── */
+    #pview { display: none; }
+
+    /* page header */
+    .p-hd {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 2.5px solid #1a1a1a;
+      padding-bottom: 3mm;
+      margin-bottom: 5mm;
+    }
+    .p-main-title { font-size: 20px; font-weight: 900; letter-spacing: .04em; }
+    .p-meta { font-size: 9.5px; color: #777; text-align: right; line-height: 1.65; }
+
+    /* table */
+    .p-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+    }
+    .p-tbl thead tr {
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .p-tbl thead th {
+      padding: 5px 9px;
+      font-weight: 700;
+      text-align: left;
+      white-space: nowrap;
+      letter-spacing: .03em;
+    }
+    .p-tbl thead th.th-c { text-align: center; }
+
+    .p-tbl tbody tr { border-bottom: 0.5px solid #ddd; }
+    .p-tbl tbody tr:last-child { border-bottom: none; }
+    .p-tbl tbody td { padding: 5.5px 9px; vertical-align: middle; }
+
+    /* row tints */
+    .tr-full { background: #fff6f6; }
+
+    /* vehicle name cell with status left-border */
+    .td-name {
+      font-weight: 700;
+      white-space: nowrap;
+      border-left: 4px solid #bbb;
+      font-size: 12px;
+    }
+    .td-name.st-ok   { border-left-color: #1e8e3e; }
+    .td-name.st-warn { border-left-color: #e37400; }
+    .td-name.st-full { border-left-color: #d93025; color: #d93025; }
+    .td-name.st-self { border-left-color: #607d8b; }
+    .td-name.st-ua   { border-left-color: #d93025; color: #d93025; }
+
+    /* meta cells */
+    .td-sub { color: #555; white-space: nowrap; }
+    .td-dep {
+      white-space: nowrap;
+      color: #e65100;
+      font-weight: 700;
+    }
+
+    /* count cell */
+    .td-cnt {
+      text-align: center;
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+      letter-spacing: -.01em;
+    }
+    .td-cnt.cnt-ok   { color: #1e8e3e; }
+    .td-cnt.cnt-warn { color: #e37400; }
+    .td-cnt.cnt-full { color: #d93025; }
+    .td-cnt.cnt-self { color: #607d8b; }
+
+    /* member name tags */
+    .td-mem { line-height: 1.7; }
+    .p-ntag {
+      display: inline-block;
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin: 1px 2px;
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+    .p-ntag.nt-v    { background: #e8f0fe; color: #1557b0; border: 1px solid #aac5f5; }
+    .p-ntag.nt-self { background: #eceff1; color: #37474f; border: 1px solid #b0bec5; }
+    .p-ntag.nt-ua   { background: #fce8e6; color: #c62828; border: 1px solid #ef9a9a; }
+
+    /* section divider rows */
+    .tr-divider td {
+      background: #f2f2f2;
+      color: #444;
+      font-weight: 700;
+      font-size: 10px;
+      padding: 3px 9px;
+      border-bottom: 1px solid #ccc;
+      border-left: 4px solid #607d8b;
+      letter-spacing: .04em;
+    }
+    .tr-divider.dv-ua td {
+      background: #fff0f0;
+      color: #c62828;
+      border-left-color: #d93025;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Header -->
+  <header>
+    <h1>🚌 乗り切り確認</h1>
+    <div class="hbtns">
+      <button class="hbtn" onclick="openAddMember('unassigned')" title="未配車にメンバーを追加">👤＋</button>
+      <button class="hbtn" onclick="doPrint()" title="PDF出力">🖨</button>
+      <button class="hbtn" onclick="openSettings()" title="設定">⚙</button>
+    </div>
+  </header>
+
+  <!-- Project strip -->
+  <div class="proj-strip" onclick="openProject()">
+    <span id="proj-label">（作品名・日付を設定）</span>
+    <span>✎</span>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <div class="s-item">
+      <span class="s-num" id="s-people">0</span>
+      <span class="s-label">総乗車数</span>
+    </div>
+    <div class="s-item">
+      <span class="s-num green" id="s-cap">0</span>
+      <span class="s-label">総定員</span>
+    </div>
+    <div class="s-item">
+      <span class="s-num" id="s-remain">0</span>
+      <span class="s-label">残席</span>
+    </div>
+    <div class="s-item">
+      <span class="s-num orange" id="s-ua">0</span>
+      <span class="s-label">未配車</span>
+    </div>
+  </div>
+
+  <!-- Vehicle list -->
+  <div class="vlist" id="vlist"></div>
+</div>
+
+<!-- Unassigned floating bar -->
+<div class="ua-bar" id="ua-bar">
+  <div class="ua-bar-hd">
+    <span>⚠</span>
+    <span class="ua-bar-title">未配車 — <span id="ua-count">0</span>名の行き先が未定</span>
+    <button class="ua-bar-add" onclick="openAddMember('unassigned')" title="未配車に追加">＋</button>
+  </div>
+  <div class="ua-chips" id="ua-chips"></div>
+</div>
+
+<!-- Print view -->
+<div id="pview">
+  <div class="p-hd">
+    <div class="p-main-title" id="p-title">乗り切り表</div>
+    <div class="p-meta" id="p-meta"></div>
+  </div>
+  <div id="p-grid"></div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddVehicle()">＋</button>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Modal: Project -->
+<div class="mbg" id="m-proj">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <p class="mtitle">作品情報</p>
+    <div class="fg">
+      <label class="fl">作品名</label>
+      <input class="fi" id="i-title" type="text" placeholder="例: 〇〇ドラマ Season2">
+    </div>
+    <div class="fg">
+      <label class="fl">日付・補足</label>
+      <input class="fi" id="i-date" type="text" placeholder="例: 2026/06/23（第3話）">
+    </div>
+    <div class="mbtns">
+      <button class="mbtn mc" onclick="closeModal('m-proj')">キャンセル</button>
+      <button class="mbtn mok" onclick="saveProject()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add/Edit Vehicle -->
+<div class="mbg" id="m-veh">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <p class="mtitle" id="m-veh-title">車両を追加</p>
+    <div class="fg">
+      <label class="fl">車両名</label>
+      <input class="fi" id="i-vname" type="text" placeholder="例: 本隊車(10人乗り)">
+    </div>
+    <div class="frow">
+      <div class="fg">
+        <label class="fl">車両 No.</label>
+        <input class="fi" id="i-vno" type="text" placeholder="例: 217">
+      </div>
+      <div class="fg">
+        <label class="fl">定員</label>
+        <input class="fi" id="i-vcap" type="number" min="1" placeholder="例: 9">
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg">
+        <label class="fl">ドライバー</label>
+        <input class="fi" id="i-vdr" type="text" placeholder="例: 安武">
+      </div>
+      <div class="fg">
+        <label class="fl">出発時刻（任意）</label>
+        <input class="fi" id="i-vdepart" type="time">
+      </div>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn mc" onclick="closeModal('m-veh')">キャンセル</button>
+      <button class="mbtn mok" onclick="saveVehicle()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Member -->
+<div class="mbg" id="m-mem">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <p class="mtitle" id="m-mem-title">メンバー追加</p>
+    <div class="fg">
+      <label class="fl">名前 / 役職（1名）</label>
+      <input class="fi" id="i-mone" type="text" placeholder="例: 撮影①">
+    </div>
+    <div class="fg">
+      <label class="fl">複数追加（改行区切り）</label>
+      <textarea class="fi" id="i-mmulti" rows="4" placeholder="例：&#10;撮影①&#10;撮影②&#10;照明①"></textarea>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn mc" onclick="closeModal('m-mem')">キャンセル</button>
+      <button class="mbtn mok" onclick="saveMember()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirm -->
+<div class="mbg" id="m-conf">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <p class="mtitle" id="conf-title"></p>
+    <p id="conf-msg" style="color:var(--text2);font-size:14px;margin-bottom:18px;line-height:1.5"></p>
+    <div class="mbtns">
+      <button class="mbtn mc" onclick="closeModal('m-conf')">キャンセル</button>
+      <button class="mbtn mdel" id="conf-ok">実行</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Move Member -->
+<div class="mbg" id="m-move">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <p class="mtitle" id="m-move-title">移動先を選択</p>
+    <p id="m-move-from" style="color:var(--text2);font-size:13px;margin-bottom:10px"></p>
+    <div class="rename-row">
+      <input type="text" id="i-rename" class="finput" placeholder="名前を変更" />
+      <button class="rename-btn" onclick="saveRename()">変更</button>
+    </div>
+    <div id="m-move-targets"></div>
+    <div class="mbtns" style="margin-top:10px">
+      <button class="mbtn mc" onclick="closeModal('m-move')">キャンセル</button>
+      <button class="mbtn mdel" id="m-move-del">削除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Settings -->
+<div class="mbg" id="m-set">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <p class="mtitle">設定</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+      <button class="abtn" style="padding:13px;background:#e8f0fe;color:#1557b0;border-color:#aac5f5;font-weight:700" onclick="doNewShow()">🎬 新番組セット</button>
+      <button class="abtn abtn-edit" style="padding:13px" onclick="doReset()">サンプルデータにリセット</button>
+      <button class="abtn abtn-del"  style="padding:13px" onclick="doClear()">全データを消去</button>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn mok" onclick="closeModal('m-set')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Default data ───
+const DEFAULTS = [
+  { id:1, name:"先発(マイクロ)",       no:"",    driver:"浅野", cap:13,
+    members:["斎藤","助監①","助監②","衣装①","衣装②","メイク①","メイク②","キャスト①","キャスト②","キャスト③","キャスト④","キャスト⑤","鴻池"] },
+  { id:2, name:"本隊車(10人乗り)",     no:"217", driver:"安武", cap:9,
+    members:["市川","撮影①","撮影②","照明①","録音①","録音②","録音③","スチール"] },
+  { id:3, name:"野田車(アルファード)", no:"",    driver:"野田", cap:6,
+    members:["室井","FOD①","FOD②","FOD③"] },
+  { id:4, name:"金城車(フィット)",     no:"358", driver:"金城", cap:3, members:[] },
+  { id:5, name:"備品車(キャラバン)",   no:"",    driver:"遊佐", cap:1, members:[] },
+  { id:6, name:"機材車(ハイエース)",   no:"",    driver:"撮助", cap:2, members:["野村"] },
+  { id:7, name:"照明車(ハイエース)",   no:"",    driver:"反方", cap:2, members:["萩さん"] },
+  { id:8, name:"美トラ(2tトラック)",  no:"",    driver:"",     cap:3, members:[] },
+  { id:9, name:"美ハイ(ハイエース)",  no:"",    driver:"",     cap:2, members:[] },
+];
+
+const MEMBER_DEFAULTS = [
+  { id:1, name:'先発（マイクロ）', no:'', driver:'', depart:'', cap:13,
+    members:['助監督','助監督','メイク','メイク','衣装','衣装','AP'] },
+  { id:2, name:'本隊車',           no:'', driver:'', depart:'', cap:9,
+    members:['監督','記録','助監督','カメラ','録音','録音','スチール'] },
+  { id:3, name:'機材車',           no:'', driver:'', depart:'', cap:4,
+    members:['撮影','撮影','撮影'] },
+  { id:4, name:'照明車',           no:'', driver:'', depart:'', cap:4,
+    members:['照明','照明'] },
+  { id:5, name:'美術ハイエース',   no:'', driver:'', depart:'', cap:4,
+    members:['美術','美術'] },
+  { id:6, name:'備品車',           no:'', driver:'', depart:'', cap:2,
+    members:['制作'] },
+];
+
+// ─── State ───
+let vehicles    = [];
+let selfDrivers = [];
+let unassigned  = [];   // 未配車プール
+let project     = { title: "", note: "" };
+let uid         = 100;
+let expanded    = new Set();
+let editVid     = null;
+let addVid      = null; // vehicle id | 'self' | 'unassigned'
+let moveVid     = null; // vehicle id | 'self' | 'unassigned'
+let moveIdx     = null;
+
+// ─── Persist ───
+function save() {
+  localStorage.setItem('norikiri', JSON.stringify({ vehicles, selfDrivers, unassigned, project, uid }));
+}
+
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('norikiri') || 'null');
+    if (d) {
+      vehicles    = d.vehicles    || [];
+      selfDrivers = d.selfDrivers || [];
+      unassigned  = d.unassigned  || [];
+      project     = d.project     || {};
+      uid         = d.uid         || 100;
+      return;
+    }
+  } catch(_) {}
+  vehicles    = JSON.parse(JSON.stringify(DEFAULTS));
+  selfDrivers = []; unassigned = [];
+  project     = { title: "", note: "" };
+  uid = 100;
+}
+
+// ─── Status helpers ───
+function status(v) {
+  if (!v.members.length) return 'empty';
+  if (v.members.length >= v.cap) return 'full';
+  if (v.members.length / v.cap >= .8) return 'warn';
+  return 'ok';
+}
+
+// ─── Render ───
+function render() {
+  const list = document.getElementById('vlist');
+  list.innerHTML = '';
+
+  // Vehicle cards
+  vehicles.forEach(v => {
+    const st    = status(v);
+    const pct   = v.cap > 0 ? Math.min(v.members.length / v.cap, 1) * 100 : 0;
+    const isOpen = expanded.has(v.id);
+    const metaParts = [v.driver ? `Dr. ${v.driver}` : '', v.no ? `No. ${v.no}` : ''].filter(Boolean);
+    const meta = metaParts.join('　');
+    const departBadge = v.depart ? `<span class="depart-badge">🕐 ${h(v.depart)}発</span>` : '';
+
+    const el = document.createElement('div');
+    el.className = 'vcard' + (isOpen ? ' open' : '');
+    el.id = 'vc-' + v.id;
+    el.innerHTML = `
+      <div class="vtop" onclick="tog(${v.id})">
+        <div class="vdot dot-${st}"></div>
+        <div class="vinfo">
+          <div class="vname">${h(v.name)}${departBadge}</div>
+          ${meta ? `<div class="vmeta">${h(meta)}</div>` : ''}
+        </div>
+        <div class="vcnt ${st}">${v.members.length}<span class="sep">/${v.cap}</span></div>
+        <div class="vchev">⌄</div>
+      </div>
+      <div class="vpbar"><div class="vpfill pfill-${st==='empty'?'ok':st}" style="width:${pct}%"></div></div>
+      <div class="vmembers">
+        ${v.members.length === 0
+          ? '<span class="no-m">乗車なし</span>'
+          : v.members.map((m, i) => `
+              <span class="chip" ${isOpen ? `onclick="openMoveModal(${v.id},${i})"` : ''}>${h(m)}<button class="chip-x" onclick="delMemberQuick(event,${v.id},${i})">×</button></span>
+            `).join('')}
+      </div>
+      <div class="vactions">
+        <button class="abtn abtn-add"  onclick="openAddMember(${v.id})">＋ 追加</button>
+        <button class="abtn abtn-edit" onclick="openEditVehicle(${v.id})">✎ 編集</button>
+        <button class="abtn abtn-del"  onclick="confirmDelVehicle(${v.id})">🗑 削除</button>
+      </div>`;
+    list.appendChild(el);
+  });
+
+  // 自車 card
+  const selfOpen = expanded.has('self');
+  const selfEl = document.createElement('div');
+  selfEl.className = 'vcard self-card' + (selfOpen ? ' open' : '');
+  selfEl.id = 'vc-self';
+  selfEl.innerHTML = `
+    <div class="vtop" onclick="togSelf()">
+      <div class="vdot" style="background:#607d8b"></div>
+      <div class="vinfo">
+        <div class="vname">🚗 自車</div>
+        <div class="vmeta">各自の車両で来場する人</div>
+      </div>
+      <div class="vcnt" style="color:#607d8b">${selfDrivers.length}<span class="sep">名</span></div>
+      <div class="vchev">⌄</div>
+    </div>
+    <div class="vmembers">
+      ${selfDrivers.length === 0
+        ? '<span class="no-m">登録なし</span>'
+        : selfDrivers.map((m, i) => `
+            <span class="chip self-chip" ${selfOpen ? `onclick="openMoveSelf(${i})"` : ''}>${h(m)}<button class="chip-x" onclick="delSelfQuick(event,${i})">×</button></span>
+          `).join('')}
+    </div>
+    <div class="vactions">
+      <button class="abtn" style="color:#607d8b;border-color:#607d8b;background:#eceff1;flex:2" onclick="openAddMember('self')">＋ 追加</button>
+    </div>`;
+  list.appendChild(selfEl);
+
+  // Bottom padding — more when unassigned bar is visible
+  list.style.paddingBottom = `calc(${unassigned.length > 0 ? 180 : 80}px + env(safe-area-inset-bottom, 0px))`;
+
+  // Summary
+  const tp  = vehicles.reduce((s, v) => s + v.members.length, 0);
+  const tc  = vehicles.reduce((s, v) => s + v.cap, 0);
+  const rem = tc - tp;
+  document.getElementById('s-people').textContent = tp;
+  document.getElementById('s-cap').textContent    = tc;
+  document.getElementById('s-remain').textContent = rem;
+  document.getElementById('s-remain').className   = 's-num' + (rem < 0 ? ' red' : '');
+  document.getElementById('s-ua').textContent     = unassigned.length;
+  document.getElementById('s-ua').className       = 's-num' + (unassigned.length > 0 ? ' red' : '');
+
+  // Project label
+  const label = [project.title, project.note].filter(Boolean).join('　');
+  document.getElementById('proj-label').textContent = label || '（作品名・日付を設定）';
+
+  // Unassigned bar
+  const bar = document.getElementById('ua-bar');
+  if (unassigned.length > 0) {
+    bar.classList.add('visible');
+    document.getElementById('ua-count').textContent = unassigned.length;
+    document.getElementById('ua-chips').innerHTML = unassigned.map((m, i) => `
+      <span class="ua-chip" onclick="openMoveUnassigned(${i})">${h(m)}<button class="ua-chip-x" onclick="delUaQuick(event,${i})">×</button></span>
+    `).join('');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function tog(id)    { expanded.has(id)     ? expanded.delete(id)     : expanded.add(id);     render(); }
+function togSelf()  { expanded.has('self') ? expanded.delete('self') : expanded.add('self'); render(); }
+
+// ─── Vehicle CRUD ───
+function openAddVehicle() {
+  editVid = null;
+  document.getElementById('m-veh-title').textContent = '車両を追加';
+  ['i-vname','i-vno','i-vcap','i-vdr','i-vdepart'].forEach(id => document.getElementById(id).value = '');
+  showModal('m-veh');
+  setTimeout(() => document.getElementById('i-vname').focus(), 280);
+}
+
+function openEditVehicle(id) {
+  const v = vehicles.find(x => x.id === id); if (!v) return;
+  editVid = id;
+  document.getElementById('m-veh-title').textContent = '車両を編集';
+  document.getElementById('i-vname').value   = v.name;
+  document.getElementById('i-vno').value     = v.no;
+  document.getElementById('i-vcap').value    = v.cap;
+  document.getElementById('i-vdr').value     = v.driver;
+  document.getElementById('i-vdepart').value = v.depart || '';
+  showModal('m-veh');
+}
+
+function saveVehicle() {
+  const name   = document.getElementById('i-vname').value.trim();
+  const no     = document.getElementById('i-vno').value.trim();
+  const cap    = parseInt(document.getElementById('i-vcap').value);
+  const dr     = document.getElementById('i-vdr').value.trim();
+  const depart = document.getElementById('i-vdepart').value.trim();
+  if (!name) { toast('車両名を入力してください'); return; }
+  if (!cap || cap < 1) { toast('定員を入力してください'); return; }
+
+  if (editVid) {
+    const v = vehicles.find(x => x.id === editVid);
+    if (v) Object.assign(v, { name, no, cap, driver: dr, depart });
+    toast('更新しました');
+  } else {
+    vehicles.push({ id: uid++, name, no, driver: dr, depart, cap, members: [] });
+    toast('車両を追加しました');
+  }
+  save(); closeModal('m-veh'); render();
+}
+
+function confirmDelVehicle(id) {
+  const v = vehicles.find(x => x.id === id); if (!v) return;
+  document.getElementById('conf-title').textContent = '車両を削除';
+  document.getElementById('conf-msg').textContent = `「${v.name}」を削除します。\n乗車メンバーも削除されます。`;
+  document.getElementById('conf-ok').onclick = () => {
+    vehicles = vehicles.filter(x => x.id !== id);
+    expanded.delete(id);
+    save(); closeModal('m-conf'); render(); toast('削除しました');
+  };
+  showModal('m-conf');
+}
+
+// ─── Member CRUD ───
+function openAddMember(vid) {
+  addVid = vid;
+  const label = vid === 'self'       ? '自車 にメンバー追加'
+              : vid === 'unassigned' ? '未配車プールに追加'
+              : `${vehicles.find(x => x.id === vid)?.name || ''} にメンバー追加`;
+  document.getElementById('m-mem-title').textContent = label;
+  document.getElementById('i-mone').value   = '';
+  document.getElementById('i-mmulti').value = '';
+  showModal('m-mem');
+  setTimeout(() => document.getElementById('i-mone').focus(), 280);
+}
+
+function saveMember() {
+  const one   = document.getElementById('i-mone').value.trim();
+  const multi = document.getElementById('i-mmulti').value.trim();
+  const names = [];
+  if (one)   names.push(one);
+  if (multi) multi.split('\n').map(s => s.trim()).filter(Boolean).forEach(n => names.push(n));
+  if (!names.length) { toast('名前を入力してください'); return; }
+
+  if (addVid === 'unassigned') {
+    names.forEach(n => { if (!unassigned.includes(n)) unassigned.push(n); });
+  } else if (addVid === 'self') {
+    names.forEach(n => { if (!selfDrivers.includes(n)) selfDrivers.push(n); });
+  } else {
+    const v = vehicles.find(x => x.id === addVid); if (!v) return;
+    names.forEach(n => { if (!v.members.includes(n)) v.members.push(n); });
+  }
+  save(); closeModal('m-mem'); render(); toast(`${names.length}名追加しました`);
+}
+
+function delMemberQuick(e, vid, idx) {
+  e.stopPropagation();
+  const v = vehicles.find(x => x.id === vid); if (!v) return;
+  const name = v.members[idx];
+  v.members.splice(idx, 1);
+  save(); render(); toast(`「${name}」を削除しました`);
+}
+
+// ─── Move modal (vehicle members) ───
+function openMoveModal(vid, idx) {
+  const v = vehicles.find(x => x.id === vid); if (!v) return;
+  moveVid = vid; moveIdx = idx;
+  const mname = v.members[idx];
+
+  document.getElementById('m-move-title').textContent = `「${mname}」`;
+  document.getElementById('m-move-from').textContent  = `現在：${v.name}（${v.members.length}/${v.cap}）`;
+  document.getElementById('i-rename').value = mname;
+
+  const targets = document.getElementById('m-move-targets');
+  targets.innerHTML = '';
+
+  // Other vehicles
+  vehicles.filter(x => x.id !== vid).forEach(dest => {
+    const isFull = dest.members.length >= dest.cap;
+    const btn = document.createElement('button');
+    btn.className = 'move-dest-btn';
+    btn.innerHTML = `<span class="move-dest-name">${h(dest.name)}</span>
+      <span class="move-dest-cnt${isFull ? ' cnt-full' : ''}">${dest.members.length}/${dest.cap}${isFull ? '　満' : ''}</span>`;
+    btn.onclick = () => moveMemberToVehicle(vid, idx, dest.id);
+    targets.appendChild(btn);
+  });
+
+  // Separator
+  const sep = document.createElement('hr');
+  sep.className = 'move-dest-sep';
+  targets.appendChild(sep);
+
+  // → 未配車に戻す
+  const uaBtn = document.createElement('button');
+  uaBtn.className = 'move-dest-btn ua-dest';
+  uaBtn.innerHTML = `<span class="move-dest-name">⚠ 未配車に戻す</span><span class="move-dest-cnt">${unassigned.length}名</span>`;
+  uaBtn.onclick = () => moveVehicleToUnassigned(vid, idx);
+  targets.appendChild(uaBtn);
+
+  document.getElementById('m-move-del').textContent = '削除';
+  document.getElementById('m-move-del').onclick = () => {
+    const name = vehicles.find(x => x.id === vid)?.members[idx];
+    vehicles.find(x => x.id === vid)?.members.splice(idx, 1);
+    save(); closeModal('m-move'); render(); toast(`「${name}」を削除しました`);
+  };
+
+  showModal('m-move');
+}
+
+function moveMemberToVehicle(fromVid, idx, toVid) {
+  const from = vehicles.find(x => x.id === fromVid);
+  const to   = vehicles.find(x => x.id === toVid);
+  if (!from || !to) return;
+  const name = from.members[idx];
+  from.members.splice(idx, 1);
+  if (!to.members.includes(name)) to.members.push(name);
+  save(); closeModal('m-move'); render();
+  toast(`「${name}」→ ${to.name}`);
+}
+
+function moveVehicleToUnassigned(vid, idx) {
+  const v = vehicles.find(x => x.id === vid); if (!v) return;
+  const name = v.members[idx];
+  v.members.splice(idx, 1);
+  if (!unassigned.includes(name)) unassigned.push(name);
+  save(); closeModal('m-move'); render();
+  toast(`「${name}」→ 未配車に移動`);
+}
+
+// ─── Move modal (unassigned pool) ───
+function openMoveUnassigned(idx) {
+  moveVid = 'unassigned'; moveIdx = idx;
+  const mname = unassigned[idx];
+
+  document.getElementById('m-move-title').textContent = `「${mname}」`;
+  document.getElementById('m-move-from').textContent  = `現在：未配車プール（${unassigned.length}名）`;
+  document.getElementById('i-rename').value = mname;
+
+  const targets = document.getElementById('m-move-targets');
+  targets.innerHTML = '';
+
+  vehicles.forEach(dest => {
+    const isFull = dest.members.length >= dest.cap;
+    const btn = document.createElement('button');
+    btn.className = 'move-dest-btn';
+    btn.innerHTML = `<span class="move-dest-name">${h(dest.name)}</span>
+      <span class="move-dest-cnt${isFull ? ' cnt-full' : ''}">${dest.members.length}/${dest.cap}${isFull ? '　満' : ''}</span>`;
+    btn.onclick = () => moveUnassignedToVehicle(idx, dest.id);
+    targets.appendChild(btn);
+  });
+
+  document.getElementById('m-move-del').textContent = '未配車から削除';
+  document.getElementById('m-move-del').onclick = () => {
+    const name = unassigned[idx];
+    unassigned.splice(idx, 1);
+    save(); closeModal('m-move'); render(); toast(`「${name}」を削除しました`);
+  };
+
+  showModal('m-move');
+}
+
+function moveUnassignedToVehicle(uaIdx, toVid) {
+  const to = vehicles.find(x => x.id === toVid); if (!to) return;
+  const name = unassigned[uaIdx];
+  unassigned.splice(uaIdx, 1);
+  if (!to.members.includes(name)) to.members.push(name);
+  save(); closeModal('m-move'); render();
+  toast(`「${name}」→ ${to.name}`);
+}
+
+function delUaQuick(e, idx) {
+  e.stopPropagation();
+  const name = unassigned[idx];
+  unassigned.splice(idx, 1);
+  save(); render(); toast(`「${name}」を削除しました`);
+}
+
+// ─── Self-drivers ───
+function delSelfQuick(e, idx) {
+  e.stopPropagation();
+  const name = selfDrivers[idx];
+  selfDrivers.splice(idx, 1);
+  save(); render(); toast(`「${name}」を削除しました`);
+}
+
+function openMoveSelf(idx) {
+  moveVid = 'self'; moveIdx = idx;
+  const mname = selfDrivers[idx];
+
+  document.getElementById('m-move-title').textContent = `「${mname}」`;
+  document.getElementById('m-move-from').textContent  = `現在：自車（${selfDrivers.length}名）`;
+  document.getElementById('i-rename').value = mname;
+
+  const targets = document.getElementById('m-move-targets');
+  targets.innerHTML = '';
+
+  vehicles.forEach(dest => {
+    const isFull = dest.members.length >= dest.cap;
+    const btn = document.createElement('button');
+    btn.className = 'move-dest-btn';
+    btn.innerHTML = `<span class="move-dest-name">${h(dest.name)}</span>
+      <span class="move-dest-cnt${isFull ? ' cnt-full' : ''}">${dest.members.length}/${dest.cap}${isFull ? '　満' : ''}</span>`;
+    btn.onclick = () => moveSelfToVehicle(idx, dest.id);
+    targets.appendChild(btn);
+  });
+
+  document.getElementById('m-move-del').textContent = '削除';
+  document.getElementById('m-move-del').onclick = () => {
+    const name = selfDrivers[idx];
+    selfDrivers.splice(idx, 1);
+    save(); closeModal('m-move'); render(); toast(`「${name}」を削除しました`);
+  };
+
+  showModal('m-move');
+}
+
+function moveSelfToVehicle(selfIdx, toVid) {
+  const to = vehicles.find(x => x.id === toVid); if (!to) return;
+  const name = selfDrivers[selfIdx];
+  selfDrivers.splice(selfIdx, 1);
+  if (!to.members.includes(name)) to.members.push(name);
+  save(); closeModal('m-move'); render();
+  toast(`「${name}」→ ${to.name}`);
+}
+
+// ─── Project ───
+function openProject() {
+  document.getElementById('i-title').value = project.title || '';
+  document.getElementById('i-date').value  = project.note  || '';
+  showModal('m-proj');
+  setTimeout(() => document.getElementById('i-title').focus(), 280);
+}
+
+function saveProject() {
+  project.title = document.getElementById('i-title').value.trim();
+  project.note  = document.getElementById('i-date').value.trim();
+  save(); closeModal('m-proj'); render(); toast('保存しました');
+}
+
+// ─── Rename member ───
+function saveRename() {
+  const newName = document.getElementById('i-rename').value.trim();
+  if (!newName) { toast('名前を入力してください'); return; }
+
+  if (moveVid === 'unassigned') {
+    if (moveIdx == null || moveIdx >= unassigned.length) return;
+    unassigned[moveIdx] = newName;
+  } else if (moveVid === 'self') {
+    if (moveIdx == null || moveIdx >= selfDrivers.length) return;
+    selfDrivers[moveIdx] = newName;
+  } else {
+    const v = vehicles.find(x => x.id === moveVid);
+    if (!v || moveIdx == null || moveIdx >= v.members.length) return;
+    v.members[moveIdx] = newName;
+  }
+
+  save(); closeModal('m-move'); render();
+  toast(`「${newName}」に変更しました`);
+}
+
+// ─── Settings ───
+function openSettings() { showModal('m-set'); }
+
+function doNewShow() {
+  document.getElementById('conf-title').textContent = '新番組セット';
+  document.getElementById('conf-msg').textContent   = '車両・メンバーを新番組用のデフォルトにリセットします。\n車番・ドライバー・作品情報もクリアされます。';
+  document.getElementById('conf-ok').onclick = () => {
+    vehicles    = JSON.parse(JSON.stringify(MEMBER_DEFAULTS));
+    selfDrivers = []; unassigned = [];
+    project     = { title: '', note: '' }; uid = 10; expanded.clear();
+    save(); closeModal('m-conf'); closeModal('m-set'); render(); toast('新番組用にセットしました');
+  };
+  showModal('m-conf');
+}
+
+function doReset() {
+  document.getElementById('conf-title').textContent = 'リセット';
+  document.getElementById('conf-msg').textContent = 'サンプルデータに戻します。\n現在のデータはすべて失われます。';
+  document.getElementById('conf-ok').onclick = () => {
+    vehicles = JSON.parse(JSON.stringify(DEFAULTS));
+    selfDrivers = []; unassigned = [];
+    project = { title: "", note: "" }; uid = 100; expanded.clear();
+    save(); closeModal('m-conf'); closeModal('m-set'); render(); toast('リセットしました');
+  };
+  showModal('m-conf');
+}
+
+function doClear() {
+  document.getElementById('conf-title').textContent = '全データ消去';
+  document.getElementById('conf-msg').textContent = '全車両・全メンバーを削除します。\n元に戻せません。';
+  document.getElementById('conf-ok').onclick = () => {
+    vehicles = []; selfDrivers = []; unassigned = [];
+    project = { title: "", note: "" }; uid = 100; expanded.clear();
+    save(); closeModal('m-conf'); closeModal('m-set'); render(); toast('消去しました');
+  };
+  showModal('m-conf');
+}
+
+// ─── PDF / Print ───
+function doPrint() {
+  const now  = new Date();
+  const mm   = String(now.getMonth() + 1).padStart(2, '0');
+  const dd   = String(now.getDate()).padStart(2, '0');
+  const orig = document.title;
+  document.title = `${mm}${dd}乗り切り`;
+  buildPrint();
+  window.print();
+  setTimeout(() => { document.title = orig; }, 1000);
+}
+
+function buildPrint() {
+  const now   = new Date();
+  const ymd   = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
+  const hhmm  = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const label = [project.title, project.note].filter(Boolean).join('　') || '乗り切り表';
+
+  document.getElementById('p-title').textContent = label;
+  document.getElementById('p-meta').innerHTML = `出力日時<br>${ymd} ${hhmm}`;
+
+  const grid = document.getElementById('p-grid');
+  grid.innerHTML = '';
+
+  const hasDepart = vehicles.some(v => v.depart);
+  const colSpan   = 4 + (hasDepart ? 1 : 0) + 1;
+
+  const tbl = document.createElement('table');
+  tbl.className = 'p-tbl';
+
+  // thead
+  const thead = document.createElement('thead');
+  let thCells = `<th style="width:26%">車両名</th><th style="width:9%">ドライバー</th><th style="width:9%">車番</th><th class="th-c" style="width:7%">定/乗</th>`;
+  if (hasDepart) thCells += `<th style="width:8%">出発</th>`;
+  thCells += `<th>搭乗メンバー</th>`;
+  thead.innerHTML = `<tr>${thCells}</tr>`;
+  tbl.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  vehicles.forEach(v => {
+    const st     = status(v);
+    const stKey  = st === 'empty' ? 'ok' : st;
+    const cntCls = st === 'full' ? 'cnt-full' : st === 'warn' ? 'cnt-warn' : 'cnt-ok';
+    const tags   = v.members.map(m => `<span class="p-ntag nt-v">${h(m)}</span>`).join('');
+
+    const tr = document.createElement('tr');
+    if (st === 'full') tr.className = 'tr-full';
+
+    let cells = `<td class="td-name st-${stKey}">${h(v.name)}</td>`;
+    cells += `<td class="td-sub">${h(v.driver || '—')}</td>`;
+    cells += `<td class="td-sub">${h(v.no || '—')}</td>`;
+    cells += `<td class="td-cnt ${cntCls}">${v.members.length}<span style="font-size:10px;font-weight:400;color:#999">/${v.cap}</span></td>`;
+    if (hasDepart) cells += `<td class="td-dep">${v.depart ? h(v.depart)+'発' : ''}</td>`;
+    cells += `<td class="td-mem">${tags || '<span style="color:#bbb;font-style:italic;font-size:10px">乗車なし</span>'}</td>`;
+
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  });
+
+  // 自車 section
+  if (selfDrivers.length > 0) {
+    const div = document.createElement('tr');
+    div.className = 'tr-divider';
+    div.innerHTML = `<td colspan="${colSpan}">🚗　自車（各自来場）</td>`;
+    tbody.appendChild(div);
+
+    const tr = document.createElement('tr');
+    const tags = selfDrivers.map(m => `<span class="p-ntag nt-self">${h(m)}</span>`).join('');
+    let cells = `<td class="td-name st-self">自車</td><td class="td-sub" colspan="2">各自来場</td>`;
+    cells += `<td class="td-cnt cnt-self">${selfDrivers.length}<span style="font-size:10px;font-weight:400;color:#999">名</span></td>`;
+    if (hasDepart) cells += `<td></td>`;
+    cells += `<td class="td-mem">${tags}</td>`;
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  }
+
+  // 未配車 section
+  if (unassigned.length > 0) {
+    const div = document.createElement('tr');
+    div.className = 'tr-divider dv-ua';
+    div.innerHTML = `<td colspan="${colSpan}">⚠　未配車（車両未定）</td>`;
+    tbody.appendChild(div);
+
+    const tr = document.createElement('tr');
+    const tags = unassigned.map(m => `<span class="p-ntag nt-ua">${h(m)}</span>`).join('');
+    let cells = `<td class="td-name st-ua">未配車</td><td class="td-sub" colspan="2">車両未定</td>`;
+    cells += `<td class="td-cnt cnt-full">${unassigned.length}<span style="font-size:10px;font-weight:400;color:#999">名</span></td>`;
+    if (hasDepart) cells += `<td></td>`;
+    cells += `<td class="td-mem">${tags}</td>`;
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  }
+
+  tbl.appendChild(tbody);
+  grid.appendChild(tbl);
+}
+
+// ─── Modal helpers ───
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+document.querySelectorAll('.mbg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('show'); });
+});
+
+// Enter key shortcuts
+['i-vname','i-vno','i-vcap','i-vdr'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => { if(e.key==='Enter') saveVehicle(); });
+});
+document.getElementById('i-mone').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('i-mmulti').value.trim()) saveMember();
+});
+document.getElementById('i-title').addEventListener('keydown', e => { if(e.key==='Enter') saveProject(); });
+
+// ─── Toast ───
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ─── HTML escape ───
+function h(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── Init ───
+load();
+render();
+</script>
+</body>
+</html>

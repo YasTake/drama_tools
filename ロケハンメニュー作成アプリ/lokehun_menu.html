@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ロケハンメニュー作成</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP','Hiragino Sans','Meiryo',sans-serif;background:#eceae3;color:#1a1a1a;min-height:100vh;font-size:13px;}
+.app-header{background:#1a1a1a;color:#f5f4f0;padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;}
+.app-header h1{font-size:14px;font-weight:700;letter-spacing:.05em;white-space:nowrap;}
+.ver{font-size:10px;color:#666;white-space:nowrap;}
+.hdr-actions{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap;}
+.hdr-btn{display:inline-flex;align-items:center;gap:3px;padding:5px 9px;border:1.5px solid rgba(255,255,255,.25);border-radius:5px;background:none;color:#f5f4f0;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(255,255,255,.12);}
+.hdr-btn.danger{border-color:rgba(255,100,100,.35);color:#ffaaaa;}
+.hdr-btn.danger:hover{background:rgba(255,100,100,.1);}
+.main{display:grid;grid-template-columns:400px 1fr;height:calc(100vh - 46px);overflow:hidden;}
+.sidebar{background:#fff;border-right:1px solid #e0ddd5;overflow-y:auto;}
+.sb-sec{padding:14px 16px;border-bottom:1px solid #eee;}
+.sb-sec h2{font-size:10px;font-weight:700;letter-spacing:.12em;color:#888;text-transform:uppercase;margin-bottom:10px;}
+input[type=text],input[type=date],input[type=number],input[type=time],textarea,select{width:100%;padding:7px 9px;border:1px solid #d0cdc5;border-radius:6px;font-family:inherit;font-size:12px;background:#fafaf8;color:#1a1a1a;transition:border-color .15s;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#1a1a1a;background:#fff;}
+textarea{resize:vertical;min-height:44px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.fg{margin-bottom:8px;}
+.fg label{display:block;font-size:10px;color:#666;margin-bottom:3px;font-weight:600;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:8px 12px;border:1.5px solid #1a1a1a;border-radius:6px;background:#1a1a1a;color:#fff;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn:hover{background:#333;}
+.btn.sec{background:#fff;color:#1a1a1a;}
+.btn.sec:hover{background:#f0ede6;}
+.btn.go{background:#1a6b3c;border-color:#1a6b3c;}
+.btn.go:hover{background:#155731;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.br{display:flex;gap:8px;}
+.loc-card{background:#fafaf8;border:1px solid #e0ddd5;border-radius:8px;padding:12px;margin-bottom:8px;}
+.ch{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.ln{width:22px;height:22px;border-radius:50%;background:#1a1a1a;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ct{font-size:12px;font-weight:700;color:#333;}
+.ord-btn{background:none;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:10px;padding:1px 5px;color:#666;line-height:1.4;}
+.ord-btn:hover:not(:disabled){background:#f0ede6;}
+.ord-btn:disabled{opacity:.25;cursor:not-allowed;}
+.rb{background:none;border:none;color:#c0392b;cursor:pointer;font-size:15px;padding:0 2px;margin-left:auto;}
+.timehint{font-size:10px;color:#3949ab;background:#eef0fa;border-radius:4px;padding:4px 7px;margin-top:2px;line-height:1.5;}
+.addr-row{display:flex;gap:4px;align-items:flex-start;}
+.addr-row input{flex:1;}
+.map-pin-btn{background:#fff;border:1px solid #d0cdc5;border-radius:6px;cursor:pointer;font-size:14px;padding:7px 9px;line-height:1;flex-shrink:0;transition:border-color .15s;}
+.map-pin-btn:hover{border-color:#1a6b3c;}
+.content{background:#eceae3;overflow-y:auto;padding:24px;}
+.preview-area{background:#fff;border:1px solid #e0ddd5;border-radius:12px;padding:28px;max-width:1000px;margin:0 auto;box-shadow:0 3px 16px rgba(0,0,0,.06);}
+.sb2{padding:9px 14px;font-size:12px;border-radius:7px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:500;}
+.sb2.ld{background:#1a6b3c;color:#fff;}
+.sb2.er{background:#c0392b;color:#fff;}
+.sb2.ok{background:#e8f4ed;color:#1a6b3c;border:1px solid #b8dfc8;}
+.sb2.wn{background:#fff8e1;color:#7a5800;border:1px solid #f0d060;}
+.route-list{display:flex;flex-direction:column;gap:13px;}
+.stop{display:grid;grid-template-columns:56px 1fr;border:1px solid #e3e0d8;border-radius:11px;overflow:hidden;background:#fff;transition:box-shadow .15s,border-color .15s;}
+.stop[draggable=true]{cursor:grab;}
+.stop[draggable=true]:hover{box-shadow:0 3px 12px rgba(0,0,0,.08);border-color:#c8c4ba;}
+.stop.drag-over{border:2px dashed #1a6b3c;box-shadow:0 0 0 3px rgba(26,107,60,.1);}
+.stop-num{background:#1a1a1a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:12px 0;}
+.stop-num .n{font-size:20px;font-weight:700;line-height:1;}
+.stop-num .grip{font-size:12px;color:#888;}
+.stop-body{padding:14px 16px;}
+.stop-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;}
+.stop-title{flex:1;}
+.stop-name{font-size:16px;font-weight:700;line-height:1.3;margin-bottom:2px;}
+.stop-scene{font-size:11px;color:#888;}
+.stop-times{display:flex;gap:7px;flex-shrink:0;}
+.time-chip{text-align:center;border-radius:7px;padding:5px 10px;min-width:58px;}
+.time-chip.arrive{background:#e8eaf6;color:#3949ab;}
+.time-chip.leave{background:#f0eef5;color:#7e57c2;}
+.time-chip .tl{font-size:8px;letter-spacing:.1em;opacity:.8;}
+.time-chip .tv{font-size:15px;font-weight:700;line-height:1.1;}
+.stop-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;}
+.chip.travel{background:#e8f0e8;color:#1a6b3c;}
+.chip.stay{background:#f0ede6;color:#666;}
+.chip.timelimit{background:#e8eaf6;color:#3949ab;}
+.chip.warn{background:#fff0f0;color:#c0392b;}
+.chip.wait{background:#fff4e0;color:#b06a00;}
+.travel-input{width:44px;padding:2px 3px;border:1px solid #b8d0b8;border-radius:4px;font-size:11px;text-align:center;background:#fff;color:#1a6b3c;font-weight:700;}
+.travel-input.edited{border-color:#e8a020;background:#fffaf0;color:#c47800;}
+.stop-addr{font-size:12px;color:#555;line-height:1.6;}
+.stop-cond{font-size:11px;color:#888;margin-top:4px;padding-top:5px;border-top:1px dashed #e8e5de;}
+.gap-bar{display:flex;align-items:center;gap:9px;background:#fff4e0;border:1px dashed #e0a850;border-radius:9px;padding:8px 14px;color:#b06a00;font-size:12px;font-weight:600;}
+.break-bar{display:grid;grid-template-columns:56px 1fr;border:1px solid #f0d060;border-radius:11px;overflow:hidden;background:#fffdf5;}
+.break-bar[draggable=true]{cursor:grab;}
+.break-bar[draggable=true]:hover{box-shadow:0 3px 12px rgba(0,0,0,.06);}
+.break-bar.drag-over{border:2px dashed #1a6b3c;}
+.break-icon{background:#f0d060;display:flex;align-items:center;justify-content:center;font-size:20px;flex-direction:column;gap:2px;}
+.break-icon .grip{font-size:11px;color:#9a7b00;}
+.break-body{padding:11px 16px;display:flex;align-items:center;gap:12px;}
+.break-label{font-size:13px;font-weight:700;color:#7a5800;flex:1;}
+.break-time{font-size:12px;font-weight:700;color:#9a7b00;}
+.break-warn{font-size:11px;color:#c0392b;font-weight:700;margin-top:2px;}
+.break-del{background:none;border:1px solid #d8b84a;color:#9a7b00;border-radius:5px;cursor:pointer;font-size:11px;padding:3px 8px;font-weight:600;}
+.break-del:hover{background:#f5e8c0;}
+.depart-box{background:linear-gradient(135deg,#1a1a1a,#34495e);color:#fff;border-radius:12px;padding:18px 22px;margin-bottom:13px;display:flex;align-items:center;gap:20px;box-shadow:0 4px 14px rgba(0,0,0,.18);}
+.depart-box.return{background:linear-gradient(135deg,#2c3e50,#1a6b3c);}
+.depart-box .dicon{font-size:32px;}
+.depart-box .dtime{font-size:32px;font-weight:700;line-height:1;letter-spacing:.02em;}
+.depart-box .dtime-lbl{font-size:10px;color:#aab;letter-spacing:.18em;text-transform:uppercase;margin-bottom:3px;}
+.depart-box .dplace{font-size:15px;font-weight:700;}
+.depart-box .daddr{font-size:11px;color:#ccd;margin-top:2px;}
+.depart-box .ddiv{width:1px;align-self:stretch;background:rgba(255,255,255,.22);}
+.sc-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.sc-card{background:#fafaf8;border:1px solid #e0ddd5;border-radius:9px;padding:13px;text-align:center;}
+.sc-card .v{font-size:20px;font-weight:700;}
+.sc-card .l{font-size:10px;color:#888;margin-top:2px;}
+.empty{text-align:center;padding:60px 20px;color:#bbb;}
+.empty .ic{font-size:50px;margin-bottom:12px;}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.note{font-size:10px;color:#999;margin-top:6px;line-height:1.5;}
+.apiwarn{background:#fff0f0;border:1px solid #f5c6c6;color:#c0392b;padding:10px 14px;border-radius:7px;font-size:12px;margin:12px;line-height:1.6;}
+.doc-title{font-size:16px;font-weight:700;line-height:1.4;}
+.doc-date{font-size:13px;font-weight:600;white-space:nowrap;margin-left:16px;}
+.addbreak-row{display:flex;gap:7px;margin-top:6px;}
+/* Map modal */
+.map-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;}
+.map-modal.open{display:flex;}
+.map-modal-box{background:#fff;border-radius:12px;overflow:hidden;width:640px;max-width:93vw;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.22);}
+.map-modal-hdr{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid #e0ddd5;}
+.map-modal-title{font-weight:700;font-size:13px;white-space:nowrap;}
+.map-modal-addr{font-size:11px;color:#555;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 8px;}
+.map-modal-close{background:none;border:none;cursor:pointer;font-size:19px;color:#888;line-height:1;padding:2px;}
+#mapDiv{width:100%;height:380px;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div style="width:24px;height:24px;background:#f5f4f0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🎬</div>
+  <h1>ロケハンメニュー作成アプリ</h1>
+  <span class="ver">v7.0</span>
+  <div class="hdr-actions">
+    <button class="hdr-btn" onclick="importJSON()">📂 読み込み</button>
+    <button class="hdr-btn" onclick="exportJSON()">💾 保存</button>
+    <button class="hdr-btn danger" onclick="resetAll()">🗑 リセット</button>
+  </div>
+</div>
+
+<div class="main">
+<div class="sidebar">
+
+  <div class="sb-sec">
+    <h2>ヘッダー情報</h2>
+    <div class="fg"><label>番組枠名</label><input type="text" id="progFrame" placeholder="例：火曜ドラマ" oninput="saveStateLater()"></div>
+    <div class="fg"><label>作品名</label><input type="text" id="progTitle" placeholder="例：〇〇の夏" oninput="saveStateLater()"></div>
+    <div class="fg">
+      <label>ロケハン種別</label>
+      <select id="huntType" onchange="saveState()">
+        <option value="メインロケハン" selected>メインロケハン</option>
+        <option value="監督ロケハン">監督ロケハン</option>
+      </select>
+    </div>
+    <div class="fg"><label>ロケハン日付</label><input type="date" id="huntDate" onchange="updateDateDisplay();saveState()"></div>
+    <div class="fg"><label>曜日表示</label><input type="text" id="dateDisplay" readonly style="background:#f0f0f0;color:#555;"></div>
+  </div>
+
+  <div class="sb-sec">
+    <h2>出発地・出発時間</h2>
+    <div class="fg">
+      <label>出発地（戻り先も同じ場所）</label>
+      <select id="originSelect" onchange="toggleCustomOrigin();saveState()">
+        <option value="1">新宿　新宿郵便局前</option>
+        <option value="2">渋谷　宮益坂りそな銀行前</option>
+        <option value="custom">その他（手入力）</option>
+      </select>
+    </div>
+    <div class="fg" id="customOriginGroup" style="display:none;">
+      <label>その他の出発地（住所）</label>
+      <div style="display:flex;gap:5px;">
+        <input type="text" id="customOrigin" placeholder="住所を入力してください" oninput="saveStateLater()" style="flex:1;">
+        <button class="btn sec" onclick="saveCustomOrigin()" style="flex-shrink:0;white-space:nowrap;font-size:11px;padding:7px 10px;">保存</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label>出発時間</label>
+      <input type="time" id="departTime" value="09:00" onchange="saveState();if(routeResult)recalcFromCurrent()">
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <h2>休憩設定</h2>
+    <div class="fr">
+      <div class="fg"><label>昼休憩（分）</label><input type="number" id="lunchDur" value="60" min="0" max="120" step="5" onchange="saveState()"></div>
+      <div class="fg"><label>昼食寄り道（分）</label><input type="number" id="lunchDetour" value="15" min="0" max="30" step="5" onchange="saveState()"></div>
+    </div>
+    <div class="fg"><label>夕食休憩（分）</label><input type="number" id="dinnerDur" value="60" min="0" max="120" step="5" onchange="saveState()"></div>
+    <div class="fg" style="display:flex;align-items:flex-start;gap:8px;margin-top:5px;">
+      <input type="checkbox" id="avoid1213" checked style="width:auto;margin-top:2px;" onchange="saveState()">
+      <label for="avoid1213" style="font-size:11px;color:#555;margin:0;line-height:1.5;">昼食は12:00〜13:00を避ける（混雑回避）</label>
+    </div>
+    <div class="fg" style="display:flex;align-items:flex-start;gap:8px;margin-top:3px;">
+      <input type="checkbox" id="autoLunch" checked style="width:auto;margin-top:2px;" onchange="saveState()">
+      <label for="autoLunch" style="font-size:11px;color:#555;margin:0;line-height:1.5;">昼食休憩を自動で入れる</label>
+    </div>
+    <div class="addbreak-row">
+      <button class="btn sec" onclick="addManualBreak('lunch')" style="flex:1;font-size:11px;">🍚 昼食を追加</button>
+      <button class="btn sec" onclick="addManualBreak('dinner')" style="flex:1;font-size:11px;">🍴 夕食を追加</button>
+    </div>
+    <button class="btn sec" onclick="addManualBreak('other')" style="width:100%;margin-top:7px;font-size:11px;">☕ その他の休憩を追加</button>
+  </div>
+
+  <div class="sb-sec">
+    <h2>ロケ場所</h2>
+    <div id="locationsList"></div>
+    <button class="btn sec" onclick="addLocation()" style="width:100%;margin-top:4px;">＋ 場所を追加</button>
+  </div>
+
+  <div class="sb-sec">
+    <h2>計算・出力</h2>
+    <div class="br">
+      <button class="btn go" id="calcBtn" onclick="calcRoute()" style="flex:1;">🗺️ ルートを計算</button>
+      <button class="btn" id="printBtn" onclick="doPrint()" style="flex:1;" disabled>🖨️ PDF印刷</button>
+    </div>
+    <p class="note">計算後、カードや休憩をドラッグで並べ替え・移動時間を手入力すると即再計算されます。滞在時間・時間制約を変更した場合も自動再計算されます。</p>
+  </div>
+
+</div>
+
+<div class="content">
+  <div class="preview-area" id="preview">
+    <div class="empty">
+      <div class="ic">📋</div>
+      <p>場所を追加して「ルートを計算」を押すと<br>メニューが表示されます</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Map preview modal -->
+<div class="map-modal" id="mapModal">
+  <div class="map-modal-box">
+    <div class="map-modal-hdr">
+      <span class="map-modal-title">📍 地図で確認</span>
+      <span class="map-modal-addr" id="mapModalAddr"></span>
+      <button class="map-modal-close" onclick="closeMapModal()">✕</button>
+    </div>
+    <div id="mapDiv"></div>
+  </div>
+</div>
+
+<!-- Hidden file input for JSON import -->
+<input type="file" id="jsonFileInput" accept=".json" style="display:none;" onchange="onJSONFileChange(event)">
+
+<script>
+// ============================================================
+// ★ Google Maps APIキー ★
+// 以下の '' の中にAPIキーを貼り付けてください
+// 必要なAPI: Maps JavaScript API / Geocoding API / Distance Matrix API / Places API
+// ============================================================
+const GOOGLE_API_KEY = 'AIzaSyAGiNfdnSVM4G8OaZE0RZH0aZcBOyxlhao';
+
+const ORIGINS = {
+  '1': { label:'新宿　新宿郵便局前', address:'東京都新宿区西新宿1-8-8' },
+  '2': { label:'渋谷　宮益坂りそな銀行前', address:'東京都渋谷区渋谷2-20-11' }
+};
+const WEEKDAYS = ['日','月','火','水','木','金','土'];
+const STORAGE_KEY = 'lokehun_v7';
+
+let items = [];
+let locIdCounter = 0;
+let routeResult = null;
+let dragSrcIdx = null;
+let mapsReady = false;
+let autocompletes = {};
+let previewMap = null;
+let previewMarker = null;
+let saveTimer = null;
+let needsRecalc = false;
+
+// ──────────────────────────────────────────────
+// Google Maps 読み込み
+// ──────────────────────────────────────────────
+function loadGoogleMaps() {
+  return new Promise((resolve, reject) => {
+    if (mapsReady) { resolve(); return; }
+    if (!GOOGLE_API_KEY) { reject(new Error('APIキーが設定されていません')); return; }
+    if (window.__gmapsLoading) {
+      const check = setInterval(() => { if (mapsReady) { clearInterval(check); resolve(); } }, 100);
+      return;
+    }
+    window.__gmapsLoading = true;
+    window.__gmapsCb = () => {
+      mapsReady = true;
+      window.__gmapsLoading = false;
+      initAutoCompletes();
+      resolve();
+    };
+    const s = document.createElement('script');
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=geometry,places&language=ja&callback=__gmapsCb`;
+    s.async = true;
+    s.onerror = () => reject(new Error('Google Maps APIの読み込みに失敗しました。APIキーとAPIの有効化を確認してください。'));
+    document.head.appendChild(s);
+  });
+}
+
+// ──────────────────────────────────────────────
+// DOMContentLoaded
+// ──────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  populateOriginSelect();
+  restoreState();
+  if (!document.getElementById('huntDate').value) {
+    document.getElementById('huntDate').value = new Date().toISOString().slice(0,10);
+    updateDateDisplay();
+  }
+  if (!items.length) addLocation();
+
+  if (!GOOGLE_API_KEY) {
+    const w = document.createElement('div');
+    w.className = 'apiwarn';
+    w.innerHTML = '⚠ APIキーが未設定です。<br>このHTMLをメモ帳で開き、<code>const GOOGLE_API_KEY = \'\';</code> の中にキーを貼り付けて保存してください。';
+    document.querySelector('.sidebar').prepend(w);
+  } else {
+    loadGoogleMaps().catch(() => {});
+  }
+
+  document.getElementById('mapModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('mapModal')) closeMapModal();
+  });
+});
+
+// ──────────────────────────────────────────────
+// 状態の保存・復元
+// ──────────────────────────────────────────────
+function getCurrentState() {
+  return {
+    version: 7,
+    progFrame: document.getElementById('progFrame').value,
+    progTitle: document.getElementById('progTitle').value,
+    huntType:  document.getElementById('huntType').value,
+    huntDate:  document.getElementById('huntDate').value,
+    originSelect: document.getElementById('originSelect').value,
+    customOrigin: document.getElementById('customOrigin').value,
+    departTime: document.getElementById('departTime').value,
+    lunchDur:   document.getElementById('lunchDur').value,
+    lunchDetour:document.getElementById('lunchDetour').value,
+    dinnerDur:  document.getElementById('dinnerDur').value,
+    avoid1213:  document.getElementById('avoid1213').checked,
+    autoLunch:  document.getElementById('autoLunch').checked,
+    items
+  };
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(getCurrentState())); } catch {}
+}
+function saveStateLater() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveState, 400);
+}
+function clearStoredState() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
+function restoreState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (!d || d.version !== 7) return;
+    restoreFromData(d, false);
+  } catch {}
+}
+
+function restoreFromData(d, showMsg = true) {
+  document.getElementById('progFrame').value  = d.progFrame  || '';
+  document.getElementById('progTitle').value  = d.progTitle  || '';
+  document.getElementById('huntType').value   = d.huntType   || 'メインロケハン';
+  document.getElementById('huntDate').value   = d.huntDate   || new Date().toISOString().slice(0,10);
+  updateDateDisplay();
+  document.getElementById('customOrigin').value = d.customOrigin || '';
+  document.getElementById('departTime').value = d.departTime || '09:00';
+  document.getElementById('lunchDur').value   = d.lunchDur   ?? 60;
+  document.getElementById('lunchDetour').value= d.lunchDetour ?? 15;
+  document.getElementById('dinnerDur').value  = d.dinnerDur  ?? 60;
+  document.getElementById('avoid1213').checked= d.avoid1213  !== false;
+  document.getElementById('autoLunch').checked= d.autoLunch  !== false;
+  items = (d.items || []).map(i => ({...i}));
+  locIdCounter = items.reduce((m, i) => Math.max(m, i.id || 0), 0);
+  routeResult = null;
+  needsRecalc = false;
+  populateOriginSelect(d.originSelect);
+  toggleCustomOrigin();
+  renderSidebar();
+  document.getElementById('preview').innerHTML = '<div class="empty"><div class="ic">📋</div><p>場所を追加して「ルートを計算」を押すと<br>メニューが表示されます</p></div>';
+  document.getElementById('printBtn').disabled = true;
+  if (showMsg && items.length) setStatus('ok', '✓ ファイルを読み込みました');
+}
+
+// ──────────────────────────────────────────────
+// JSON 保存・読み込み
+// ──────────────────────────────────────────────
+function exportJSON() {
+  const data = getCurrentState();
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const date = document.getElementById('huntDate').value || new Date().toISOString().slice(0,10);
+  const title = document.getElementById('progTitle').value || 'lokehun';
+  a.download = `${title}_${date}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+function importJSON() { document.getElementById('jsonFileInput').click(); }
+function onJSONFileChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (!d || d.version !== 7) { alert('このファイルは対応していない形式です'); return; }
+      if (!confirm('現在の入力内容を破棄して読み込みますか？')) return;
+      restoreFromData(d, true);
+      saveState();
+    } catch { alert('JSONファイルの読み込みに失敗しました'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ──────────────────────────────────────────────
+// リセット
+// ──────────────────────────────────────────────
+function resetAll() {
+  if (!confirm('すべての入力内容をリセットしますか？\nこの操作は元に戻せません。')) return;
+  items = []; locIdCounter = 0; routeResult = null; needsRecalc = false;
+  document.getElementById('progFrame').value  = '';
+  document.getElementById('progTitle').value  = '';
+  document.getElementById('huntType').value   = 'メインロケハン';
+  document.getElementById('huntDate').value   = new Date().toISOString().slice(0,10);
+  updateDateDisplay();
+  document.getElementById('originSelect').value = '1';
+  document.getElementById('customOrigin').value  = '';
+  toggleCustomOrigin();
+  document.getElementById('departTime').value = '09:00';
+  document.getElementById('lunchDur').value   = '60';
+  document.getElementById('lunchDetour').value= '15';
+  document.getElementById('dinnerDur').value  = '60';
+  document.getElementById('avoid1213').checked = true;
+  document.getElementById('autoLunch').checked = true;
+  addLocation();
+  document.getElementById('preview').innerHTML = '<div class="empty"><div class="ic">📋</div><p>場所を追加して「ルートを計算」を押すと<br>メニューが表示されます</p></div>';
+  document.getElementById('printBtn').disabled = true;
+  clearStoredState();
+}
+
+// ──────────────────────────────────────────────
+// 出発地
+// ──────────────────────────────────────────────
+function getSavedOrigins() {
+  try { return JSON.parse(localStorage.getItem('lokehun_origins') || '[]'); } catch { return []; }
+}
+function populateOriginSelect(selectValue) {
+  const sel = document.getElementById('originSelect');
+  Array.from(sel.options).filter(o => o.value.startsWith('saved_')).forEach(o => o.remove());
+  const saved = getSavedOrigins();
+  const customOpt = Array.from(sel.options).find(o => o.value === 'custom');
+  saved.forEach((o, i) => {
+    const opt = document.createElement('option');
+    opt.value = `saved_${i}`;
+    opt.textContent = o.label;
+    if (customOpt) sel.insertBefore(opt, customOpt);
+    else sel.appendChild(opt);
+  });
+  if (selectValue !== undefined) {
+    try { sel.value = selectValue; } catch {}
+  }
+}
+function saveCustomOrigin() {
+  const addr = document.getElementById('customOrigin').value.trim();
+  if (!addr) { alert('住所を入力してください'); return; }
+  const label = prompt('この出発地の名前を入力してください:', addr.slice(0, 20));
+  if (label === null) return;
+  const saved = getSavedOrigins();
+  if (saved.find(s => s.address === addr)) { alert('既に保存されています'); return; }
+  saved.push({ label: label || addr.slice(0, 20), address: addr });
+  localStorage.setItem('lokehun_origins', JSON.stringify(saved));
+  const newVal = `saved_${saved.length - 1}`;
+  populateOriginSelect(newVal);
+  toggleCustomOrigin();
+  saveState();
+}
+function toggleCustomOrigin() {
+  const val = document.getElementById('originSelect').value;
+  document.getElementById('customOriginGroup').style.display = val === 'custom' ? 'block' : 'none';
+}
+function getOriginInfo() {
+  const sel = document.getElementById('originSelect').value;
+  if (sel === 'custom') return { label:'その他', address: document.getElementById('customOrigin').value.trim() };
+  if (sel.startsWith('saved_')) {
+    const idx = parseInt(sel.slice(6), 10);
+    const saved = getSavedOrigins();
+    return saved[idx] || { label:'不明', address:'' };
+  }
+  return ORIGINS[sel];
+}
+function updateDateDisplay() {
+  const v = document.getElementById('huntDate').value;
+  if (!v) return;
+  const d = new Date(v + 'T00:00:00');
+  document.getElementById('dateDisplay').value =
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${WEEKDAYS[d.getDay()]}）`;
+}
+
+// ──────────────────────────────────────────────
+// ロケ場所の管理
+// ──────────────────────────────────────────────
+function addLocation() {
+  const id = ++locIdCounter;
+  items.push({ type:'loc', id, scene:'', sceneNum:'', name:'', address:'', condition:'', stay:60, startAfter:'', endBy:'' });
+  renderSidebar();
+  saveState();
+}
+function removeItem(id) {
+  items = items.filter(i => i.id !== id);
+  renderSidebar();
+  saveState();
+}
+function moveItem(id, dir) {
+  const idx = items.findIndex(i => i.id === id);
+  if (idx < 0) return;
+  if (dir === 'up' && idx > 0) [items[idx-1], items[idx]] = [items[idx], items[idx-1]];
+  if (dir === 'dn' && idx < items.length-1) [items[idx], items[idx+1]] = [items[idx+1], items[idx]];
+  renderSidebar();
+  saveState();
+}
+function updateItem(id, field, value) {
+  const it = items.find(i => i.id === id);
+  if (!it) return;
+  it[field] = field === 'stay' ? Number(value) : value;
+
+  if (field === 'address') {
+    if (routeResult) {
+      needsRecalc = true;
+      setStatus('wn', '⚠ 住所が変更されました。「ルートを計算」を再度押してください。');
+    }
+  } else if (routeResult && !needsRecalc) {
+    if (['stay','startAfter','endBy'].includes(field)) {
+      rebuildSteps();
+      setStatus('ok', `✓ 再計算しました　${statusSummary()}`);
+    } else if (['name','scene','sceneNum','condition'].includes(field)) {
+      renderPreview();
+    }
+  }
+  saveStateLater();
+}
+
+// ──────────────────────────────────────────────
+// サイドバー描画
+// ──────────────────────────────────────────────
+function renderSidebar() {
+  const el = document.getElementById('locationsList');
+  if (!items.length) {
+    el.innerHTML = '<p style="font-size:11px;color:#bbb;text-align:center;padding:8px 0;">まだ場所がありません</p>';
+    return;
+  }
+  el.innerHTML = items.map((item, idx) => {
+    const locNum = idx + 1;
+    const isFirst = idx === 0;
+    const isLast  = idx === items.length - 1;
+    const hint = (item.startAfter || item.endBy)
+      ? `<div class="timehint">🕐 ${item.startAfter||'指定なし'} 〜 ${item.endBy||'指定なし'} の枠でのみ見学可として計算します</div>` : '';
+    return `<div class="loc-card">
+      <div class="ch">
+        <div class="ln">${locNum}</div>
+        <span class="ct">場所 ${locNum}</span>
+        <button class="ord-btn" onclick="moveItem(${item.id},'up')" ${isFirst?'disabled':''} title="上へ">▲</button>
+        <button class="ord-btn" onclick="moveItem(${item.id},'dn')" ${isLast?'disabled':''} title="下へ">▼</button>
+        <button class="rb" onclick="removeItem(${item.id})">✕</button>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>シーン番号</label><input type="text" value="${esc(item.sceneNum)}" placeholder="#12" oninput="updateItem(${item.id},'sceneNum',this.value)"></div>
+        <div class="fg"><label>シーン名</label><input type="text" value="${esc(item.scene)}" placeholder="公園シーン" oninput="updateItem(${item.id},'scene',this.value)"></div>
+      </div>
+      <div class="fg"><label>場所名</label><input type="text" value="${esc(item.name)}" placeholder="例：代々木公園" oninput="updateItem(${item.id},'name',this.value)"></div>
+      <div class="fg">
+        <label>住所</label>
+        <div class="addr-row">
+          <input type="text" class="addr-input" data-id="${item.id}" value="${esc(item.address)}" placeholder="例：東京都渋谷区代々木神園町2-1" oninput="updateItem(${item.id},'address',this.value)">
+          <button class="map-pin-btn" onclick="showMapPreviewById(${item.id})" title="地図でピンを確認">📍</button>
+        </div>
+      </div>
+      <div class="fg"><label>現場の条件・備考</label><textarea oninput="updateItem(${item.id},'condition',this.value)" placeholder="例：夕方の光が必要、駐車場あり">${esc(item.condition)}</textarea></div>
+      <div class="fr">
+        <div class="fg"><label>滞在時間（分）</label><input type="number" value="${item.stay}" min="5" max="480" step="5" oninput="updateItem(${item.id},'stay',this.value)"></div>
+        <div class="fg" style="display:flex;align-items:flex-end;padding-bottom:1px;">
+          <p style="font-size:10px;color:#aaa;line-height:1.4;">時間制約を設定すると<br>見学可能時間帯に合わせて計算します</p>
+        </div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>見学開始可能時刻</label><input type="time" value="${item.startAfter}" oninput="updateItem(${item.id},'startAfter',this.value)"></div>
+        <div class="fg"><label>見学終了期限</label><input type="time" value="${item.endBy}" oninput="updateItem(${item.id},'endBy',this.value)"></div>
+      </div>
+      ${hint}
+    </div>`;
+  }).join('');
+
+  if (mapsReady) initAutoCompletes();
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ──────────────────────────────────────────────
+// Places Autocomplete
+// ──────────────────────────────────────────────
+function initAutoCompletes() {
+  if (!mapsReady || !window.google?.maps?.places) return;
+  autocompletes = {};
+  document.querySelectorAll('.addr-input').forEach(input => {
+    const id = Number(input.dataset.id);
+    const ac = new google.maps.places.Autocomplete(input, {
+      componentRestrictions: { country: 'jp' },
+      fields: ['formatted_address','geometry','name']
+    });
+    ac.addListener('place_changed', () => {
+      const place = ac.getPlace();
+      const addr = place.formatted_address || input.value;
+      input.value = addr;
+      updateItem(id, 'address', addr);
+    });
+    autocompletes[id] = ac;
+  });
+}
+
+// ──────────────────────────────────────────────
+// 地図ピン確認モーダル
+// ──────────────────────────────────────────────
+function showMapPreviewById(id) {
+  const item = items.find(i => i.id === id);
+  if (!item || !item.address.trim()) { alert('住所を入力してください'); return; }
+  showMapPreview(item.address, item.name);
+}
+async function showMapPreview(address, name) {
+  document.getElementById('mapModalAddr').textContent = address;
+  document.getElementById('mapModal').classList.add('open');
+  try {
+    await loadGoogleMaps();
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address, language:'ja' }, (results, status) => {
+      const mapDiv = document.getElementById('mapDiv');
+      if (status !== 'OK' || !results[0]) {
+        mapDiv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#c0392b;font-size:13px;">住所が見つかりませんでした</div>';
+        return;
+      }
+      const loc = results[0].geometry.location;
+      document.getElementById('mapModalAddr').textContent = results[0].formatted_address;
+      if (!previewMap) {
+        previewMap = new google.maps.Map(mapDiv, { zoom:16, center:loc, mapTypeControl:false });
+      } else {
+        previewMap.setCenter(loc);
+        previewMap.setZoom(16);
+      }
+      if (previewMarker) previewMarker.setMap(null);
+      previewMarker = new google.maps.Marker({ position:loc, map:previewMap, title: name || address });
+    });
+  } catch(e) {
+    document.getElementById('mapDiv').innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#c0392b;font-size:12px;padding:20px;text-align:center;">${e.message}</div>`;
+  }
+}
+function closeMapModal() {
+  document.getElementById('mapModal').classList.remove('open');
+}
+
+// ──────────────────────────────────────────────
+// ルート計算ヘルパー
+// ──────────────────────────────────────────────
+function geocodeJS(geocoder, address) {
+  return new Promise((resolve, reject) => {
+    geocoder.geocode({ address, language:'ja' }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        const loc = results[0].geometry.location;
+        resolve({ lat: loc.lat(), lng: loc.lng() });
+      } else reject(new Error(`住所が見つかりません: 「${address}」(${status})`));
+    });
+  });
+}
+function distanceMatrixJS(service, origins, destinations) {
+  return new Promise((resolve, reject) => {
+    service.getDistanceMatrix({ origins, destinations, travelMode:'DRIVING', unitSystem: google.maps.UnitSystem.METRIC },
+      (response, status) => { if (status==='OK') resolve(response); else reject(new Error('移動時間の計算に失敗: '+status)); });
+  });
+}
+
+function addMinutes(t, m) {
+  const [h,mn] = t.split(':').map(Number);
+  const tot = h*60+mn+m;
+  return `${String(Math.floor(tot/60)%24).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`;
+}
+function minToStr(min){ return `${String(Math.floor(min/60)%24).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`; }
+function timeToMins(t) { const [h,m]=t.split(':').map(Number); return h*60+m; }
+
+function lunchOverlaps1213(startMin, durMin) {
+  const end = startMin + durMin;
+  return startMin < 13*60 && end > 12*60;
+}
+
+function optimizeRoute(locItems, matrix) {
+  const n = locItems.length+1;
+  const visited = new Array(n).fill(false);
+  const order = [0]; visited[0]=true;
+  while (order.length < n) {
+    const last = order[order.length-1];
+    let best=Infinity, bestIdx=-1;
+    for (let i=1;i<n;i++) {
+      if (visited[i]) continue;
+      const loc = locItems[i-1];
+      let score = matrix[last][i];
+      if (loc.startAfter) score += (timeToMins(loc.startAfter) - 9*60);
+      if (loc.endBy) score -= (24*60 - timeToMins(loc.endBy)) * 0.5;
+      if (score < best) { best=score; bestIdx=i; }
+    }
+    visited[bestIdx]=true; order.push(bestIdx);
+  }
+  return order;
+}
+
+// ──────────────────────────────────────────────
+// 休憩管理
+// ──────────────────────────────────────────────
+let manualBreakSeq = 0;
+function addManualBreak(kind) {
+  if (!routeResult) { alert('先に「ルートを計算」を押してください。休憩はルート計算後に追加できます。'); return; }
+  const labelMap = { lunch:'昼食休憩', dinner:'夕食休憩', other:'休憩' };
+  const durMap   = { lunch:60, dinner:60, other:30 };
+  const id = 'mb'+(++manualBreakSeq);
+  routeResult.flow.push({ kind:'manual', id, label:labelMap[kind], duration:durMap[kind], breakKind:kind });
+  rebuildSteps();
+  setStatus('ok',`✓ ${labelMap[kind]}を追加しました。ドラッグで位置を調整できます。`);
+}
+function removeBreak(idOrKind) {
+  const rr = routeResult;
+  if (!rr) return;
+  if (idOrKind==='lunch' || idOrKind==='dinner') {
+    rr.flow = rr.flow.filter(f => !(f.kind===idOrKind));
+    if (idOrKind==='lunch')  rr.lunchRemoved  = true;
+    if (idOrKind==='dinner') rr.dinnerRemoved = true;
+  } else {
+    rr.flow = rr.flow.filter(f => f.id !== idOrKind);
+  }
+  rebuildSteps();
+  setStatus('ok','✓ 休憩を削除しました。');
+}
+
+// ──────────────────────────────────────────────
+// ルート計算（並列ジオコーディング）
+// ──────────────────────────────────────────────
+async function calcRoute() {
+  if (!GOOGLE_API_KEY) { alert('HTMLファイル内のGOOGLE_API_KEYにAPIキーを設定してください'); return; }
+  const origin = getOriginInfo();
+  if (!origin.address) { alert('出発地を入力してください'); return; }
+
+  const locItems = items.filter(i => i.type==='loc' && i.address.trim());
+  const skipped  = items.filter(i => i.type==='loc' && !i.address.trim());
+  if (!locItems.length) { alert('住所を1つ以上入力してください'); return; }
+  if (locItems.length > 23) { alert('地点数が多すぎます（出発地＋帰着含め25地点まで）。'); return; }
+
+  document.getElementById('calcBtn').disabled = true;
+  document.getElementById('printBtn').disabled = true;
+  needsRecalc = false;
+  setStatus('ld','Google Mapsを読み込み中...');
+
+  try {
+    await loadGoogleMaps();
+    const geocoder  = new google.maps.Geocoder();
+    const dmService = new google.maps.DistanceMatrixService();
+
+    setStatus('ld','住所を変換中...');
+    const originPt = await geocodeJS(geocoder, origin.address);
+
+    // 並列ジオコーディング
+    let doneCount = 0;
+    const locPts = await Promise.all(locItems.map(async item => {
+      const pt = await geocodeJS(geocoder, item.address);
+      doneCount++;
+      setStatus('ld',`住所を変換中 (${doneCount}/${locItems.length})...`);
+      return pt;
+    }));
+
+    setStatus('ld','移動時間を計算中...');
+    const allPts = [originPt, ...locPts];
+    const dm = await distanceMatrixJS(dmService, allPts, allPts);
+    const n = allPts.length;
+    const matrix = Array.from({length:n}, (_,i) => Array.from({length:n}, (_,j) => {
+      const el = dm.rows[i].elements[j];
+      return el.status==='OK' ? Math.ceil(el.duration.value/60) : 9999;
+    }));
+
+    const order = optimizeRoute(locItems, matrix);
+    const seq = order.slice(1);
+
+    routeResult = { origin, matrix, locItems, seq, flow:null, lunchRemoved:false, dinnerRemoved:false };
+    rebuildSteps();
+
+    let msg = `✓ 計算完了！　${statusSummary()}`;
+    if (skipped.length) msg += `　⚠ 住所未入力の場所を${skipped.length}件スキップしました`;
+    setStatus(skipped.length ? 'wn' : 'ok', msg);
+    document.getElementById('printBtn').disabled = false;
+  } catch(e) {
+    setStatus('er','❌ ' + e.message);
+  }
+  document.getElementById('calcBtn').disabled = false;
+}
+
+// ──────────────────────────────────────────────
+// ステップ再構築
+// ──────────────────────────────────────────────
+function ensureFlow() {
+  const rr = routeResult;
+  if (rr.flow) return;
+  rr.flow = rr.seq.map(matIdx => ({ kind:'loc', matIdx }));
+}
+
+function rebuildSteps() {
+  const rr = routeResult;
+  ensureFlow();
+  const departTime  = document.getElementById('departTime').value || '09:00';
+  const lunchDur    = Number(document.getElementById('lunchDur').value);
+  const lunchDetour = Number(document.getElementById('lunchDetour').value);
+  const dinnerDur   = Number(document.getElementById('dinnerDur').value);
+  const avoid       = document.getElementById('avoid1213').checked;
+  const autoLunch   = document.getElementById('autoLunch').checked;
+
+  // 自動昼食挿入
+  if (autoLunch && !rr.lunchRemoved && !rr.flow.some(f=>f.kind==='lunch')) {
+    const lunchTotal = lunchDur + lunchDetour;
+    let t = timeToMins(departTime);
+    let prevMat = 0;
+    const candidates = [];
+    for (let i=0;i<rr.flow.length;i++) {
+      const f = rr.flow[i];
+      if (f.kind==='loc') {
+        const loc = rr.locItems[f.matIdx-1];
+        const travel = (loc.overrideTravel!=null)?loc.overrideTravel:rr.matrix[prevMat][f.matIdx];
+        let arrive = t + travel;
+        if (loc.startAfter && arrive < timeToMins(loc.startAfter)) arrive = timeToMins(loc.startAfter);
+        t = arrive + loc.stay;
+        candidates.push({ flowIndex: i+1, startMin: t });
+        prevMat = f.matIdx;
+      }
+    }
+    let chosen = null;
+    if (avoid) {
+      const early = candidates.filter(c => c.startMin >= 11*60 && c.startMin + lunchTotal <= 12*60);
+      const late  = candidates.filter(c => c.startMin >= 13*60 && c.startMin <= 14*60+30);
+      if (early.length) chosen = early[early.length-1];
+      else if (late.length) chosen = late[0];
+    }
+    if (!chosen) chosen = candidates.find(c => c.startMin >= 11*60+30) || candidates.find(c => c.startMin >= 11*60);
+    if (chosen) rr.flow.splice(chosen.flowIndex, 0, { kind:'lunch' });
+  }
+
+  // 自動夕食挿入
+  if (!rr.dinnerRemoved && !rr.flow.some(f=>f.kind==='dinner')) {
+    let t = timeToMins(departTime);
+    let prevMat = 0;
+    for (let i=0;i<rr.flow.length;i++) {
+      const f = rr.flow[i];
+      if (f.kind==='lunch')  { t += lunchDur+lunchDetour; continue; }
+      if (f.kind==='manual') { t += f.duration; continue; }
+      if (f.kind==='loc') {
+        const loc = rr.locItems[f.matIdx-1];
+        const travel = (loc.overrideTravel!=null)?loc.overrideTravel:rr.matrix[prevMat][f.matIdx];
+        let arrive = t + travel;
+        if (loc.startAfter && arrive < timeToMins(loc.startAfter)) arrive = timeToMins(loc.startAfter);
+        t = arrive + loc.stay;
+        if (t >= 17*60+30) { rr.flow.splice(i+1, 0, { kind:'dinner' }); break; }
+        prevMat = f.matIdx;
+      }
+    }
+    // 最後の場所後でも17:30以降なら夕食を追加（帰路中に17:30超えるケース）
+    if (!rr.flow.some(f=>f.kind==='dinner')) {
+      let finalT = timeToMins(departTime);
+      let pm = 0;
+      for (const f of rr.flow) {
+        if (f.kind==='lunch')  { finalT += lunchDur+lunchDetour; continue; }
+        if (f.kind==='manual') { finalT += f.duration; continue; }
+        if (f.kind==='loc') {
+          const loc = rr.locItems[f.matIdx-1];
+          const travel = (loc.overrideTravel!=null)?loc.overrideTravel:rr.matrix[pm][f.matIdx];
+          let arrive = finalT + travel;
+          if (loc.startAfter && arrive < timeToMins(loc.startAfter)) arrive = timeToMins(loc.startAfter);
+          finalT = arrive + loc.stay;
+          pm = f.matIdx;
+        }
+      }
+      const returnT = finalT + rr.matrix[pm][0];
+      if (returnT >= 17*60+30) rr.flow.push({ kind:'dinner' });
+    }
+  }
+
+  // 本計算
+  const steps = [];
+  let t = timeToMins(departTime);
+  steps.push({ type:'origin', label:rr.origin.label, address:rr.origin.address, time:minToStr(t) });
+
+  let prevMat = 0;
+  for (const f of rr.flow) {
+    if (f.kind==='lunch') {
+      const dur = lunchDur + lunchDetour;
+      const overlap = avoid && lunchOverlaps1213(t, dur);
+      steps.push({ type:'break', breakKind:'lunch', label:`昼食休憩（寄り道${lunchDetour}分含む）`, duration:dur, time:minToStr(t), warn: overlap?'⚠ 昼食が12〜13時に重なっています':null });
+      t += dur;
+    } else if (f.kind==='dinner') {
+      steps.push({ type:'break', breakKind:'dinner', label:'夕食休憩', duration:dinnerDur, time:minToStr(t), warn:null });
+      t += dinnerDur;
+    } else if (f.kind==='manual') {
+      steps.push({ type:'break', breakKind:f.breakKind||'other', id:f.id, label:f.label, duration:f.duration, time:minToStr(t), warn:null });
+      t += f.duration;
+    } else if (f.kind==='loc') {
+      const loc = rr.locItems[f.matIdx-1];
+      const travel = (loc.overrideTravel!=null)?loc.overrideTravel:rr.matrix[prevMat][f.matIdx];
+      let arrive = t + travel;
+      let waitMin = 0;
+      if (loc.startAfter) {
+        const sa = timeToMins(loc.startAfter);
+        if (arrive < sa) waitMin = sa - arrive;
+      }
+      const start = arrive + waitMin;
+      const leave = start + loc.stay;
+      let endWarn = null;
+      if (loc.endBy && leave > timeToMins(loc.endBy)) {
+        endWarn = `⚠ 終了期限 ${loc.endBy} を ${leave - timeToMins(loc.endBy)}分 超過`;
+      }
+      steps.push({ type:'location', loc, matIdx:f.matIdx, travel,
+        isOverride: loc.overrideTravel!=null,
+        arriveTime: minToStr(arrive), waitMin,
+        startTime: minToStr(start), leaveTime: minToStr(leave), endWarn });
+      t = leave;
+      prevMat = f.matIdx;
+    }
+  }
+
+  const returnTravel = rr.matrix[prevMat][0];
+  const returnTime   = t + returnTravel;
+  steps.push({ type:'return', label:rr.origin.label, address:rr.origin.address, travel:returnTravel, time:minToStr(returnTime) });
+
+  rr.steps       = steps;
+  rr.returnTime  = minToStr(returnTime);
+  rr.totalTravel = steps.filter(s=>s.type==='location').reduce((a,b)=>a+b.travel,0) + returnTravel;
+  rr.totalStay   = steps.filter(s=>s.type==='location').reduce((a,b)=>a+b.loc.stay,0);
+  rr.totalWait   = steps.filter(s=>s.type==='location').reduce((a,b)=>a+(b.waitMin||0),0);
+  renderPreview();
+}
+
+function statusSummary() {
+  const rr = routeResult;
+  let s = `移動合計 ${rr.totalTravel}分　滞在合計 ${rr.totalStay}分　都内戻り ${rr.returnTime}`;
+  if (rr.totalWait > 0) s += `　中空き合計 ${rr.totalWait}分`;
+  return s;
+}
+function recalcFromCurrent() {
+  if (!routeResult) return;
+  rebuildSteps();
+  setStatus('ok',`✓ 再計算しました　${statusSummary()}`);
+}
+function onTravelInput(matIdx, value) {
+  const loc = routeResult.locItems[matIdx-1];
+  const v = parseInt(value, 10);
+  loc.overrideTravel = (isNaN(v)||v<0) ? null : v;
+  rebuildSteps();
+  setStatus('wn',`✏ 移動時間を手入力で更新しました　${statusSummary()}`);
+}
+
+function setStatus(type, msg) {
+  let bar = document.getElementById('statusBar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'statusBar';
+    document.getElementById('preview').prepend(bar);
+  }
+  bar.className = 'sb2 ' + type;
+  bar.innerHTML = type==='ld' ? `<div class="spin"></div>${msg}` : msg;
+}
+
+// ──────────────────────────────────────────────
+// プレビュー描画
+// ──────────────────────────────────────────────
+function renderPreview() {
+  if (!routeResult) return;
+  const { steps, totalTravel, totalStay, returnTime, totalWait } = routeResult;
+  const frame    = document.getElementById('progFrame').value || '（番組枠名）';
+  const title    = document.getElementById('progTitle').value || '（作品名）';
+  const huntType = document.getElementById('huntType').value;
+  const dateDisp = document.getElementById('dateDisplay').value || '';
+  const headerTxt = `${frame}「${title}」${huntType}メニュー`;
+
+  const originStep = steps.find(s=>s.type==='origin');
+  const returnStep = steps.find(s=>s.type==='return');
+
+  let locNum=0, flowIdx=-1;
+  const cards = steps.map(step => {
+    if (step.type==='origin' || step.type==='return') return '';
+    flowIdx++;
+    const fi = flowIdx;
+    if (step.type==='break') {
+      const warnHtml = step.warn ? `<div class="break-warn">${step.warn}</div>` : '';
+      const delId = (step.breakKind==='lunch'||step.breakKind==='dinner') ? `'${step.breakKind}'` : `'${step.id}'`;
+      return `<div class="break-bar" draggable="true" ondragstart="onDragStart(event,${fi})" ondragover="onDragOver(event,${fi})" ondrop="onDrop(event,${fi})" ondragleave="onDragLeave(event)">
+        <div class="break-icon">${step.breakKind==='lunch'?'🍚':step.breakKind==='dinner'?'🍴':'☕'}<span class="grip">⠿</span></div>
+        <div class="break-body">
+          <div style="flex:1;"><div class="break-label">${step.label}</div>${warnHtml}</div>
+          <div class="break-time">${step.time} 〜 ${addMinutes(step.time,step.duration)}　（${step.duration}分）</div>
+          <button class="break-del" onclick="removeBreak(${delId})">削除</button>
+        </div>
+      </div>`;
+    }
+    locNum++;
+    const { loc, travel, arriveTime, startTime, leaveTime, endWarn, isOverride, matIdx, waitMin } = step;
+    const condHtml = loc.condition ? `<div class="stop-cond">📌 ${esc(loc.condition)}</div>` : '';
+    const sceneLine = [loc.sceneNum, loc.scene].filter(Boolean).join('　/　') || '—';
+    const timeWindowChip = (loc.startAfter||loc.endBy) ? `<span class="chip timelimit">🕐 見学可 ${loc.startAfter||'—'}〜${loc.endBy||'—'}</span>` : '';
+    const waitChip  = waitMin>0 ? `<span class="chip wait">⏳ 中空き ${waitMin}分（${arriveTime}着→${startTime}開始）</span>` : '';
+    const warnChip  = endWarn  ? `<span class="chip warn">${endWarn}</span>` : '';
+    const gapBar    = waitMin>0 ? `<div class="gap-bar">⏳ 中空き ${waitMin}分　（${arriveTime} 到着 → ${startTime} まで待機。見学開始可能時刻 ${loc.startAfter} に合わせています）</div>` : '';
+    return `${gapBar}<div class="stop" draggable="true" ondragstart="onDragStart(event,${fi})" ondragover="onDragOver(event,${fi})" ondrop="onDrop(event,${fi})" ondragleave="onDragLeave(event)">
+      <div class="stop-num"><span class="n">${locNum}</span><span class="grip">⠿</span></div>
+      <div class="stop-body">
+        <div class="stop-top">
+          <div class="stop-title">
+            <div class="stop-name">${esc(loc.name)||'（場所名未入力）'}</div>
+            <div class="stop-scene">${esc(sceneLine)}</div>
+          </div>
+          <div class="stop-times">
+            <div class="time-chip arrive"><div class="tl">${waitMin>0?'見学開始':'到着'}</div><div class="tv">${startTime}</div></div>
+            <div class="time-chip leave"><div class="tl">出発</div><div class="tv">${leaveTime}</div></div>
+          </div>
+        </div>
+        <div class="stop-meta">
+          <span class="chip travel">🚗 移動 <input type="number" class="travel-input ${isOverride?'edited':''}" value="${travel}" min="0" max="600" onchange="onTravelInput(${matIdx}, this.value)" onclick="this.select()">分</span>
+          <span class="chip stay">⏱ 滞在 ${loc.stay}分</span>
+          ${timeWindowChip}${waitChip}${warnChip}
+        </div>
+        <div class="stop-addr">📍 ${esc(loc.address)}</div>
+        ${condHtml}
+      </div>
+    </div>`;
+  }).join('');
+
+  const waitCard = totalWait>0 ? `<div class="sc-card"><div class="v">${totalWait}<span style="font-size:11px;font-weight:400;">分</span></div><div class="l">中空き合計</div></div>` : '';
+
+  document.getElementById('preview').innerHTML = `
+    <div id="statusBar" class="sb2 ok">✓ ルート計算完了</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5px solid #1a1a1a;padding-bottom:10px;margin-bottom:18px;">
+      <div class="doc-title">${headerTxt}</div>
+      <div class="doc-date">${dateDisp}</div>
+    </div>
+    <div class="depart-box">
+      <div class="dicon">🚩</div>
+      <div><div class="dtime-lbl">出発時刻</div><div class="dtime">${originStep.time}</div></div>
+      <div class="ddiv"></div>
+      <div><div class="dtime-lbl">出発地</div><div class="dplace">${originStep.label}</div><div class="daddr">${originStep.address}</div></div>
+    </div>
+    <div class="sc-cards">
+      <div class="sc-card"><div class="v">${steps.filter(s=>s.type==='location').length}<span style="font-size:11px;font-weight:400;">か所</span></div><div class="l">ロケ場所</div></div>
+      <div class="sc-card"><div class="v">${totalTravel}<span style="font-size:11px;font-weight:400;">分</span></div><div class="l">移動合計（帰り含む）</div></div>
+      <div class="sc-card"><div class="v">${totalStay}<span style="font-size:11px;font-weight:400;">分</span></div><div class="l">滞在合計</div></div>
+      <div class="sc-card"><div class="v">${returnTime}</div><div class="l">都内戻り時間</div></div>
+      ${waitCard}
+    </div>
+    <div class="route-list">${cards}</div>
+    <div class="depart-box return" style="margin-top:13px;margin-bottom:0;">
+      <div class="dicon">🏁</div>
+      <div><div class="dtime-lbl">都内戻り時間</div><div class="dtime">${returnStep.time}</div></div>
+      <div class="ddiv"></div>
+      <div><div class="dtime-lbl">戻り先（最終ロケ地から ${returnStep.travel}分）</div><div class="dplace">${returnStep.label}</div><div class="daddr">${returnStep.address}</div></div>
+    </div>
+    <div style="margin-top:22px;border-top:1px solid #e0ddd5;padding-top:12px;text-align:center;font-size:13px;color:#666;letter-spacing:.05em;">
+      以上で本日のロケハンは終了です。お疲れ様でした。
+    </div>`;
+}
+
+// ──────────────────────────────────────────────
+// ドラッグ＆ドロップ（修正版：影響する移動時間のみリセット）
+// ──────────────────────────────────────────────
+function getFlowPredecessors(flow) {
+  const pred = {};
+  let prevMatIdx = 0;
+  for (const f of flow) {
+    if (f.kind === 'loc') {
+      pred[f.matIdx] = prevMatIdx;
+      prevMatIdx = f.matIdx;
+    }
+  }
+  return pred;
+}
+
+function onDragStart(e, fi) { dragSrcIdx = fi; e.dataTransfer.effectAllowed = 'move'; }
+function onDragOver(e, fi) {
+  e.preventDefault();
+  document.querySelectorAll('.stop,.break-bar').forEach(r => r.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function onDrop(e, toFi) {
+  e.preventDefault();
+  if (dragSrcIdx===null || dragSrcIdx===toFi) { dragSrcIdx=null; return; }
+  const rr = routeResult;
+
+  // 前後関係が変わる場所の overrideTravel だけを選択的にリセット
+  const predBefore = getFlowPredecessors(rr.flow);
+  const moved = rr.flow.splice(dragSrcIdx, 1)[0];
+  rr.flow.splice(toFi, 0, moved);
+  const predAfter = getFlowPredecessors(rr.flow);
+
+  rr.locItems.forEach((loc, idx) => {
+    const matIdx = idx + 1;
+    if ((predBefore[matIdx] ?? -1) !== (predAfter[matIdx] ?? -1)) {
+      loc.overrideTravel = null;
+    }
+  });
+
+  rebuildSteps();
+  const lbl = moved.kind==='loc' ? '場所' : (moved.kind==='lunch'?'昼食休憩':moved.kind==='dinner'?'夕食休憩':'休憩');
+  setStatus('ok',`✓ ${lbl}を移動し再計算しました　${statusSummary()}`);
+  dragSrcIdx = null;
+}
+
+// ──────────────────────────────────────────────
+// PDF印刷（Blob URL方式）
+// ──────────────────────────────────────────────
+function doPrint() {
+  if (!routeResult) return;
+  const { steps, totalTravel, totalStay, returnTime } = routeResult;
+  const frame    = document.getElementById('progFrame').value  || '（番組枠名）';
+  const title    = document.getElementById('progTitle').value  || '（作品名）';
+  const huntType = document.getElementById('huntType').value;
+  const dateDisp = document.getElementById('dateDisplay').value || '';
+  const headerTxt = `${frame}「${title}」${huntType}メニュー`;
+  const originStep = steps.find(s=>s.type==='origin');
+  const returnStep = steps.find(s=>s.type==='return');
+
+  let locNum=0;
+  const rows = steps.map(step => {
+    if (step.type==='origin'||step.type==='return') return '';
+    if (step.type==='break') {
+      const warn = step.warn ? `<br><span style="color:#c0392b;">${step.warn}</span>` : '';
+      const icon = step.breakKind==='lunch'?'🍚':step.breakKind==='dinner'?'🍴':'☕';
+      return `<tr style="background:#fff8e8;"><td style="color:#7a5800;font-size:10px;" colspan="2">${icon} ${step.time}</td><td colspan="5" style="color:#7a5800;font-size:10px;"><strong>${step.label}</strong>　${step.duration}分　〜 ${addMinutes(step.time,step.duration)}${warn}</td></tr>`;
+    }
+    locNum++;
+    const { loc, travel, arriveTime, startTime, leaveTime, endWarn, waitMin } = step;
+    const tw  = (loc.startAfter||loc.endBy) ? `<br><span style="color:#3949ab;">🕐 見学可 ${loc.startAfter||'—'}〜${loc.endBy||'—'}</span>` : '';
+    const gap = waitMin>0 ? `<tr style="background:#fff4e0;"><td colspan="2" style="color:#b06a00;font-size:10px;">⏳ 中空き ${waitMin}分</td><td colspan="5" style="color:#b06a00;font-size:10px;">${arriveTime} 到着 → ${startTime} まで待機（見学開始可能時刻 ${loc.startAfter}）</td></tr>` : '';
+    return `${gap}<tr>
+      <td style="text-align:center;font-weight:700;font-size:13px;">${locNum}</td>
+      <td style="font-size:10px;color:#1a6b3c;font-weight:700;">🚗 ${travel}分<br><span style="color:#555;font-weight:400;">⏱ ${loc.stay}分</span></td>
+      <td style="font-size:10px;color:#3949ab;font-weight:700;">${waitMin>0?'開始':'着'} ${startTime}<br><span style="font-size:9px;color:#888;">発 ${leaveTime}</span></td>
+      <td style="font-size:10px;">${esc(loc.sceneNum)||'—'}</td>
+      <td style="font-size:10px;">${esc(loc.scene)||'—'}</td>
+      <td style="font-weight:600;font-size:11px;">${esc(loc.name)||'—'}${tw}</td>
+      <td style="font-size:10px;">${esc(loc.address)}${loc.condition?'<br><span style="color:#666;">📌 '+esc(loc.condition)+'</span>':''}${endWarn?'<br><span style="color:#c0392b;">'+endWarn+'</span>':''}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+    body{font-family:'Noto Sans JP','Hiragino Sans','Meiryo',sans-serif;font-size:11px;margin:10mm 12mm;color:#1a1a1a;}
+    .hdr{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-bottom:10px;}
+    .hl{font-size:14px;font-weight:700;line-height:1.4;}
+    .hr{font-size:12px;font-weight:600;white-space:nowrap;margin-left:12px;}
+    .box{display:flex;align-items:center;gap:15px;border-radius:6px;padding:8px 14px;margin-bottom:8px;}
+    .box.dep{background:#f0f4f8;border:1.5px solid #1a3a5c;}
+    .box.ret{background:#eef6f0;border:1.5px solid #1a6b3c;}
+    .box .bt{font-size:22px;font-weight:700;}
+    .box.dep .bt{color:#1a3a5c;} .box.ret .bt{color:#1a6b3c;}
+    .box .bl{font-size:9px;color:#789;letter-spacing:.1em;}
+    .box .bp{font-size:13px;font-weight:700;} .box .ba{font-size:10px;color:#666;}
+    .sum{display:flex;gap:10px;margin-bottom:10px;}
+    .sc{border:1px solid #ccc;border-radius:4px;padding:5px 10px;text-align:center;}
+    .sv{font-size:15px;font-weight:700;} .sl{font-size:9px;color:#777;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:#1a1a1a;color:#fff;padding:5px 7px;font-size:10px;text-align:left;font-weight:600;}
+    td{padding:5px 7px;border-bottom:1px solid #ddd;vertical-align:top;}
+    .ftr{margin-top:14px;border-top:1px solid #ccc;padding-top:7px;text-align:center;font-size:11px;color:#555;letter-spacing:.05em;}
+    @page{size:A4 portrait;margin:0;}
+  </style></head><body>
+  <div class="hdr"><div class="hl">${headerTxt}</div><div class="hr">${dateDisp}</div></div>
+  <div class="box dep">
+    <div>🚩</div>
+    <div><div class="bl">出発時刻</div><div class="bt">${originStep.time}</div></div>
+    <div style="border-left:1px solid #ccc;padding-left:13px;"><div class="bl">出発地</div><div class="bp">${originStep.label}</div><div class="ba">${originStep.address}</div></div>
+  </div>
+  <div class="sum">
+    <div class="sc"><div class="sv">${steps.filter(s=>s.type==='location').length}か所</div><div class="sl">ロケ場所</div></div>
+    <div class="sc"><div class="sv">${totalTravel}分</div><div class="sl">移動合計</div></div>
+    <div class="sc"><div class="sv">${totalStay}分</div><div class="sl">滞在合計</div></div>
+    <div class="sc"><div class="sv">${returnTime}</div><div class="sl">都内戻り時間</div></div>
+  </div>
+  <table><thead><tr>
+    <th style="width:26px;">順</th><th style="width:63px;">移動/滞在</th><th style="width:70px;">開始/出発</th>
+    <th style="width:44px;">シーン#</th><th style="width:68px;">シーン名</th><th style="width:90px;">場所名</th><th>住所・条件</th>
+  </tr></thead><tbody>${rows}</tbody></table>
+  <div class="box ret" style="margin-top:10px;">
+    <div>🏁</div>
+    <div><div class="bl">都内戻り時間</div><div class="bt">${returnStep.time}</div></div>
+    <div style="border-left:1px solid #ccc;padding-left:13px;"><div class="bl">戻り先（最終ロケ地から ${returnStep.travel}分）</div><div class="bp">${returnStep.label}</div><div class="ba">${returnStep.address}</div></div>
+  </div>
+  <div class="ftr">以上で本日のロケハンは終了です。お疲れ様でした。</div>
+  <script>window.onload = () => setTimeout(() => window.print(), 400);<\/script>
+  </body></html>`;
+
+  const blob = new Blob([html], {type:'text/html; charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if (!win) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lokehun_${document.getElementById('huntDate').value || 'menu'}.html`;
+    a.click();
+    alert('ポップアップがブロックされました。\nHTMLファイルとして保存しました。ブラウザで開いて印刷してください。');
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+</script>
+</body>
+</html>
