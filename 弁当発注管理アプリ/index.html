@@ -61,11 +61,13 @@
             margin-top: 2px;
         }
 
+        .header-btns { display: flex; gap: 7px; }
+
         .btn-export {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.32);
             color: white;
-            padding: 7px 14px;
+            padding: 7px 13px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: 600;
@@ -107,15 +109,88 @@
             text-align: center;
         }
 
+        /* ===== PROJECT BAR ===== */
+        .project-bar {
+            background: #0e1726;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .project-bar::-webkit-scrollbar { display: none; }
+
+        .proj-pill {
+            flex-shrink: 0;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.6);
+            background: transparent;
+            letter-spacing: 0.03em;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .proj-pill.active {
+            background: white;
+            color: var(--primary);
+            border-color: white;
+        }
+
+        .proj-pill:not(.active):active { background: rgba(255,255,255,0.1); }
+
+        .proj-pill-add {
+            flex-shrink: 0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1.5px dashed rgba(255,255,255,0.22);
+            color: rgba(255,255,255,0.38);
+            background: transparent;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .proj-pill-add:active { background: rgba(255,255,255,0.08); }
+
+        .proj-manage-btn {
+            flex-shrink: 0;
+            margin-left: auto;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.5);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+        }
+
+        .proj-manage-btn:active { background: rgba(255,255,255,0.15); }
+
         /* ===== SUMMARY ===== */
         .summary-bar {
             background: var(--accent-light);
             border-bottom: 1px solid #b8c0d4;
             padding: 8px 16px;
             display: flex;
-            gap: 20px;
+            gap: 16px;
             font-size: 12px;
             color: var(--text-sub);
+            flex-wrap: wrap;
         }
 
         .summary-item strong {
@@ -170,7 +245,7 @@
             padding: 7px 12px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 8px;
         }
 
         .meal-badge {
@@ -181,6 +256,18 @@
             background: rgba(255,255,255,0.15);
             padding: 2px 9px;
             border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .proj-name-tag {
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 0.05em;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .payment-badge {
@@ -189,6 +276,8 @@
             padding: 2px 9px;
             border-radius: 10px;
             letter-spacing: 0.02em;
+            flex-shrink: 0;
+            margin-left: auto;
         }
 
         .pay-invoice { background: #fff3cc; color: #7a5200; }
@@ -331,6 +420,77 @@
             margin-top: 1px;
             flex-shrink: 0;
         }
+
+        /* ===== COLOR SWATCHES ===== */
+        .color-swatches {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2.5px solid transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+        }
+
+        .color-swatch.selected {
+            outline-color: var(--text);
+        }
+
+        /* ===== PROJECT LIST (manage modal) ===== */
+        .proj-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .proj-list-item:last-child { border-bottom: none; }
+
+        .proj-color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .proj-list-name {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .proj-list-count {
+            font-size: 11px;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        .proj-list-btn {
+            background: none;
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 9px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+            flex-shrink: 0;
+        }
+
+        .proj-list-btn.edit  { color: var(--accent); }
+        .proj-list-btn.edit:active  { background: var(--accent-light); }
+        .proj-list-btn.del   { color: var(--danger); }
+        .proj-list-btn.del:active   { background: var(--danger-light); }
 
         /* ===== TOAST ===== */
         .toast {
@@ -488,7 +648,8 @@
         .f-label .req { color: var(--danger); margin-left: 2px; }
 
         .f-input,
-        .f-textarea {
+        .f-textarea,
+        .f-select {
             width: 100%;
             border: 1px solid var(--border);
             border-radius: 4px;
@@ -501,8 +662,16 @@
             appearance: none;
         }
 
+        .f-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238890a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 34px;
+        }
+
         .f-input:focus,
-        .f-textarea:focus {
+        .f-textarea:focus,
+        .f-select:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 2px rgba(59,89,152,0.15);
@@ -614,7 +783,10 @@
             <div class="header-title">弁当発注管理</div>
             <div class="header-sub">BENTO ORDER MANAGEMENT</div>
         </div>
-        <button class="btn-export" onclick="printMonth()">月次出力</button>
+        <div class="header-btns">
+            <button class="btn-export" onclick="exportCSV()">CSV</button>
+            <button class="btn-export" onclick="printMonth()">月次出力</button>
+        </div>
     </div>
     <div class="month-nav">
         <button class="month-btn" onclick="prevMonth()">&#8249;</button>
@@ -622,6 +794,9 @@
         <button class="month-btn" onclick="nextMonth()">&#8250;</button>
     </div>
 </div>
+
+<!-- ===== PROJECT BAR ===== -->
+<div class="project-bar" id="projectBar"></div>
 
 <!-- ===== SUMMARY ===== -->
 <div class="summary-bar" id="summaryBar"></div>
@@ -632,7 +807,7 @@
 <!-- ===== FAB ===== -->
 <button class="fab" onclick="openModal()">＋</button>
 
-<!-- ===== MODAL ===== -->
+<!-- ===== ORDER MODAL ===== -->
 <div class="modal-overlay" id="modalOverlay" onclick="overlayClick(event)">
     <div class="modal-sheet">
         <div class="modal-header">
@@ -656,6 +831,11 @@
                     <div class="radio-opt"><input type="radio" name="meal" id="m2" value="夕食"><label for="m2">夕食</label></div>
                     <div class="radio-opt"><input type="radio" name="meal" id="m3" value="夜食"><label for="m3">夜食</label></div>
                 </div>
+            </div>
+
+            <div class="f-group">
+                <label class="f-label">作品</label>
+                <select class="f-select" id="fProject"></select>
             </div>
 
             <div class="f-section">発注先</div>
@@ -708,24 +888,56 @@
     </div>
 </div>
 
+<!-- ===== PROJECT MODAL ===== -->
+<div class="modal-overlay" id="projModalOverlay" onclick="projOverlayClick(event)">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title">作品管理</span>
+            <button class="modal-close" onclick="closeProjModal()">✕</button>
+        </div>
+        <div class="modal-body" id="projModalBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" style="max-width:120px;" onclick="closeProjModal()">閉じる</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-    const STORAGE_KEY = 'bento_v1';
-    const MEAL_ORDER  = ['朝食','昼食','夕食','夜食'];
+    const STORAGE_KEY    = 'bento_v2';
+    const STORAGE_KEY_V1 = 'bento_v1';
+    const MEAL_ORDER     = ['朝食','昼食','夕食','夜食'];
+    const PROJ_COLORS    = ['#1c2b4a','#2d6a4f','#7b2d2d','#5c3a7e','#1a5276','#7d5800','#1a6e6e','#4a3a28'];
 
-    let orders = [];
-    let cur    = new Date();
-    let editId = null;
+    let projects   = [];
+    let orders     = [];
+    let cur        = new Date();
+    let editId     = null;
+    let curProject = null;  // null = 全作品
+    let editProjId = null;
+    let selectedColor = PROJ_COLORS[0];
 
     /* ---------- persistence ---------- */
     function load() {
-        const d = localStorage.getItem(STORAGE_KEY);
-        orders = d ? JSON.parse(d) : [];
+        const d2 = localStorage.getItem(STORAGE_KEY);
+        if (d2) {
+            const parsed = JSON.parse(d2);
+            projects = parsed.projects || [];
+            orders   = parsed.orders   || [];
+            return;
+        }
+        // migrate from bento_v1
+        const d1 = localStorage.getItem(STORAGE_KEY_V1);
+        if (d1) {
+            orders   = JSON.parse(d1).map(o => ({ ...o, projectId: null }));
+            projects = [];
+            persist();
+        }
     }
 
     function persist() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ projects, orders }));
     }
 
     /* ---------- helpers ---------- */
@@ -747,11 +959,17 @@
         return n.toLocaleString('ja-JP') + '円';
     }
 
+    function projById(id) {
+        return id ? (projects.find(p => p.id === id) || null) : null;
+    }
+
     function monthOrders() {
         const y = cur.getFullYear(), m = cur.getMonth();
         return orders.filter(o => {
             const d = new Date(o.date);
-            return d.getFullYear() === y && d.getMonth() === m;
+            if (d.getFullYear() !== y || d.getMonth() !== m) return false;
+            if (curProject !== null && o.projectId !== curProject) return false;
+            return true;
         }).sort((a, b) =>
             a.date !== b.date
                 ? a.date.localeCompare(b.date)
@@ -760,9 +978,29 @@
     }
 
     function dayLabel(dateStr) {
-        const d = new Date(dateStr + 'T00:00:00');
+        const d  = new Date(dateStr + 'T00:00:00');
         const dn = ['日','月','火','水','木','金','土'];
         return dateStr.replace(/-/g, '/') + '（' + dn[d.getDay()] + '）';
+    }
+
+    /* ---------- project bar ---------- */
+    function renderProjectBar() {
+        let html = `<button class="proj-pill${curProject === null ? ' active' : ''}" onclick="selectProject(null)">全作品</button>`;
+        for (const p of projects) {
+            const active = curProject === p.id;
+            html += `<button class="proj-pill${active ? ' active' : ''}" onclick="selectProject('${p.id}')">${esc(p.name)}</button>`;
+        }
+        html += `<button class="proj-pill-add" onclick="openProjModal()">＋ 作品追加</button>`;
+        if (projects.length > 0) {
+            html += `<button class="proj-manage-btn" onclick="openProjModal()" title="作品管理">⚙</button>`;
+        }
+        document.getElementById('projectBar').innerHTML = html;
+    }
+
+    function selectProject(id) {
+        curProject = id;
+        renderProjectBar();
+        render();
     }
 
     /* ---------- render ---------- */
@@ -772,12 +1010,14 @@
 
         const mo   = monthOrders();
         const tot  = mo.reduce((s, o) => s + sumItems(o), 0);
+        const amt  = mo.reduce((s, o) => s + sumAmount(o), 0);
         const inv  = mo.filter(o => o.pay === '請求書払い').length;
         const cash = mo.filter(o => o.pay === '現金払い').length;
 
         document.getElementById('summaryBar').innerHTML =
             `<span class="summary-item">件数<strong>${mo.length}件</strong></span>` +
             `<span class="summary-item">総数量<strong>${tot}個</strong></span>` +
+            `<span class="summary-item">合計金額<strong>${amt > 0 ? fmtYen(amt) : '—'}</strong></span>` +
             `<span class="summary-item">請求書<strong>${inv}件</strong></span>` +
             `<span class="summary-item">現金<strong>${cash}件</strong></span>`;
 
@@ -792,7 +1032,6 @@
             return;
         }
 
-        /* group by date */
         const groups = {};
         for (const o of mo) {
             if (!groups[o.date]) groups[o.date] = [];
@@ -811,9 +1050,12 @@
                 </div>`;
 
             for (const o of grp) {
-                const tc       = sumItems(o);
-                const payClass = o.pay === '請求書払い' ? 'pay-invoice' : 'pay-cash';
+                const tc        = sumItems(o);
+                const payClass  = o.pay === '請求書払い' ? 'pay-invoice' : 'pay-cash';
                 const orderAmt  = sumAmount(o);
+                const proj      = projById(o.projectId);
+                const cardColor = proj ? proj.color : 'var(--primary)';
+
                 const itemsHtml = o.items.map(i => {
                     const iPrice = parseInt(i.price) || 0;
                     const iAmt   = (parseInt(i.qty)||0) * iPrice;
@@ -833,7 +1075,7 @@
                     ? `<div class="vendor-phone"><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>`
                     : '';
 
-                const deliveryPlace = o.delivery    ? esc(o.delivery)    : '';
+                const deliveryPlace = o.delivery     ? esc(o.delivery)     : '';
                 const deliveryTime  = o.deliveryTime ? esc(o.deliveryTime) : '';
                 const deliveryHtml  = (deliveryPlace || deliveryTime)
                     ? `<div class="delivery-info"><span class="delivery-label">配達</span>${[deliveryTime, deliveryPlace].filter(Boolean).join('　')}</div>`
@@ -843,9 +1085,15 @@
                     ? `<div class="card-memo"><span class="memo-tag">MEMO</span><br>${esc(o.memo)}</div>`
                     : '';
 
+                // 全作品表示のときだけ作品名を表示
+                const projTagHtml = curProject === null
+                    ? `<span class="proj-name-tag">${proj ? esc(proj.name) : '（未設定）'}</span>`
+                    : '';
+
                 html += `<div class="order-card">
-                    <div class="card-top">
+                    <div class="card-top" style="background:${cardColor};">
                         <span class="meal-badge">${esc(o.meal)}</span>
+                        ${projTagHtml}
                         <span class="payment-badge ${payClass}">${esc(o.pay)}</span>
                     </div>
                     <div class="card-body">
@@ -889,16 +1137,34 @@
         render();
     }
 
-    /* ---------- modal ---------- */
+    /* ---------- project select in order form ---------- */
+    function populateProjectSelect(selectedId) {
+        const sel = document.getElementById('fProject');
+        sel.innerHTML = '';
+        const unset = document.createElement('option');
+        unset.value = '';
+        unset.textContent = '（未設定）';
+        if (!selectedId) unset.selected = true;
+        sel.appendChild(unset);
+        for (const p of projects) {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.name;
+            if (p.id === selectedId) opt.selected = true;
+            sel.appendChild(opt);
+        }
+    }
+
+    /* ---------- order modal ---------- */
     function openModal(id = null) {
         editId = id;
         document.getElementById('modalTitle').textContent = id ? '発注記録を編集' : '発注記録を追加';
 
         if (id) {
             const o = orders.find(x => x.id === id);
-            document.getElementById('fDate').value     = o.date;
-            document.getElementById('fVendor').value   = o.vendor;
-            document.getElementById('fPhone').value    = o.phone    || '';
+            document.getElementById('fDate').value         = o.date;
+            document.getElementById('fVendor').value       = o.vendor;
+            document.getElementById('fPhone').value        = o.phone        || '';
             document.getElementById('fDelivery').value     = o.delivery     || '';
             document.getElementById('fDeliveryTime').value = o.deliveryTime || '';
             document.getElementById('fMemo').value         = o.memo         || '';
@@ -906,19 +1172,21 @@
             if (mr) mr.checked = true;
             const pr = document.querySelector(`input[name="pay"][value="${o.pay}"]`);
             if (pr) pr.checked = true;
+            populateProjectSelect(o.projectId);
             document.getElementById('bentoRows').innerHTML = '';
             for (const i of o.items) addBentoRow(i.name, i.qty, i.price || '');
         } else {
             const t  = new Date();
             const ds = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-            document.getElementById('fDate').value     = ds;
-            document.getElementById('fVendor').value   = '';
-            document.getElementById('fPhone').value    = '';
+            document.getElementById('fDate').value         = ds;
+            document.getElementById('fVendor').value       = '';
+            document.getElementById('fPhone').value        = '';
             document.getElementById('fDelivery').value     = '';
             document.getElementById('fDeliveryTime').value = '';
             document.getElementById('fMemo').value         = '';
-            document.getElementById('m1').checked    = true;  /* 昼食 default */
-            document.getElementById('p0').checked    = true;  /* 請求書払い default */
+            document.getElementById('m1').checked = true;
+            document.getElementById('p0').checked = true;
+            populateProjectSelect(curProject);
             document.getElementById('bentoRows').innerHTML = '';
             addBentoRow();
         }
@@ -949,14 +1217,15 @@
 
     /* ---------- CRUD ---------- */
     function saveOrder() {
-        const date     = document.getElementById('fDate').value.trim();
-        const vendor   = document.getElementById('fVendor').value.trim();
-        const phone    = document.getElementById('fPhone').value.trim();
+        const date         = document.getElementById('fDate').value.trim();
+        const vendor       = document.getElementById('fVendor').value.trim();
+        const phone        = document.getElementById('fPhone').value.trim();
         const delivery     = document.getElementById('fDelivery').value.trim();
         const deliveryTime = document.getElementById('fDeliveryTime').value.trim();
-        const memo     = document.getElementById('fMemo').value.trim();
-        const meal     = (document.querySelector('input[name="meal"]:checked') || {}).value;
-        const pay      = (document.querySelector('input[name="pay"]:checked')  || {}).value;
+        const memo         = document.getElementById('fMemo').value.trim();
+        const meal         = (document.querySelector('input[name="meal"]:checked') || {}).value;
+        const pay          = (document.querySelector('input[name="pay"]:checked')  || {}).value;
+        const projectId    = document.getElementById('fProject').value || null;
 
         if (!date || !meal || !vendor) {
             alert('日付・食事区分・店名は必須項目です。');
@@ -979,9 +1248,9 @@
 
         if (editId) {
             const idx = orders.findIndex(o => o.id === editId);
-            if (idx !== -1) orders[idx] = { ...orders[idx], date, meal, vendor, phone, delivery, deliveryTime, pay, memo, items };
+            if (idx !== -1) orders[idx] = { ...orders[idx], date, meal, vendor, phone, delivery, deliveryTime, pay, memo, items, projectId };
         } else {
-            orders.push({ id: Date.now().toString(36), date, meal, vendor, phone, delivery, deliveryTime, pay, memo, items });
+            orders.push({ id: Date.now().toString(36), date, meal, vendor, phone, delivery, deliveryTime, pay, memo, items, projectId });
         }
 
         persist();
@@ -996,15 +1265,143 @@
         render();
     }
 
+    /* ---------- project modal ---------- */
+    function openProjModal() {
+        editProjId    = null;
+        selectedColor = PROJ_COLORS[0];
+        renderProjModal();
+        document.getElementById('projModalOverlay').classList.add('open');
+    }
+
+    function closeProjModal() {
+        document.getElementById('projModalOverlay').classList.remove('open');
+        editProjId = null;
+    }
+
+    function projOverlayClick(e) {
+        if (e.target === document.getElementById('projModalOverlay')) closeProjModal();
+    }
+
+    function renderProjModal() {
+        let listHtml = '';
+        if (projects.length === 0) {
+            listHtml = `<div style="color:var(--text-light);font-size:13px;padding:16px 0;text-align:center;">まだ作品が登録されていません</div>`;
+        } else {
+            for (const p of projects) {
+                const cnt = orders.filter(o => o.projectId === p.id).length;
+                if (editProjId === p.id) {
+                    listHtml += `
+                    <div class="proj-list-item">
+                        <span class="proj-color-dot" style="background:${p.color};"></span>
+                        <input type="text" class="f-input" id="editProjName" value="${esc(p.name)}"
+                               style="flex:1;font-size:14px;padding:6px 10px;">
+                        <button class="proj-list-btn edit" onclick="saveEditProj('${p.id}')">確定</button>
+                        <button class="proj-list-btn" onclick="editProjId=null;renderProjModal()">×</button>
+                    </div>`;
+                } else {
+                    listHtml += `
+                    <div class="proj-list-item">
+                        <span class="proj-color-dot" style="background:${p.color};"></span>
+                        <span class="proj-list-name">${esc(p.name)}</span>
+                        <span class="proj-list-count">${cnt}件</span>
+                        <button class="proj-list-btn edit" onclick="startEditProj('${p.id}')">名前変更</button>
+                        <button class="proj-list-btn del" onclick="deleteProject('${p.id}')">削除</button>
+                    </div>`;
+                }
+            }
+        }
+
+        document.getElementById('projModalBody').innerHTML = `
+        <div class="f-section" style="margin-top:0;">新しい作品を追加</div>
+        <div class="f-group">
+            <label class="f-label">作品名<span class="req">*</span></label>
+            <input type="text" class="f-input" id="fProjName" placeholder="例：○○○○（連ドラ）">
+        </div>
+        <div class="f-group">
+            <label class="f-label">カラー</label>
+            <div class="color-swatches" id="colorSwatches"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:4px;" onclick="addProject()">作品を追加</button>
+        <div class="f-section">登録済み作品</div>
+        ${listHtml}`;
+
+        renderColorSwatches(selectedColor);
+
+        if (editProjId) {
+            const inp = document.getElementById('editProjName');
+            if (inp) { inp.focus(); inp.select(); }
+        }
+    }
+
+    function renderColorSwatches(selected) {
+        selectedColor = selected;
+        const wrap = document.getElementById('colorSwatches');
+        if (!wrap) return;
+        wrap.innerHTML = PROJ_COLORS.map(c =>
+            `<div class="color-swatch${c === selected ? ' selected' : ''}"
+                style="background:${c};"
+                onclick="renderColorSwatches('${c}')"></div>`
+        ).join('');
+    }
+
+    function addProject() {
+        const name = (document.getElementById('fProjName').value || '').trim();
+        if (!name) { alert('作品名を入力してください。'); return; }
+        projects.push({ id: 'proj_' + Date.now().toString(36), name, color: selectedColor });
+        persist();
+        selectedColor = PROJ_COLORS[0];
+        renderProjectBar();
+        renderProjModal();
+        showToast('作品を追加しました');
+    }
+
+    function startEditProj(id) {
+        editProjId = id;
+        renderProjModal();
+    }
+
+    function saveEditProj(id) {
+        const inp  = document.getElementById('editProjName');
+        const name = (inp ? inp.value : '').trim();
+        if (!name) { alert('作品名を入力してください。'); return; }
+        const p = projects.find(x => x.id === id);
+        if (p) p.name = name;
+        editProjId = null;
+        persist();
+        renderProjectBar();
+        renderProjModal();
+        render();
+        showToast('作品名を変更しました');
+    }
+
+    function deleteProject(id) {
+        const p   = projects.find(x => x.id === id);
+        const cnt = orders.filter(o => o.projectId === id).length;
+        const msg = cnt > 0
+            ? `「${p.name}」を削除しますか？\nこの作品の発注記録 ${cnt}件 は「未設定」になります。`
+            : `「${p.name}」を削除しますか？`;
+        if (!confirm(msg)) return;
+        orders   = orders.map(o => o.projectId === id ? { ...o, projectId: null } : o);
+        projects = projects.filter(x => x.id !== id);
+        if (curProject === id) curProject = null;
+        persist();
+        renderProjectBar();
+        renderProjModal();
+        render();
+        showToast('作品を削除しました');
+    }
+
     /* ---------- copy ---------- */
     function copyOrder(id) {
-        const o = orders.find(x => x.id === id);
+        const o    = orders.find(x => x.id === id);
         if (!o) return;
-        const tc = sumItems(o);
+        const tc   = sumItems(o);
+        const proj = projById(o.projectId);
 
         const lines = [];
         lines.push(`【弁当発注】${o.meal}`);
         lines.push(dayLabel(o.date));
+        if (proj) lines.push(`作品　　：${proj.name}`);
         lines.push('');
         lines.push(`発注先　：${o.vendor}`);
         if (o.phone)        lines.push(`TEL　　　：${o.phone}`);
@@ -1022,7 +1419,7 @@
             }
         }
         const orderAmt = sumAmount(o);
-        lines.push(`────────`);
+        lines.push('────────');
         lines.push(`合計　${tc}個${orderAmt > 0 ? '　' + fmtYen(orderAmt) : ''}`);
         lines.push(`支払　${o.pay}`);
         if (o.memo) {
@@ -1031,7 +1428,6 @@
         }
 
         const text = lines.join('\n');
-
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text)
                 .then(() => showToast('コピーしました'))
@@ -1061,17 +1457,76 @@
         t._tid = setTimeout(() => t.classList.remove('show'), 2200);
     }
 
+    /* ---------- CSV export ---------- */
+    function exportCSV() {
+        const mo = monthOrders();
+        if (mo.length === 0) { alert('この月の発注記録がありません。'); return; }
+
+        const y        = cur.getFullYear();
+        const m        = cur.getMonth() + 1;
+        const projLabel = curProject ? (projById(curProject)?.name || '') : '全作品';
+        const dn        = ['日','月','火','水','木','金','土'];
+
+        const csvEsc = v => {
+            const s = String(v ?? '');
+            return (s.includes(',') || s.includes('"') || s.includes('\n'))
+                ? '"' + s.replace(/"/g, '""') + '"'
+                : s;
+        };
+
+        const rows = [
+            ['日付','曜日','食事区分','作品名','発注先','電話番号','配達場所','配達時間','内訳','合計個数','合計金額','支払方法','備考']
+        ];
+
+        for (const o of mo) {
+            const proj  = projById(o.projectId);
+            const d     = new Date(o.date + 'T00:00:00');
+            const items = o.items.map(i => {
+                const p = parseInt(i.price) || 0;
+                return p > 0 ? `${i.name}×${i.qty}個@${p}円` : `${i.name}×${i.qty}個`;
+            }).join(' / ');
+            const amt = sumAmount(o);
+            rows.push([
+                o.date,
+                dn[d.getDay()],
+                o.meal,
+                proj ? proj.name : '',
+                o.vendor,
+                o.phone        || '',
+                o.delivery     || '',
+                o.deliveryTime || '',
+                items,
+                sumItems(o),
+                amt > 0 ? amt : '',
+                o.pay,
+                o.memo || '',
+            ].map(csvEsc));
+        }
+
+        const bom  = '﻿';
+        const csv  = bom + rows.map(r => r.join(',')).join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `弁当発注_${y}年${m}月_${projLabel}.csv`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        showToast('CSVをダウンロードしました');
+    }
+
     /* ---------- print ---------- */
     function printMonth() {
         const mo = monthOrders();
         if (mo.length === 0) { alert('この月の発注記録がありません。'); return; }
 
-        const y   = cur.getFullYear();
-        const m   = cur.getMonth() + 1;
-        const tot = mo.reduce((s, o) => s + sumItems(o), 0);
-        const lastDay = new Date(y, m, 0).getDate();
+        const y         = cur.getFullYear();
+        const m         = cur.getMonth() + 1;
+        const lastDay   = new Date(y, m, 0).getDate();
+        const tot       = mo.reduce((s, o) => s + sumItems(o), 0);
+        const projLabel = curProject ? (projById(curProject)?.name || '') : null;
+        const showProjCol = curProject === null;
 
-        /* summary by meal type */
         const mealSum = {};
         for (const o of mo) {
             if (!mealSum[o.meal]) mealSum[o.meal] = { count: 0, amount: 0 };
@@ -1084,16 +1539,39 @@
             .map(t => `<tr><td>${t}</td><td class="num">${mealSum[t].count}個</td><td class="num">${mealSum[t].amount > 0 ? fmtYen(mealSum[t].amount) : '—'}</td></tr>`)
             .join('');
 
-        const inv     = mo.filter(o => o.pay === '請求書払い').length;
-        const cash    = mo.filter(o => o.pay === '現金払い').length;
-        const invAmt  = mo.filter(o => o.pay === '請求書払い').reduce((s, o) => s + sumAmount(o), 0);
-        const cashAmt = mo.filter(o => o.pay === '現金払い').reduce((s, o) => s + sumAmount(o), 0);
+        // 全作品表示時は作品別合計を追加
+        let projSumHtml = '';
+        if (showProjCol) {
+            const pSum = {};
+            for (const o of mo) {
+                const key = o.projectId || '__none__';
+                if (!pSum[key]) pSum[key] = { count: 0, amount: 0 };
+                pSum[key].count  += sumItems(o);
+                pSum[key].amount += sumAmount(o);
+            }
+            let pRows = '';
+            for (const [key, val] of Object.entries(pSum)) {
+                const pName = key === '__none__' ? '（未設定）' : (projById(key)?.name || '（削除済み）');
+                pRows += `<tr><td>${esc(pName)}</td><td class="num">${val.count}個</td><td class="num">${val.amount > 0 ? fmtYen(val.amount) : '—'}</td></tr>`;
+            }
+            projSumHtml = `
+            <div class="side-title" style="margin-top:12px;">作品別合計</div>
+            <table>
+                <thead><tr><th>作品</th><th>数量</th><th>金額</th></tr></thead>
+                <tbody>${pRows}</tbody>
+            </table>`;
+        }
+
+        const inv      = mo.filter(o => o.pay === '請求書払い').length;
+        const cash     = mo.filter(o => o.pay === '現金払い').length;
+        const invAmt   = mo.filter(o => o.pay === '請求書払い').reduce((s, o) => s + sumAmount(o), 0);
+        const cashAmt  = mo.filter(o => o.pay === '現金払い').reduce((s, o) => s + sumAmount(o), 0);
         const grandAmt = invAmt + cashAmt;
 
-        /* main rows */
         const rowsHtml = mo.map((o, idx) => {
             const tc       = sumItems(o);
             const rowAmt   = sumAmount(o);
+            const proj     = projById(o.projectId);
             const itemsStr = o.items.map(i => {
                 const p = parseInt(i.price) || 0;
                 return p > 0 ? `${i.name} ×${i.qty} @${p.toLocaleString('ja-JP')}円` : `${i.name} ×${i.qty}`;
@@ -1102,6 +1580,7 @@
             return `<tr style="${bg}">
                 <td>${esc(dayLabel(o.date))}</td>
                 <td>${esc(o.meal)}</td>
+                ${showProjCol ? `<td>${esc(proj ? proj.name : '—')}</td>` : ''}
                 <td>${esc(o.vendor)}</td>
                 <td>${esc(o.phone || '—')}</td>
                 <td>${esc(itemsStr)}</td>
@@ -1112,11 +1591,15 @@
             </tr>`;
         }).join('');
 
+        const titleLine = projLabel
+            ? `${y}年${m}月　弁当発注一覧　【${projLabel}】`
+            : `${y}年${m}月　弁当発注一覧`;
+
         const html = `<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>${y}年${m}月 弁当発注一覧</title>
+<title>${titleLine}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;font-size:9.5pt;color:#111;background:white;}
@@ -1145,7 +1628,7 @@ td{padding:5px 7px;border:1px solid #c4c9d8;vertical-align:top;font-size:8.5pt;}
 <div class="wrap">
   <div class="doc-header">
     <div>
-      <div class="doc-title">${y}年${m}月　弁当発注一覧</div>
+      <div class="doc-title">${esc(titleLine)}</div>
       <div class="doc-sub">BENTO ORDER REPORT</div>
     </div>
     <div class="doc-meta">
@@ -1169,6 +1652,7 @@ td{padding:5px 7px;border:1px solid #c4c9d8;vertical-align:top;font-size:8.5pt;}
           <tr>
             <th style="min-width:100px;">日付</th>
             <th style="min-width:36px;">区分</th>
+            ${showProjCol ? '<th style="min-width:80px;">作品</th>' : ''}
             <th style="min-width:90px;">発注先</th>
             <th style="min-width:80px;">電話番号</th>
             <th>内訳（品名×数 @単価）</th>
@@ -1178,9 +1662,7 @@ td{padding:5px 7px;border:1px solid #c4c9d8;vertical-align:top;font-size:8.5pt;}
             <th style="min-width:80px;">備考</th>
           </tr>
         </thead>
-        <tbody>
-          ${rowsHtml}
-        </tbody>
+        <tbody>${rowsHtml}</tbody>
       </table>
     </div>
     <div class="side-wrap">
@@ -1189,6 +1671,7 @@ td{padding:5px 7px;border:1px solid #c4c9d8;vertical-align:top;font-size:8.5pt;}
         <thead><tr><th>区分</th><th>数量</th><th>金額</th></tr></thead>
         <tbody>${mealSumHtml}</tbody>
       </table>
+      ${projSumHtml}
       <div class="side-title" style="margin-top:12px;">支払方法別合計</div>
       <table>
         <thead><tr><th>支払</th><th>件数</th><th>金額</th></tr></thead>
@@ -1218,6 +1701,7 @@ td{padding:5px 7px;border:1px solid #c4c9d8;vertical-align:top;font-size:8.5pt;}
 
     /* ---------- init ---------- */
     load();
+    renderProjectBar();
     render();
 </script>
 </body>
