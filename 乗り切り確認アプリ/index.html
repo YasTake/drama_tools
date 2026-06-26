@@ -423,6 +423,7 @@
     <h1>🚌 乗り切り確認</h1>
     <div class="hbtns">
       <button class="hbtn" onclick="openAddMember('unassigned')" title="未配車にメンバーを追加">👤＋</button>
+      <button class="hbtn" onclick="copyText()" title="テキストコピー（LINE共有用）">📋</button>
       <button class="hbtn" onclick="doPrint()" title="PDF出力">🖨</button>
       <button class="hbtn" onclick="openSettings()" title="設定">⚙</button>
     </div>
@@ -1111,6 +1112,55 @@ function doClear() {
     save(); closeModal('m-conf'); closeModal('m-set'); render(); toast('消去しました');
   };
   showModal('m-conf');
+}
+
+// ─── Copy text (LINE share) ───
+function buildTextCopy() {
+  const lines = [];
+  const label = [project.title, project.note].filter(Boolean).join('　');
+  lines.push(`【乗り切り】${label || '乗り切り表'}`);
+
+  vehicles.forEach(v => {
+    lines.push('');
+    const meta = [];
+    if (v.driver) meta.push(`Dr.${v.driver}`);
+    if (v.no)     meta.push(`No.${v.no}`);
+    if (v.depart) meta.push(`${v.depart}発`);
+    const metaStr = meta.length ? `（${meta.join('・')}）` : '';
+    lines.push(`▶ ${v.name}　${v.members.length}/${v.cap}名${metaStr}`);
+    lines.push(v.members.length ? v.members.join('・') : '（乗車なし）');
+  });
+
+  if (selfDrivers.length > 0) {
+    lines.push('');
+    lines.push(`🚗 自車　${selfDrivers.length}名`);
+    lines.push(selfDrivers.join('・'));
+  }
+
+  if (unassigned.length > 0) {
+    lines.push('');
+    lines.push(`⚠ 未配車　${unassigned.length}名`);
+    lines.push(unassigned.join('・'));
+  }
+
+  return lines.join('\n').trim();
+}
+
+async function copyText() {
+  const text = buildTextCopy();
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('コピーしました');
+  } catch (_) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('コピーしました');
+  }
 }
 
 // ─── PDF / Print ───
