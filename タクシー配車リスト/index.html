@@ -213,6 +213,41 @@
       flex-wrap: wrap;
     }
     .staff-sub { font-size: 12px; color: var(--sub); margin-top: 3px; }
+    .staff-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* ── Inline edit form ── */
+    .staff-edit-wrap {
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f3f7;
+    }
+    .staff-edit-wrap:last-child { border-bottom: none; }
+    .staff-edit-wrap .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .staff-edit-wrap .edit-grid .full { grid-column: 1 / -1; }
+    .staff-edit-wrap input[type=text],
+    .staff-edit-wrap input[type=number],
+    .staff-edit-wrap select {
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+    .staff-edit-wrap .edit-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 4px 0 8px;
+    }
+    .staff-edit-wrap .edit-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+    .edit-actions { display: flex; gap: 8px; }
+    .btn-save { background: var(--green); color: #fff; }
+    .btn-save:hover { background: #1b5e20; }
 
     .empty-msg {
       text-align: center;
@@ -580,9 +615,11 @@ function updateApiModeUI() {
 }
 
 // ─── Staff Management ─────────────────────────────────────────────────────────
+let editingId = null;
+
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
-function addStaff() {
+async function addStaff() {
   const name    = v('inName').trim();
   const station = v('inStation').trim();
   const soloOnly = document.getElementById('inSolo').checked;
@@ -598,26 +635,76 @@ function addStaff() {
     bearing = d === -1 ? null : d;
   }
 
-  S.staff.push({
-    id: genId(),
-    name,
-    station,
-    soloOnly,
-    bearing,
-    distance,
-    latLng: null,
-    geocoded: false,
-  });
-
+  const newStaff = { id: genId(), name, station, soloOnly, bearing, distance, latLng: null, geocoded: false };
+  S.staff.push(newStaff);
   saveState();
   renderStaffList();
   clearForm();
+
+  if (S.settings.apiKey) {
+    await geocodeOne(newStaff);
+    saveState();
+    renderStaffList();
+  }
 }
 
 function deleteStaff(id) {
+  if (editingId === id) editingId = null;
   S.staff = S.staff.filter(s => s.id !== id);
   saveState();
   renderStaffList();
+}
+
+function startEdit(id) {
+  editingId = id;
+  renderStaffList();
+  // Focus first field
+  const el = document.getElementById(`edit-name-${id}`);
+  if (el) el.focus();
+}
+
+function cancelEdit() {
+  editingId = null;
+  renderStaffList();
+}
+
+async function saveEdit(id) {
+  const s = S.staff.find(x => x.id === id);
+  if (!s) return;
+
+  const newName    = document.getElementById(`edit-name-${id}`).value.trim();
+  const newStation = document.getElementById(`edit-station-${id}`).value.trim();
+  if (!newName)    { alert('氏名を入力してください'); return; }
+  if (!newStation) { alert('最寄り駅・目的地を入力してください'); return; }
+
+  const stationChanged = newStation !== s.station;
+  s.name     = newName;
+  s.station  = newStation;
+  s.soloOnly = document.getElementById(`edit-solo-${id}`).checked;
+
+  const distEl = document.getElementById(`edit-dist-${id}`);
+  s.distance = distEl && distEl.value ? parseFloat(distEl.value) : null;
+
+  if (!S.settings.apiKey) {
+    const dirEl = document.getElementById(`edit-dir-${id}`);
+    const d = dirEl ? parseInt(dirEl.value) : -1;
+    s.bearing = d === -1 ? null : d;
+  } else if (stationChanged) {
+    s.geocoded = false;
+    s.latLng   = null;
+    s.bearing  = null;
+    s.distance = null;
+  }
+
+  editingId = null;
+  saveState();
+  renderStaffList();
+
+  if (S.settings.apiKey && stationChanged) {
+    await geocodeOne(s);
+    saveState();
+    renderStaffList();
+  }
 }
 
 function clearAllStaff() {
@@ -646,6 +733,8 @@ function renderStaffList() {
   }
 
   el.innerHTML = S.staff.map(s => {
+    if (s.id === editingId) return renderEditForm(s);
+
     const dirLabel = S.settings.apiKey
       ? (s.geocoded ? `📍 ${dirName(s.bearing)}` : '（未ジオコード）')
       : (s.bearing !== null && s.bearing !== undefined ? dirName(s.bearing) : '方角不明');
@@ -659,18 +748,80 @@ function renderStaffList() {
         </div>
         <div class="staff-sub">${esc(s.station)}　${dirLabel}${distLabel}</div>
       </div>
-      <button class="btn btn-outline-danger btn-sm no-print" onclick="deleteStaff('${s.id}')">削除</button>
+      <div class="staff-actions no-print">
+        <button class="btn btn-outline btn-sm" onclick="startEdit('${s.id}')">✏️ 編集</button>
+        <button class="btn btn-outline-danger btn-sm" onclick="deleteStaff('${s.id}')">削除</button>
+      </div>
     </div>`;
   }).join('');
 }
 
+function renderEditForm(s) {
+  const hasApi = !!S.settings.apiKey;
+  const dirOptions = [
+    [0,'北（N）'],[45,'北東（NE）'],[90,'東（E）'],[135,'南東（SE）'],
+    [180,'南（S）'],[225,'南西（SW）'],[270,'西（W）'],[315,'北西（NW）'],[-1,'不明'],
+  ].map(([val, lbl]) =>
+    `<option value="${val}" ${s.bearing === val ? 'selected' : ''}>${lbl}</option>`
+  ).join('');
+
+  const dirRow = hasApi ? '' : `
+    <div>
+      <label>方角</label>
+      <select id="edit-dir-${s.id}">${dirOptions}</select>
+    </div>`;
+
+  return `<div class="staff-edit-wrap">
+    <div class="edit-grid">
+      <div>
+        <label>氏名・役職</label>
+        <input type="text" id="edit-name-${s.id}" value="${esc(s.name)}" placeholder="山田 太郎">
+      </div>
+      <div>
+        <label>最寄り駅 / 目的地</label>
+        <input type="text" id="edit-station-${s.id}" value="${esc(s.station)}" placeholder="渋谷駅">
+      </div>
+      ${dirRow}
+      <div>
+        <label>距離（km・任意）</label>
+        <input type="number" id="edit-dist-${s.id}" value="${s.distance ?? ''}" placeholder="例：8" min="0" step="0.5">
+      </div>
+    </div>
+    <label class="edit-check">
+      <input type="checkbox" id="edit-solo-${s.id}" ${s.soloOnly ? 'checked' : ''}>
+      一人乗車限定
+    </label>
+    <div class="edit-actions">
+      <button class="btn btn-save btn-sm" onclick="saveEdit('${s.id}')">💾 保存</button>
+      <button class="btn btn-outline btn-sm" onclick="cancelEdit()">キャンセル</button>
+    </div>
+  </div>`;
+}
+
 // ─── Geocoding ───────────────────────────────────────────────────────────────
+async function geocodeOne(s) {
+  if (!S.settings.apiKey) return;
+  if (!S.settings.departureLatLng && S.settings.departureAddress) {
+    S.settings.departureLatLng = await geocodeAddr(S.settings.departureAddress);
+  }
+  const ll = await geocodeAddr(s.station);
+  if (ll) {
+    s.latLng   = ll;
+    s.geocoded = true;
+    if (S.settings.departureLatLng) {
+      s.bearing  = calcBearing(S.settings.departureLatLng, ll);
+      s.distance = haversineKm(S.settings.departureLatLng, ll);
+    }
+  } else {
+    s.geocoded = false;
+  }
+}
+
 async function geocodeAll() {
   if (!S.settings.apiKey) { alert('APIキーを設定してください'); return; }
   const btn = document.getElementById('geocodeAllBtn');
   btn.disabled = true;
 
-  // Geocode departure if missing
   if (!S.settings.departureLatLng && S.settings.departureAddress) {
     S.settings.departureLatLng = await geocodeAddr(S.settings.departureAddress);
   }
@@ -679,15 +830,7 @@ async function geocodeAll() {
   let done = 0;
   for (const s of targets) {
     btn.textContent = `⏳ ${done}/${targets.length}`;
-    const ll = await geocodeAddr(s.station);
-    if (ll) {
-      s.latLng = ll;
-      s.geocoded = true;
-      if (S.settings.departureLatLng) {
-        s.bearing  = calcBearing(S.settings.departureLatLng, ll);
-        s.distance = haversineKm(S.settings.departureLatLng, ll);
-      }
-    }
+    await geocodeOne(s);
     done++;
     await sleep(220);
   }
