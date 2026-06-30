@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>タクシー配車リスト</title>
+  <style>
+    :root {
+      --primary: #1565c0;
+      --primary-light: #1e88e5;
+      --primary-dark: #0d47a1;
+      --accent: #f57c00;
+      --danger: #c62828;
+      --green: #2e7d32;
+      --bg: #f0f4f8;
+      --card: #ffffff;
+      --border: #dde3ea;
+      --text: #1c2330;
+      --sub: #5f6b7a;
+      --radius: 14px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+      color: #fff;
+      padding: 16px 20px;
+      padding-top: calc(16px + env(safe-area-inset-top));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+    }
+    header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.02em; }
+    .header-actions { display: flex; gap: 8px; }
+    .btn-header {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-header:hover { background: rgba(255,255,255,0.28); }
+
+    /* ── Main ── */
+    main { max-width: 820px; margin: 0 auto; padding: 16px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-title .left { display: flex; align-items: center; gap: 6px; }
+
+    /* ── Form elements ── */
+    label { font-size: 12px; color: var(--sub); display: block; margin-bottom: 4px; font-weight: 600; }
+    input[type=text], input[type=number], select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      background: #f8fafc;
+      transition: border-color 0.18s, background 0.18s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      background: #fff;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235f6b7a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .full { grid-column: 1 / -1; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+    .btn-outline-danger { background: #fff; color: var(--danger); border: 1.5px solid #e57373; }
+    .btn-outline { background: #fff; color: var(--sub); border: 1.5px solid var(--border); }
+    .btn-calc {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 14px rgba(21,101,192,0.40);
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.04em;
+    }
+    .btn-calc:hover { opacity: 0.92; }
+    .btn-calc:active { transform: scale(0.98); }
+
+    /* ── Toggle / collapse ── */
+    .toggle-link {
+      background: none;
+      border: none;
+      color: var(--primary-light);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+    }
+    .collapsible { overflow: hidden; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    .badge-solo { background: #fff3e0; color: var(--accent); border: 1px solid #ffcc80; }
+    .badge-pin  { background: #e8f5e9; color: var(--green); border: 1px solid #a5d6a7; }
+
+    /* ── Checkbox row ── */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0 2px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      user-select: none;
+    }
+    .check-row input[type=checkbox] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ── Staff list ── */
+    .staff-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f3f7;
+      gap: 10px;
+    }
+    .staff-item:last-child { border-bottom: none; }
+    .staff-info { flex: 1; min-width: 0; }
+    .staff-name {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .staff-sub { font-size: 12px; color: var(--sub); margin-top: 3px; }
+
+    .empty-msg {
+      text-align: center;
+      color: #b0bec5;
+      padding: 28px 16px;
+      font-size: 14px;
+    }
+
+    /* ── Summary bar ── */
+    .summary-bar {
+      display: flex;
+      gap: 0;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 16px 24px;
+    }
+    .summary-item { display: flex; flex-direction: column; gap: 2px; }
+    .summary-item .lbl { font-size: 11px; color: rgba(255,255,255,0.75); font-weight: 600; }
+    .summary-item .val { font-size: 20px; font-weight: 800; color: #fff; }
+
+    /* ── Taxi cards ── */
+    .taxi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .taxi-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--primary);
+    }
+    .taxi-card.solo  { border-top-color: var(--accent); }
+    .taxi-card.unknown { border-top-color: #90a4ae; }
+    .taxi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .taxi-num {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .taxi-card.solo  .taxi-num { color: var(--accent); }
+    .taxi-card.unknown .taxi-num { color: #78909c; }
+    .taxi-meta {
+      font-size: 11px;
+      color: var(--sub);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      text-align: right;
+    }
+    .taxi-fare {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .taxi-dir {
+      font-size: 12px;
+      color: var(--sub);
+    }
+    .taxi-passengers { list-style: none; border-top: 1px solid #f0f3f7; padding-top: 8px; }
+    .taxi-passengers li {
+      padding: 6px 0;
+      border-bottom: 1px solid #f7f8fa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+    .taxi-passengers li:last-child { border-bottom: none; }
+    .p-name { font-weight: 600; flex: 1; }
+    .p-station { font-size: 11px; color: var(--sub); text-align: right; }
+
+    /* ── Mode banner ── */
+    .mode-banner {
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .mode-api  { background: #e8f5e9; color: #1b5e20; }
+    .mode-manual { background: #fff8e1; color: #e65100; }
+
+    /* ── Print styles ── */
+    @media print {
+      .no-print { display: none !important; }
+      header { position: static; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      body { background: white; }
+      main { max-width: 100%; padding: 8px; }
+      .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+      .summary-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .taxi-grid { grid-template-columns: 1fr 1fr; }
+      .taxi-card { box-shadow: none; border: 1px solid #ccc; border-top: 4px solid #1565c0; page-break-inside: avoid; }
+      .taxi-card.solo { border-top-color: #f57c00; }
+      .taxi-card.unknown { border-top-color: #90a4ae; }
+      .btn-calc, #staffListCard, #addFormCard, #settingsCard { display: none !important; }
+    }
+
+    @media (max-width: 600px) {
+      .grid2 { grid-template-columns: 1fr; }
+      .grid3 { grid-template-columns: 1fr 1fr; }
+      .taxi-grid { grid-template-columns: 1fr; }
+      .summary-bar { gap: 12px 20px; }
+    }
+
+    @media (max-width: 380px) {
+      .grid3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🚕 タクシー配車リスト</h1>
+  <div class="header-actions">
+    <button class="btn-header no-print" onclick="doPrint()">🖨 印刷・PDF</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── Settings ── -->
+  <div class="card no-print" id="settingsCard">
+    <div class="card-title">
+      <span class="left">⚙️ 設定</span>
+      <button class="toggle-link" onclick="toggleSettings()">▲ 閉じる</button>
+    </div>
+    <div id="settingsBody">
+      <div class="grid2" style="margin-bottom:12px">
+        <div>
+          <label>作品名・現場名</label>
+          <input type="text" id="projectName" placeholder="例：〇〇ドラマ 第3話">
+        </div>
+        <div>
+          <label>日付</label>
+          <input type="text" id="shootDate" placeholder="例：2026/07/01">
+        </div>
+        <div class="full">
+          <label>出発地名称</label>
+          <input type="text" id="departureName" placeholder="例：撮影現場・スタジオ">
+        </div>
+        <div class="full">
+          <label>出発地住所（Google Maps API でジオコーディングする場合）</label>
+          <input type="text" id="departureAddress" placeholder="例：東京都渋谷区神南1-1-1">
+        </div>
+        <div class="full">
+          <label>Google Maps API キー（任意。入力すると住所から方角・距離を自動計算）</label>
+          <input type="text" id="apiKey" placeholder="AIza...">
+        </div>
+      </div>
+      <div class="grid3" style="margin-bottom:12px">
+        <div>
+          <label>タクシー定員</label>
+          <select id="taxiCapacity">
+            <option value="3">3人</option>
+            <option value="4" selected>4人</option>
+          </select>
+        </div>
+        <div>
+          <label>初乗り料金（円）</label>
+          <input type="number" id="fareBase" value="500" min="0">
+        </div>
+        <div>
+          <label>初乗り距離（km）</label>
+          <input type="number" id="fareBaseDist" value="1.096" step="0.001" min="0.1">
+        </div>
+        <div>
+          <label>加算距離（m）</label>
+          <input type="number" id="fareAddDist" value="255" min="1">
+        </div>
+        <div>
+          <label>加算料金（円）</label>
+          <input type="number" id="fareAddRate" value="100" min="1">
+        </div>
+        <div>
+          <label>深夜割増（22〜5時）</label>
+          <select id="fareNight">
+            <option value="0">なし</option>
+            <option value="1">あり（×1.2）</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">💾 設定を保存</button>
+    </div>
+  </div>
+
+  <!-- ── Add Staff ── -->
+  <div class="card no-print" id="addFormCard">
+    <div class="card-title">
+      <span class="left">➕ スタッフを追加</span>
+      <div id="apiModeBanner" class="mode-manual" style="padding:4px 10px;border-radius:8px;font-size:11px">手動モード（方角を選択）</div>
+    </div>
+    <div class="grid2" style="margin-bottom:8px">
+      <div>
+        <label>氏名・役職</label>
+        <input type="text" id="inName" placeholder="山田 太郎">
+      </div>
+      <div>
+        <label>最寄り駅 / 目的地</label>
+        <input type="text" id="inStation" placeholder="渋谷駅">
+      </div>
+      <div id="dirRow">
+        <label>方角（出発地からの大まかな方角）</label>
+        <select id="inDirection">
+          <option value="0">北（N）</option>
+          <option value="45">北東（NE）</option>
+          <option value="90">東（E）</option>
+          <option value="135">南東（SE）</option>
+          <option value="180">南（S）</option>
+          <option value="225">南西（SW）</option>
+          <option value="270">西（W）</option>
+          <option value="315">北西（NW）</option>
+          <option value="-1">不明</option>
+        </select>
+      </div>
+      <div>
+        <label>おおよその距離（km・任意）</label>
+        <input type="number" id="inDistance" placeholder="例：8" min="0" step="0.5">
+      </div>
+    </div>
+    <label class="check-row">
+      <input type="checkbox" id="inSolo">
+      一人乗車限定（役者・VIPなど他者と同乗させない）
+    </label>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" onclick="addStaff()">追加する</button>
+      <button class="btn btn-outline btn-sm" onclick="clearForm()">クリア</button>
+      <button class="btn btn-outline btn-sm no-print" id="geocodeAllBtn" onclick="geocodeAll()" style="display:none;margin-left:auto">📍 全員ジオコード</button>
+    </div>
+  </div>
+
+  <!-- ── Staff List ── -->
+  <div class="card" id="staffListCard">
+    <div class="card-title">
+      <span class="left">
+        👥 スタッフ一覧
+        <span id="staffCount" style="font-size:12px;color:var(--sub);font-weight:400"></span>
+      </span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline-danger btn-sm no-print" onclick="clearAllStaff()">全削除</button>
+      </div>
+    </div>
+    <div id="staffList"></div>
+  </div>
+
+  <!-- ── Calculate Button ── -->
+  <div class="no-print" style="margin-bottom:16px">
+    <button class="btn-calc" onclick="calculate()">🚕 配車グループを自動計算する</button>
+  </div>
+
+  <!-- ── Results ── -->
+  <div id="resultSection" style="display:none">
+    <div style="font-size:14px;font-weight:700;color:var(--sub);margin-bottom:12px;padding:0 2px">
+      📋 配車結果 — <span id="resultProjectName"></span> <span id="resultDate"></span>
+      <br><span style="font-size:12px;font-weight:400">出発地：<span id="resultDeparture"></span></span>
+    </div>
+    <div class="summary-bar" id="summaryBar"></div>
+    <div class="taxi-grid" id="taxiGrid"></div>
+  </div>
+
+</main>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'taxi_dispatch_v2';
+let S = {
+  settings: {
+    projectName: '',
+    shootDate: '',
+    departureName: '撮影現場',
+    departureAddress: '',
+    departureLatLng: null,
+    apiKey: '',
+    taxiCapacity: 4,
+    fareBase: 500,
+    fareBaseDist: 1.096,
+    fareAddDist: 255,
+    fareAddRate: 100,
+    fareNight: 0,
+  },
+  staff: [],
+};
+
+// ─── Persistence ─────────────────────────────────────────────────────────────
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) S = Object.assign(S, JSON.parse(raw));
+  } catch(e) {}
+}
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+let settingsOpen = true;
+function toggleSettings() {
+  settingsOpen = !settingsOpen;
+  document.getElementById('settingsBody').style.display = settingsOpen ? '' : 'none';
+  document.querySelector('[onclick="toggleSettings()"]').textContent = settingsOpen ? '▲ 閉じる' : '▼ 開く';
+}
+
+function saveSettings() {
+  const s = S.settings;
+  s.projectName      = v('projectName');
+  s.shootDate        = v('shootDate');
+  s.departureName    = v('departureName') || '撮影現場';
+  const newAddr      = v('departureAddress');
+  if (newAddr !== s.departureAddress) s.departureLatLng = null;
+  s.departureAddress = newAddr;
+  s.apiKey           = v('apiKey');
+  s.taxiCapacity     = int('taxiCapacity', 4);
+  s.fareBase         = int('fareBase', 500);
+  s.fareBaseDist     = parseFloat(document.getElementById('fareBaseDist').value) || 1.096;
+  s.fareAddDist      = int('fareAddDist', 255);
+  s.fareAddRate      = int('fareAddRate', 100);
+  s.fareNight        = int('fareNight', 0);
+  saveState();
+  updateApiModeUI();
+  alert('設定を保存しました');
+}
+
+function applySettingsToForm() {
+  const s = S.settings;
+  set('projectName', s.projectName);
+  set('shootDate', s.shootDate || todayStr());
+  set('departureName', s.departureName);
+  set('departureAddress', s.departureAddress);
+  set('apiKey', s.apiKey);
+  set('taxiCapacity', String(s.taxiCapacity || 4));
+  set('fareBase', String(s.fareBase || 500));
+  set('fareBaseDist', String(s.fareBaseDist || 1.096));
+  set('fareAddDist', String(s.fareAddDist || 255));
+  set('fareAddRate', String(s.fareAddRate || 100));
+  set('fareNight', String(s.fareNight || 0));
+}
+
+function updateApiModeUI() {
+  const hasApi = !!S.settings.apiKey;
+  const banner = document.getElementById('apiModeBanner');
+  const dirRow = document.getElementById('dirRow');
+  const gcBtn  = document.getElementById('geocodeAllBtn');
+  if (hasApi) {
+    banner.className = 'mode-api';
+    banner.textContent = 'APIモード（住所から方角を自動取得）';
+    dirRow.style.display = 'none';
+    gcBtn.style.display = 'inline-block';
+  } else {
+    banner.className = 'mode-manual';
+    banner.textContent = '手動モード（方角を選択）';
+    dirRow.style.display = '';
+    gcBtn.style.display = 'none';
+  }
+}
+
+// ─── Staff Management ─────────────────────────────────────────────────────────
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function addStaff() {
+  const name    = v('inName').trim();
+  const station = v('inStation').trim();
+  const soloOnly = document.getElementById('inSolo').checked;
+  const distRaw = document.getElementById('inDistance').value.trim();
+  const distance = distRaw ? parseFloat(distRaw) : null;
+
+  if (!name)    { alert('氏名を入力してください'); return; }
+  if (!station) { alert('最寄り駅・目的地を入力してください'); return; }
+
+  let bearing = null;
+  if (!S.settings.apiKey) {
+    const d = int('inDirection', -1);
+    bearing = d === -1 ? null : d;
+  }
+
+  S.staff.push({
+    id: genId(),
+    name,
+    station,
+    soloOnly,
+    bearing,
+    distance,
+    latLng: null,
+    geocoded: false,
+  });
+
+  saveState();
+  renderStaffList();
+  clearForm();
+}
+
+function deleteStaff(id) {
+  S.staff = S.staff.filter(s => s.id !== id);
+  saveState();
+  renderStaffList();
+}
+
+function clearAllStaff() {
+  if (!confirm('スタッフリストをすべて削除しますか？')) return;
+  S.staff = [];
+  saveState();
+  renderStaffList();
+  document.getElementById('resultSection').style.display = 'none';
+}
+
+function clearForm() {
+  ['inName','inStation','inDistance'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inSolo').checked = false;
+  document.getElementById('inDirection').value = '0';
+}
+
+// ─── Render Staff List ────────────────────────────────────────────────────────
+function renderStaffList() {
+  const el  = document.getElementById('staffList');
+  const cnt = S.staff.length;
+  document.getElementById('staffCount').textContent = cnt ? `（${cnt}名）` : '';
+
+  if (!cnt) {
+    el.innerHTML = '<div class="empty-msg">スタッフを追加してください</div>';
+    return;
+  }
+
+  el.innerHTML = S.staff.map(s => {
+    const dirLabel = S.settings.apiKey
+      ? (s.geocoded ? `📍 ${dirName(s.bearing)}` : '（未ジオコード）')
+      : (s.bearing !== null && s.bearing !== undefined ? dirName(s.bearing) : '方角不明');
+    const distLabel = s.distance ? ` 約${s.distance.toFixed(1)}km` : '';
+    return `<div class="staff-item">
+      <div class="staff-info">
+        <div class="staff-name">
+          ${esc(s.name)}
+          ${s.soloOnly ? '<span class="badge badge-solo">一人限定</span>' : ''}
+          ${s.geocoded ? '<span class="badge badge-pin">GPS</span>' : ''}
+        </div>
+        <div class="staff-sub">${esc(s.station)}　${dirLabel}${distLabel}</div>
+      </div>
+      <button class="btn btn-outline-danger btn-sm no-print" onclick="deleteStaff('${s.id}')">削除</button>
+    </div>`;
+  }).join('');
+}
+
+// ─── Geocoding ───────────────────────────────────────────────────────────────
+async function geocodeAll() {
+  if (!S.settings.apiKey) { alert('APIキーを設定してください'); return; }
+  const btn = document.getElementById('geocodeAllBtn');
+  btn.disabled = true;
+
+  // Geocode departure if missing
+  if (!S.settings.departureLatLng && S.settings.departureAddress) {
+    S.settings.departureLatLng = await geocodeAddr(S.settings.departureAddress);
+  }
+
+  const targets = S.staff.filter(s => !s.geocoded);
+  let done = 0;
+  for (const s of targets) {
+    btn.textContent = `⏳ ${done}/${targets.length}`;
+    const ll = await geocodeAddr(s.station);
+    if (ll) {
+      s.latLng = ll;
+      s.geocoded = true;
+      if (S.settings.departureLatLng) {
+        s.bearing  = calcBearing(S.settings.departureLatLng, ll);
+        s.distance = haversineKm(S.settings.departureLatLng, ll);
+      }
+    }
+    done++;
+    await sleep(220);
+  }
+
+  saveState();
+  renderStaffList();
+  btn.textContent = '📍 全員ジオコード';
+  btn.disabled = false;
+}
+
+async function geocodeAddr(address) {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${S.settings.apiKey}&language=ja`;
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    if (d.status === 'OK' && d.results[0]) {
+      const loc = d.results[0].geometry.location;
+      return { lat: loc.lat, lng: loc.lng };
+    }
+  } catch(e) {}
+  return null;
+}
+
+// ─── Math ─────────────────────────────────────────────────────────────────────
+function calcBearing(from, to) {
+  const dL = (to.lng - from.lng) * Math.PI / 180;
+  const φ1 = from.lat * Math.PI / 180;
+  const φ2 = to.lat  * Math.PI / 180;
+  const y = Math.sin(dL) * Math.cos(φ2);
+  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(dL);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+function haversineKm(a, b) {
+  const R = 6371;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+  const s = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.asin(Math.sqrt(s));
+}
+
+function circularMean(bearings) {
+  let sy = 0, cx = 0;
+  bearings.forEach(b => { sy += Math.sin(b*Math.PI/180); cx += Math.cos(b*Math.PI/180); });
+  return (Math.atan2(sy/bearings.length, cx/bearings.length) * 180/Math.PI + 360) % 360;
+}
+
+const DIR16 = ['北','北北東','北東','東北東','東','東南東','南東','南南東','南','南南西','南西','西南西','西','西北西','北西','北北西'];
+function dirName(deg) {
+  if (deg === null || deg === undefined) return '不明';
+  return DIR16[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16];
+}
+
+// ─── Fare ────────────────────────────────────────────────────────────────────
+function estimateFare(distKm) {
+  if (!distKm || distKm <= 0) return null;
+  const { fareBase, fareBaseDist, fareAddDist, fareAddRate, fareNight } = S.settings;
+  const road = distKm * 1.3;
+  let fare = fareBase;
+  const extraM = Math.max(0, road * 1000 - fareBaseDist * 1000);
+  fare += Math.ceil(extraM / fareAddDist) * fareAddRate;
+  if (fareNight) fare = Math.round(fare * 1.2 / 10) * 10;
+  return fare;
+}
+
+// ─── Grouping Algorithm ───────────────────────────────────────────────────────
+function optimalGroup(staff, cap) {
+  // Sort by bearing, handle wrap-around by finding largest gap
+  const n = staff.length;
+  if (!n) return [];
+
+  const sorted = [...staff].sort((a, b) => {
+    const da = ((a.bearing ?? 0) % 360 + 360) % 360;
+    const db = ((b.bearing ?? 0) % 360 + 360) % 360;
+    return da - db;
+  });
+
+  // Find largest angular gap between consecutive bearings (circular)
+  let maxGap = -1, startIdx = 0;
+  for (let i = 0; i < n; i++) {
+    const b1 = ((sorted[i].bearing ?? 0) % 360 + 360) % 360;
+    const b2 = ((sorted[(i+1)%n].bearing ?? 0) % 360 + 360) % 360;
+    const gap = (b2 - b1 + 360) % 360;
+    if (gap > maxGap) { maxGap = gap; startIdx = (i+1) % n; }
+  }
+
+  // Reorder to start after the largest gap
+  const reordered = [...sorted.slice(startIdx), ...sorted.slice(0, startIdx)];
+
+  const groups = [];
+  for (let i = 0; i < n; i += cap) {
+    groups.push(reordered.slice(i, Math.min(i + cap, n)));
+  }
+  return groups;
+}
+
+// ─── Calculate ───────────────────────────────────────────────────────────────
+function calculate() {
+  if (!S.staff.length) { alert('スタッフを追加してください'); return; }
+
+  const cap      = S.settings.taxiCapacity || 4;
+  const solo     = S.staff.filter(s => s.soloOnly);
+  const withDir  = S.staff.filter(s => !s.soloOnly && s.bearing !== null && s.bearing !== undefined);
+  const noDir    = S.staff.filter(s => !s.soloOnly && (s.bearing === null || s.bearing === undefined));
+
+  const taxis = [];
+
+  // Solo: each gets own taxi
+  solo.forEach(s => taxis.push({ type: 'solo', members: [s] }));
+
+  // Grouped by direction
+  if (withDir.length) {
+    const groups = optimalGroup(withDir, cap);
+    groups.forEach(g => taxis.push({ type: 'shared', members: g }));
+  }
+
+  // No direction info
+  for (let i = 0; i < noDir.length; i += cap) {
+    taxis.push({ type: 'unknown', members: noDir.slice(i, i + cap) });
+  }
+
+  renderResult(taxis);
+}
+
+// ─── Render Result ────────────────────────────────────────────────────────────
+function renderResult(taxis) {
+  const section = document.getElementById('resultSection');
+  section.style.display = '';
+
+  const s = S.settings;
+  document.getElementById('resultProjectName').textContent = s.projectName || '';
+  document.getElementById('resultDate').textContent = s.shootDate || todayStr();
+  document.getElementById('resultDeparture').textContent = s.departureName || '（未設定）';
+
+  // Summary
+  const totalFare = taxis.reduce((sum, t) => {
+    const maxDist = Math.max(...t.members.map(m => m.distance || 0));
+    return sum + (estimateFare(maxDist) || 0);
+  }, 0);
+
+  document.getElementById('summaryBar').innerHTML = `
+    <div class="summary-item"><div class="lbl">スタッフ数</div><div class="val">${S.staff.length}名</div></div>
+    <div class="summary-item"><div class="lbl">タクシー台数</div><div class="val">${taxis.length}台</div></div>
+    <div class="summary-item"><div class="lbl">うち一人乗車</div><div class="val">${taxis.filter(t=>t.type==='solo').length}台</div></div>
+    ${totalFare ? `<div class="summary-item"><div class="lbl">概算合計（税込）</div><div class="val">約${totalFare.toLocaleString()}円</div></div>` : ''}
+  `;
+
+  // Taxi cards
+  document.getElementById('taxiGrid').innerHTML = taxis.map((taxi, i) => {
+    const num = i + 1;
+    const cls = taxi.type === 'solo' ? 'solo' : taxi.type === 'unknown' ? 'unknown' : '';
+    const label = taxi.type === 'solo' ? '一人乗車' : taxi.type === 'unknown' ? '要確認' : '相乗り';
+
+    const bearings = taxi.members.map(m => m.bearing).filter(b => b !== null && b !== undefined);
+    const avgDir   = bearings.length ? circularMean(bearings) : null;
+    const maxDist  = Math.max(...taxi.members.map(m => m.distance || 0));
+    const fare     = estimateFare(maxDist);
+
+    // Spread: how widely dispersed are directions?
+    let spreadNote = '';
+    if (bearings.length >= 2) {
+      const spreadDeg = bearingSpread(bearings);
+      if (spreadDeg > 60) spreadNote = `<span style="color:#e65100;font-size:10px">⚠方角にばらつきあり(${Math.round(spreadDeg)}°)</span>`;
+    }
+
+    const rows = taxi.members.map(m => {
+      const dir = m.bearing !== null && m.bearing !== undefined ? dirName(m.bearing) : '不明';
+      const dist = m.distance ? `${m.distance.toFixed(1)}km` : '';
+      return `<li>
+        <span class="p-name">${esc(m.name)}${m.soloOnly ? ' <span class="badge badge-solo">一人</span>' : ''}</span>
+        <span class="p-station">${esc(m.station)}<br><span style="color:var(--sub)">${dir}${dist ? ' ' + dist : ''}</span></span>
+      </li>`;
+    }).join('');
+
+    return `<div class="taxi-card ${cls}">
+      <div class="taxi-header">
+        <div class="taxi-num">🚕 ${num}号車
+          <span class="badge" style="font-size:10px;background:${cls==='solo'?'#fff3e0':cls==='unknown'?'#eceff1':'#e3f2fd'};color:${cls==='solo'?'var(--accent)':cls==='unknown'?'#607d8b':'var(--primary)'};">${label}</span>
+        </div>
+        <div class="taxi-meta">
+          ${avgDir !== null ? `<span class="taxi-dir">${dirName(avgDir)}方面</span>` : ''}
+          ${fare ? `<span class="taxi-fare">概算 約${fare.toLocaleString()}円</span>` : ''}
+          ${spreadNote}
+        </div>
+      </div>
+      <ul class="taxi-passengers">${rows}</ul>
+    </div>`;
+  }).join('');
+
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function bearingSpread(bearings) {
+  // Compute circular spread (semi-range)
+  const mean = circularMean(bearings);
+  const diffs = bearings.map(b => {
+    let d = Math.abs(b - mean);
+    if (d > 180) d = 360 - d;
+    return d;
+  });
+  return Math.max(...diffs);
+}
+
+// ─── Print ────────────────────────────────────────────────────────────────────
+function doPrint() {
+  if (document.getElementById('resultSection').style.display === 'none') {
+    if (!confirm('まだ計算していません。計算後に印刷することをお勧めします。このまま印刷しますか？')) return;
+  }
+  window.print();
+}
+
+// ─── Utils ───────────────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function v(id) { return document.getElementById(id)?.value ?? ''; }
+function set(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+function int(id, def) { return parseInt(document.getElementById(id)?.value) || def; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+loadState();
+applySettingsToForm();
+renderStaffList();
+updateApiModeUI();
+</script>
+</body>
+</html>
