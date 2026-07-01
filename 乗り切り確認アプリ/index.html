@@ -74,6 +74,8 @@
     .move-dest-btn:active { background: var(--bg); }
     .move-dest-btn.ua-dest { border-color: var(--red); color: var(--red); background: #ffeaea; }
     .move-dest-btn.ua-dest:active { background: #f5c5c5; }
+    .move-dest-btn.front-btn { border-color: var(--blue); color: var(--blue); background: var(--blue-light); justify-content: center; font-weight: 700; }
+    .move-dest-btn.front-btn:active { background: #c8d0ea; }
     .move-dest-name { font-weight: 500; flex: 1; }
     .move-dest-cnt { font-size: 13px; color: var(--text2); white-space: nowrap; }
     .move-dest-cnt.cnt-full { color: var(--red); font-weight: 600; }
@@ -318,6 +320,7 @@
       <input type="text" id="i-rename" class="fi" placeholder="名前を変更">
       <button class="rename-btn" onclick="saveRename()">変更</button>
     </div>
+    <button class="move-dest-btn front-btn" onclick="moveToFront()">⬆ 先頭へ移動</button>
     <div id="m-move-targets"></div>
     <div class="mbtns" style="margin-top:10px">
       <button class="mbtn mc" onclick="closeModal('m-move')">キャンセル</button>
@@ -830,6 +833,23 @@ function saveRename() {
     if (v) v.members[moveIdx] = newName;
   }
   save(); closeModal('m-move'); render(); toast(`「${newName}」に変更しました`);
+}
+
+// ─── Reorder ───
+function _getMoveArr() {
+  const sh = getSheet();
+  if (moveVid === 'unassigned') return sh.unassigned;
+  if (typeof moveVid === 'string' && moveVid.startsWith('sp-')) {
+    return sh.specials.find(x => x.id === parseInt(moveVid.slice(3)))?.members;
+  }
+  return sh.vehicles.find(x => x.id === moveVid)?.members;
+}
+function moveToFront() {
+  const arr = _getMoveArr(); if (!arr || moveIdx == null) return;
+  if (moveIdx === 0) { toast('すでに先頭です'); return; }
+  const [name] = arr.splice(moveIdx, 1);
+  arr.unshift(name);
+  save(); closeModal('m-move'); render(); toast(`「${name}」を先頭に移動しました`);
 }
 
 // ─── Special sections ───
