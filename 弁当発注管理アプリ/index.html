@@ -20,6 +20,8 @@
             --text-light: #8890a8;
             --danger: #b03030;
             --danger-light: #ffeaea;
+            --success: #2d6a4f;
+            --success-light: #d4f0e0;
         }
 
         body {
@@ -61,19 +63,19 @@
             margin-top: 2px;
         }
 
-        .header-btns { display: flex; gap: 7px; }
+        .header-btns { display: flex; gap: 6px; }
 
         .btn-export {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.32);
             color: white;
-            padding: 7px 13px;
+            padding: 7px 11px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             font-family: inherit;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
         }
 
         .btn-export:active { background: rgba(255,255,255,0.22); }
@@ -334,24 +336,9 @@
             border-top: 1px solid var(--border);
         }
 
-        .total-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-sub);
-            letter-spacing: 0.05em;
-        }
-
-        .total-count {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-sub);
-        }
-
-        .total-amount {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary);
-        }
+        .total-label  { font-size: 12px; font-weight: 600; color: var(--text-sub); letter-spacing: 0.05em; }
+        .total-count  { font-size: 13px; font-weight: 600; color: var(--text-sub); }
+        .total-amount { font-size: 18px; font-weight: 700; color: var(--primary); }
 
         .card-memo {
             margin-top: 8px;
@@ -392,10 +379,10 @@
         }
 
         .card-act + .card-act { border-left: 1px solid var(--border); }
-        .card-act:active { background: var(--accent-light); }
-        .card-act.del  { color: var(--danger); }
+        .card-act:active      { background: var(--accent-light); }
+        .card-act.del         { color: var(--danger); }
         .card-act.del:active  { background: var(--danger-light); }
-        .card-act.copy { color: var(--accent); }
+        .card-act.copy        { color: var(--accent); }
         .card-act.copy:active { background: var(--accent-light); }
 
         .delivery-info {
@@ -422,12 +409,7 @@
         }
 
         /* ===== COLOR SWATCHES ===== */
-        .color-swatches {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 6px;
-        }
+        .color-swatches { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 
         .color-swatch {
             width: 30px;
@@ -440,9 +422,7 @@
             outline-offset: 2px;
         }
 
-        .color-swatch.selected {
-            outline-color: var(--text);
-        }
+        .color-swatch.selected { outline-color: var(--text); }
 
         /* ===== PROJECT LIST (manage modal) ===== */
         .proj-list-item {
@@ -455,25 +435,10 @@
 
         .proj-list-item:last-child { border-bottom: none; }
 
-        .proj-color-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
+        .proj-color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-        .proj-list-name {
-            flex: 1;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .proj-list-count {
-            font-size: 11px;
-            color: var(--text-light);
-            white-space: nowrap;
-        }
+        .proj-list-name  { flex: 1; font-size: 14px; font-weight: 600; color: var(--text); }
+        .proj-list-count { font-size: 11px; color: var(--text-light); white-space: nowrap; }
 
         .proj-list-btn {
             background: none;
@@ -487,10 +452,123 @@
             flex-shrink: 0;
         }
 
-        .proj-list-btn.edit  { color: var(--accent); }
-        .proj-list-btn.edit:active  { background: var(--accent-light); }
-        .proj-list-btn.del   { color: var(--danger); }
-        .proj-list-btn.del:active   { background: var(--danger-light); }
+        .proj-list-btn.edit        { color: var(--accent); }
+        .proj-list-btn.edit:active { background: var(--accent-light); }
+        .proj-list-btn.del         { color: var(--danger); }
+        .proj-list-btn.del:active  { background: var(--danger-light); }
+
+        /* ===== TEMPLATE BAR (in order form) ===== */
+        .tmpl-bar {
+            background: #f0f3fa;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tmpl-bar .f-select {
+            flex: 1;
+            font-size: 14px;
+            padding: 8px 32px 8px 10px;
+            background-color: white;
+        }
+
+        .btn-tmpl-save {
+            flex-shrink: 0;
+            background: var(--success);
+            border: none;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .btn-tmpl-save:active { opacity: 0.8; }
+
+        /* ===== DATA MODAL ===== */
+        .data-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-sub);
+            letter-spacing: 0.14em;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+            margin: 18px 0 12px;
+        }
+
+        .data-section-title:first-child { margin-top: 0; }
+
+        .data-action-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-data {
+            flex: 1;
+            padding: 11px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 0.03em;
+            text-align: center;
+            background: white;
+            color: var(--text);
+        }
+
+        .btn-data:active     { background: var(--bg); }
+        .btn-data.primary    { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-data.primary:active { opacity: 0.85; }
+        .btn-data.danger     { color: var(--danger); border-color: var(--border); }
+        .btn-data.danger:active  { background: var(--danger-light); }
+
+        .import-note {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: -4px;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .bulk-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .bulk-row .f-select { font-size: 14px; padding: 9px 30px 9px 10px; }
+
+        .bulk-unassigned-count {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 10px;
+        }
+
+        .bulk-unassigned-count strong { color: var(--primary); font-size: 15px; }
+
+        .vendor-tmpl-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .vendor-tmpl-item:last-child { border-bottom: none; }
+        .vendor-tmpl-name { flex: 1; font-weight: 600; color: var(--text); }
+        .vendor-tmpl-sub  { font-size: 11px; color: var(--text-light); }
 
         /* ===== TOAST ===== */
         .toast {
@@ -513,20 +591,12 @@
             box-shadow: 0 3px 12px rgba(0,0,0,0.3);
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* ===== EMPTY ===== */
-        .empty-state {
-            text-align: center;
-            padding: 64px 20px;
-            color: var(--text-light);
-        }
-
-        .empty-icon { font-size: 44px; margin-bottom: 12px; }
-        .empty-text { font-size: 14px; line-height: 1.7; }
+        .empty-state { text-align: center; padding: 64px 20px; color: var(--text-light); }
+        .empty-icon  { font-size: 44px; margin-bottom: 12px; }
+        .empty-text  { font-size: 14px; line-height: 1.7; }
 
         /* ===== FAB ===== */
         .fab {
@@ -585,11 +655,7 @@
             flex-shrink: 0;
         }
 
-        .modal-title {
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-        }
+        .modal-title { font-size: 15px; font-weight: 700; letter-spacing: 0.05em; }
 
         .modal-close {
             background: rgba(255,255,255,0.16);
@@ -677,20 +743,10 @@
             box-shadow: 0 0 0 2px rgba(59,89,152,0.15);
         }
 
-        .f-textarea {
-            min-height: 72px;
-            resize: vertical;
-            font-size: 14px;
-        }
+        .f-textarea { min-height: 72px; resize: vertical; font-size: 14px; }
 
-        .radio-group {
-            display: flex;
-            gap: 7px;
-            flex-wrap: wrap;
-        }
-
-        .radio-opt { flex: 1; min-width: 55px; }
-
+        .radio-group { display: flex; gap: 7px; flex-wrap: wrap; }
+        .radio-opt   { flex: 1; min-width: 55px; }
         .radio-opt input { display: none; }
 
         .radio-opt label {
@@ -786,6 +842,7 @@
         <div class="header-btns">
             <button class="btn-export" onclick="exportCSV()">CSV</button>
             <button class="btn-export" onclick="printMonth()">月次出力</button>
+            <button class="btn-export" onclick="openDataModal()">管理</button>
         </div>
     </div>
     <div class="month-nav">
@@ -816,6 +873,12 @@
         </div>
 
         <div class="modal-body">
+            <!-- テンプレートバー -->
+            <div class="tmpl-bar">
+                <select class="f-select" id="fVendorTemplate" onchange="applyVendorTemplate(this.value)"></select>
+                <button type="button" class="btn-tmpl-save" onclick="saveVendorTemplate()">テンプレに保存</button>
+            </div>
+
             <div class="f-section">基本情報</div>
 
             <div class="f-group">
@@ -902,6 +965,22 @@
     </div>
 </div>
 
+<!-- ===== DATA MODAL ===== -->
+<div class="modal-overlay" id="dataModalOverlay" onclick="dataOverlayClick(event)">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title">データ管理</span>
+            <button class="modal-close" onclick="closeDataModal()">✕</button>
+        </div>
+        <div class="modal-body" id="dataModalBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" style="max-width:120px;" onclick="closeDataModal()">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<input type="file" id="importFile" accept=".json" style="display:none;" onchange="importJSON(event)">
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -910,12 +989,13 @@
     const MEAL_ORDER     = ['朝食','昼食','夕食','夜食'];
     const PROJ_COLORS    = ['#1c2b4a','#2d6a4f','#7b2d2d','#5c3a7e','#1a5276','#7d5800','#1a6e6e','#4a3a28'];
 
-    let projects   = [];
-    let orders     = [];
-    let cur        = new Date();
-    let editId     = null;
-    let curProject = null;  // null = 全作品
-    let editProjId = null;
+    let projects      = [];
+    let vendors       = [];  // 発注先テンプレート
+    let orders        = [];
+    let cur           = new Date();
+    let editId        = null;
+    let curProject    = null;
+    let editProjId    = null;
     let selectedColor = PROJ_COLORS[0];
 
     /* ---------- persistence ---------- */
@@ -924,20 +1004,21 @@
         if (d2) {
             const parsed = JSON.parse(d2);
             projects = parsed.projects || [];
+            vendors  = parsed.vendors  || [];
             orders   = parsed.orders   || [];
             return;
         }
-        // migrate from bento_v1
         const d1 = localStorage.getItem(STORAGE_KEY_V1);
         if (d1) {
             orders   = JSON.parse(d1).map(o => ({ ...o, projectId: null }));
             projects = [];
+            vendors  = [];
             persist();
         }
     }
 
     function persist() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ projects, orders }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ projects, vendors, orders }));
     }
 
     /* ---------- helpers ---------- */
@@ -947,21 +1028,10 @@
             .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    function sumItems(o) {
-        return o.items.reduce((s, i) => s + (parseInt(i.qty) || 0), 0);
-    }
-
-    function sumAmount(o) {
-        return o.items.reduce((s, i) => s + (parseInt(i.qty)||0) * (parseInt(i.price)||0), 0);
-    }
-
-    function fmtYen(n) {
-        return n.toLocaleString('ja-JP') + '円';
-    }
-
-    function projById(id) {
-        return id ? (projects.find(p => p.id === id) || null) : null;
-    }
+    function sumItems(o)  { return o.items.reduce((s,i) => s + (parseInt(i.qty)||0), 0); }
+    function sumAmount(o) { return o.items.reduce((s,i) => s + (parseInt(i.qty)||0)*(parseInt(i.price)||0), 0); }
+    function fmtYen(n)    { return n.toLocaleString('ja-JP') + '円'; }
+    function projById(id) { return id ? (projects.find(p => p.id === id) || null) : null; }
 
     function monthOrders() {
         const y = cur.getFullYear(), m = cur.getMonth();
@@ -970,7 +1040,7 @@
             if (d.getFullYear() !== y || d.getMonth() !== m) return false;
             if (curProject !== null && o.projectId !== curProject) return false;
             return true;
-        }).sort((a, b) =>
+        }).sort((a,b) =>
             a.date !== b.date
                 ? a.date.localeCompare(b.date)
                 : MEAL_ORDER.indexOf(a.meal) - MEAL_ORDER.indexOf(b.meal)
@@ -980,15 +1050,14 @@
     function dayLabel(dateStr) {
         const d  = new Date(dateStr + 'T00:00:00');
         const dn = ['日','月','火','水','木','金','土'];
-        return dateStr.replace(/-/g, '/') + '（' + dn[d.getDay()] + '）';
+        return dateStr.replace(/-/g,'/') + '（' + dn[d.getDay()] + '）';
     }
 
     /* ---------- project bar ---------- */
     function renderProjectBar() {
-        let html = `<button class="proj-pill${curProject === null ? ' active' : ''}" onclick="selectProject(null)">全作品</button>`;
+        let html = `<button class="proj-pill${curProject===null?' active':''}" onclick="selectProject(null)">全作品</button>`;
         for (const p of projects) {
-            const active = curProject === p.id;
-            html += `<button class="proj-pill${active ? ' active' : ''}" onclick="selectProject('${p.id}')">${esc(p.name)}</button>`;
+            html += `<button class="proj-pill${curProject===p.id?' active':''}" onclick="selectProject('${p.id}')">${esc(p.name)}</button>`;
         }
         html += `<button class="proj-pill-add" onclick="openProjModal()">＋ 作品追加</button>`;
         if (projects.length > 0) {
@@ -1009,26 +1078,21 @@
         document.getElementById('monthLabel').textContent = `${y}年${m}月`;
 
         const mo   = monthOrders();
-        const tot  = mo.reduce((s, o) => s + sumItems(o), 0);
-        const amt  = mo.reduce((s, o) => s + sumAmount(o), 0);
+        const tot  = mo.reduce((s,o) => s + sumItems(o), 0);
+        const amt  = mo.reduce((s,o) => s + sumAmount(o), 0);
         const inv  = mo.filter(o => o.pay === '請求書払い').length;
         const cash = mo.filter(o => o.pay === '現金払い').length;
 
         document.getElementById('summaryBar').innerHTML =
             `<span class="summary-item">件数<strong>${mo.length}件</strong></span>` +
             `<span class="summary-item">総数量<strong>${tot}個</strong></span>` +
-            `<span class="summary-item">合計金額<strong>${amt > 0 ? fmtYen(amt) : '—'}</strong></span>` +
+            `<span class="summary-item">合計金額<strong>${amt>0?fmtYen(amt):'—'}</strong></span>` +
             `<span class="summary-item">請求書<strong>${inv}件</strong></span>` +
             `<span class="summary-item">現金<strong>${cash}件</strong></span>`;
 
         const main = document.getElementById('mainContent');
-
         if (mo.length === 0) {
-            main.innerHTML =
-                `<div class="empty-state">
-                    <div class="empty-icon">📋</div>
-                    <div class="empty-text">この月の発注記録はありません<br>右下の＋ボタンで追加できます</div>
-                </div>`;
+            main.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">この月の発注記録はありません<br>右下の＋ボタンで追加できます</div></div>`;
             return;
         }
 
@@ -1041,13 +1105,8 @@
         let html = '';
         for (const date of Object.keys(groups).sort()) {
             const grp      = groups[date];
-            const dayTotal = grp.reduce((s, o) => s + sumItems(o), 0);
-
-            html += `<div class="date-group">
-                <div class="date-header">
-                    <span>${dayLabel(date)}</span>
-                    <span class="date-subtotal">計 ${dayTotal}個</span>
-                </div>`;
+            const dayTotal = grp.reduce((s,o) => s + sumItems(o), 0);
+            html += `<div class="date-group"><div class="date-header"><span>${dayLabel(date)}</span><span class="date-subtotal">計 ${dayTotal}個</span></div>`;
 
             for (const o of grp) {
                 const tc        = sumItems(o);
@@ -1057,38 +1116,19 @@
                 const cardColor = proj ? proj.color : 'var(--primary)';
 
                 const itemsHtml = o.items.map(i => {
-                    const iPrice = parseInt(i.price) || 0;
-                    const iAmt   = (parseInt(i.qty)||0) * iPrice;
-                    const valStr = iPrice > 0 ? fmtYen(iAmt) : `${i.qty}個`;
-                    const subStr = iPrice > 0
-                        ? `<div class="bento-item-sub">×${i.qty}個　@${iPrice.toLocaleString('ja-JP')}円</div>`
-                        : '';
-                    return `<div class="bento-item">
-                        <div class="bento-item-row">
-                            <span class="bento-item-name">${esc(i.name)}</span>
-                            <span class="bento-item-val">${valStr}</span>
-                        </div>${subStr}
-                    </div>`;
+                    const iPrice = parseInt(i.price)||0;
+                    const iAmt   = (parseInt(i.qty)||0)*iPrice;
+                    const valStr = iPrice>0 ? fmtYen(iAmt) : `${i.qty}個`;
+                    const subStr = iPrice>0 ? `<div class="bento-item-sub">×${i.qty}個　@${iPrice.toLocaleString('ja-JP')}円</div>` : '';
+                    return `<div class="bento-item"><div class="bento-item-row"><span class="bento-item-name">${esc(i.name)}</span><span class="bento-item-val">${valStr}</span></div>${subStr}</div>`;
                 }).join('');
 
-                const phoneHtml = o.phone
-                    ? `<div class="vendor-phone"><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>`
-                    : '';
-
-                const deliveryPlace = o.delivery     ? esc(o.delivery)     : '';
-                const deliveryTime  = o.deliveryTime ? esc(o.deliveryTime) : '';
-                const deliveryHtml  = (deliveryPlace || deliveryTime)
-                    ? `<div class="delivery-info"><span class="delivery-label">配達</span>${[deliveryTime, deliveryPlace].filter(Boolean).join('　')}</div>`
-                    : '';
-
-                const memoHtml = o.memo
-                    ? `<div class="card-memo"><span class="memo-tag">MEMO</span><br>${esc(o.memo)}</div>`
-                    : '';
-
-                // 全作品表示のときだけ作品名を表示
-                const projTagHtml = curProject === null
-                    ? `<span class="proj-name-tag">${proj ? esc(proj.name) : '（未設定）'}</span>`
-                    : '';
+                const phoneHtml    = o.phone ? `<div class="vendor-phone"><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>` : '';
+                const dlvPlace     = o.delivery     ? esc(o.delivery)     : '';
+                const dlvTime      = o.deliveryTime ? esc(o.deliveryTime) : '';
+                const deliveryHtml = (dlvPlace||dlvTime) ? `<div class="delivery-info"><span class="delivery-label">配達</span>${[dlvTime,dlvPlace].filter(Boolean).join('　')}</div>` : '';
+                const memoHtml     = o.memo ? `<div class="card-memo"><span class="memo-tag">MEMO</span><br>${esc(o.memo)}</div>` : '';
+                const projTagHtml  = curProject===null ? `<span class="proj-name-tag">${proj?esc(proj.name):'（未設定）'}</span>` : '';
 
                 html += `<div class="order-card">
                     <div class="card-top" style="background:${cardColor};">
@@ -1097,18 +1137,15 @@
                         <span class="payment-badge ${payClass}">${esc(o.pay)}</span>
                     </div>
                     <div class="card-body">
-                        <div class="vendor-row">
-                            <div>
-                                <div class="vendor-name">${esc(o.vendor)}</div>
-                                ${phoneHtml}
-                                ${deliveryHtml}
-                            </div>
-                        </div>
+                        <div class="vendor-row"><div>
+                            <div class="vendor-name">${esc(o.vendor)}</div>
+                            ${phoneHtml}${deliveryHtml}
+                        </div></div>
                         ${itemsHtml}
                         <div class="total-row">
                             <span class="total-label">合　計</span>
                             <span class="total-count">${tc}個</span>
-                            ${orderAmt > 0 ? `<span class="total-amount">${fmtYen(orderAmt)}</span>` : ''}
+                            ${orderAmt>0?`<span class="total-amount">${fmtYen(orderAmt)}</span>`:''}
                         </div>
                         ${memoHtml}
                     </div>
@@ -1119,22 +1156,65 @@
                     </div>
                 </div>`;
             }
-
             html += '</div>';
         }
-
         main.innerHTML = html;
     }
 
     /* ---------- month nav ---------- */
-    function prevMonth() {
-        cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1);
-        render();
+    function prevMonth() { cur = new Date(cur.getFullYear(), cur.getMonth()-1, 1); render(); }
+    function nextMonth() { cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1); render(); }
+
+    /* ---------- vendor template ---------- */
+    function populateVendorTemplateSelect() {
+        const sel = document.getElementById('fVendorTemplate');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">― 発注先テンプレートを選択 ―</option>';
+        for (const v of vendors) {
+            const opt = document.createElement('option');
+            opt.value = v.id;
+            opt.textContent = v.name;
+            sel.appendChild(opt);
+        }
     }
 
-    function nextMonth() {
-        cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
-        render();
+    function applyVendorTemplate(id) {
+        if (!id) return;
+        const v = vendors.find(x => x.id === id);
+        if (!v) return;
+        document.getElementById('fVendor').value = v.name;
+        document.getElementById('fPhone').value  = v.phone || '';
+        document.getElementById('bentoRows').innerHTML = '';
+        for (const i of v.items) addBentoRow(i.name, i.qty, i.price || '');
+        // セレクトをリセット（再選択できるように）
+        document.getElementById('fVendorTemplate').value = '';
+    }
+
+    function saveVendorTemplate() {
+        const name  = document.getElementById('fVendor').value.trim();
+        const phone = document.getElementById('fPhone').value.trim();
+        if (!name) { alert('店名を入力してからテンプレートに保存してください。'); return; }
+
+        const rows  = document.querySelectorAll('.bento-input-row');
+        const items = [];
+        for (const row of rows) {
+            const n = row.querySelector('.iname').value.trim();
+            const q = parseInt(row.querySelector('.iqty').value)   || 0;
+            const p = parseInt(row.querySelector('.iprice').value) || 0;
+            if (n) items.push({ name:n, qty:q, price:p });
+        }
+
+        const existing = vendors.find(v => v.name === name);
+        if (existing) {
+            if (!confirm(`「${name}」のテンプレートを上書き更新しますか？`)) return;
+            existing.phone = phone;
+            existing.items = items;
+        } else {
+            vendors.push({ id: 'v_' + Date.now().toString(36), name, phone, items });
+        }
+        persist();
+        populateVendorTemplateSelect();
+        showToast('テンプレートに保存しました');
     }
 
     /* ---------- project select in order form ---------- */
@@ -1174,7 +1254,7 @@
             if (pr) pr.checked = true;
             populateProjectSelect(o.projectId);
             document.getElementById('bentoRows').innerHTML = '';
-            for (const i of o.items) addBentoRow(i.name, i.qty, i.price || '');
+            for (const i of o.items) addBentoRow(i.name, i.qty, i.price||'');
         } else {
             const t  = new Date();
             const ds = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
@@ -1190,7 +1270,7 @@
             document.getElementById('bentoRows').innerHTML = '';
             addBentoRow();
         }
-
+        populateVendorTemplateSelect();
         document.getElementById('modalOverlay').classList.add('open');
     }
 
@@ -1203,12 +1283,12 @@
         if (e.target === document.getElementById('modalOverlay')) closeModal();
     }
 
-    function addBentoRow(name = '', qty = '', price = '') {
+    function addBentoRow(name='', qty='', price='') {
         const wrap = document.getElementById('bentoRows');
         const row  = document.createElement('div');
         row.className = 'bento-input-row';
         row.innerHTML =
-            `<input type="text"   class="f-input iname"  placeholder="品名" value="${esc(name)}">` +
+            `<input type="text"   class="f-input iname"  placeholder="品名"     value="${esc(name)}">` +
             `<input type="number" class="f-input iqty"   placeholder="個数"     value="${esc(qty)}"   min="0">` +
             `<input type="number" class="f-input iprice" placeholder="単価(円)" value="${esc(price)}" min="0">` +
             `<button type="button" class="btn-rm" onclick="this.parentElement.remove()">×</button>`;
@@ -1223,28 +1303,21 @@
         const delivery     = document.getElementById('fDelivery').value.trim();
         const deliveryTime = document.getElementById('fDeliveryTime').value.trim();
         const memo         = document.getElementById('fMemo').value.trim();
-        const meal         = (document.querySelector('input[name="meal"]:checked') || {}).value;
-        const pay          = (document.querySelector('input[name="pay"]:checked')  || {}).value;
+        const meal         = (document.querySelector('input[name="meal"]:checked')||{}).value;
+        const pay          = (document.querySelector('input[name="pay"]:checked') ||{}).value;
         const projectId    = document.getElementById('fProject').value || null;
 
-        if (!date || !meal || !vendor) {
-            alert('日付・食事区分・店名は必須項目です。');
-            return;
-        }
+        if (!date||!meal||!vendor) { alert('日付・食事区分・店名は必須項目です。'); return; }
 
         const rows  = document.querySelectorAll('.bento-input-row');
         const items = [];
         for (const row of rows) {
-            const name  = row.querySelector('.iname').value.trim();
-            const qty   = parseInt(row.querySelector('.iqty').value)   || 0;
-            const price = parseInt(row.querySelector('.iprice').value) || 0;
-            if (name) items.push({ name, qty, price });
+            const n = row.querySelector('.iname').value.trim();
+            const q = parseInt(row.querySelector('.iqty').value)   || 0;
+            const p = parseInt(row.querySelector('.iprice').value) || 0;
+            if (n) items.push({ name:n, qty:q, price:p });
         }
-
-        if (items.length === 0) {
-            alert('お弁当の品目を1つ以上入力してください。');
-            return;
-        }
+        if (items.length === 0) { alert('お弁当の品目を1つ以上入力してください。'); return; }
 
         if (editId) {
             const idx = orders.findIndex(o => o.id === editId);
@@ -1252,7 +1325,6 @@
         } else {
             orders.push({ id: Date.now().toString(36), date, meal, vendor, phone, delivery, deliveryTime, pay, memo, items, projectId });
         }
-
         persist();
         closeModal();
         render();
@@ -1290,22 +1362,19 @@
             for (const p of projects) {
                 const cnt = orders.filter(o => o.projectId === p.id).length;
                 if (editProjId === p.id) {
-                    listHtml += `
-                    <div class="proj-list-item">
+                    listHtml += `<div class="proj-list-item">
                         <span class="proj-color-dot" style="background:${p.color};"></span>
-                        <input type="text" class="f-input" id="editProjName" value="${esc(p.name)}"
-                               style="flex:1;font-size:14px;padding:6px 10px;">
+                        <input type="text" class="f-input" id="editProjName" value="${esc(p.name)}" style="flex:1;font-size:14px;padding:6px 10px;">
                         <button class="proj-list-btn edit" onclick="saveEditProj('${p.id}')">確定</button>
                         <button class="proj-list-btn" onclick="editProjId=null;renderProjModal()">×</button>
                     </div>`;
                 } else {
-                    listHtml += `
-                    <div class="proj-list-item">
+                    listHtml += `<div class="proj-list-item">
                         <span class="proj-color-dot" style="background:${p.color};"></span>
                         <span class="proj-list-name">${esc(p.name)}</span>
                         <span class="proj-list-count">${cnt}件</span>
                         <button class="proj-list-btn edit" onclick="startEditProj('${p.id}')">名前変更</button>
-                        <button class="proj-list-btn del" onclick="deleteProject('${p.id}')">削除</button>
+                        <button class="proj-list-btn del"  onclick="deleteProject('${p.id}')">削除</button>
                     </div>`;
                 }
             }
@@ -1326,7 +1395,6 @@
         ${listHtml}`;
 
         renderColorSwatches(selectedColor);
-
         if (editProjId) {
             const inp = document.getElementById('editProjName');
             if (inp) { inp.focus(); inp.select(); }
@@ -1338,16 +1406,14 @@
         const wrap = document.getElementById('colorSwatches');
         if (!wrap) return;
         wrap.innerHTML = PROJ_COLORS.map(c =>
-            `<div class="color-swatch${c === selected ? ' selected' : ''}"
-                style="background:${c};"
-                onclick="renderColorSwatches('${c}')"></div>`
+            `<div class="color-swatch${c===selected?' selected':''}" style="background:${c};" onclick="renderColorSwatches('${c}')"></div>`
         ).join('');
     }
 
     function addProject() {
-        const name = (document.getElementById('fProjName').value || '').trim();
+        const name = (document.getElementById('fProjName').value||'').trim();
         if (!name) { alert('作品名を入力してください。'); return; }
-        projects.push({ id: 'proj_' + Date.now().toString(36), name, color: selectedColor });
+        projects.push({ id: 'proj_'+Date.now().toString(36), name, color: selectedColor });
         persist();
         selectedColor = PROJ_COLORS[0];
         renderProjectBar();
@@ -1355,10 +1421,7 @@
         showToast('作品を追加しました');
     }
 
-    function startEditProj(id) {
-        editProjId = id;
-        renderProjModal();
-    }
+    function startEditProj(id) { editProjId = id; renderProjModal(); }
 
     function saveEditProj(id) {
         const inp  = document.getElementById('editProjName');
@@ -1381,7 +1444,7 @@
             ? `「${p.name}」を削除しますか？\nこの作品の発注記録 ${cnt}件 は「未設定」になります。`
             : `「${p.name}」を削除しますか？`;
         if (!confirm(msg)) return;
-        orders   = orders.map(o => o.projectId === id ? { ...o, projectId: null } : o);
+        orders   = orders.map(o => o.projectId===id ? {...o, projectId:null} : o);
         projects = projects.filter(x => x.id !== id);
         if (curProject === id) curProject = null;
         persist();
@@ -1391,13 +1454,168 @@
         showToast('作品を削除しました');
     }
 
+    /* ---------- data modal ---------- */
+    function openDataModal() {
+        renderDataModal();
+        document.getElementById('dataModalOverlay').classList.add('open');
+    }
+
+    function closeDataModal() {
+        document.getElementById('dataModalOverlay').classList.remove('open');
+    }
+
+    function dataOverlayClick(e) {
+        if (e.target === document.getElementById('dataModalOverlay')) closeDataModal();
+    }
+
+    function renderDataModal() {
+        const unassigned = orders.filter(o => !o.projectId);
+        const uMonths    = [...new Set(unassigned.map(o => o.date.substring(0,7)))].sort();
+
+        const monthOpts = uMonths.map(m => {
+            const cnt    = unassigned.filter(o => o.date.startsWith(m)).length;
+            const [y,mo] = m.split('-');
+            return `<option value="${m}">${y}年${parseInt(mo)}月（${cnt}件）</option>`;
+        }).join('');
+
+        const projOpts = projects.map(p =>
+            `<option value="${p.id}">${esc(p.name)}</option>`
+        ).join('');
+
+        // 発注先テンプレート一覧
+        let tmplList = '';
+        if (vendors.length === 0) {
+            tmplList = `<div style="color:var(--text-light);font-size:13px;padding:12px 0;text-align:center;">テンプレートがありません<br><span style="font-size:11px;">発注フォームの「テンプレに保存」で登録できます</span></div>`;
+        } else {
+            for (const v of vendors) {
+                const itemSummary = v.items.slice(0,2).map(i=>i.name).join('・') + (v.items.length>2?'…':'');
+                tmplList += `<div class="vendor-tmpl-item">
+                    <div style="flex:1;">
+                        <div class="vendor-tmpl-name">${esc(v.name)}</div>
+                        <div class="vendor-tmpl-sub">${v.phone?esc(v.phone)+' / ':''}${itemSummary}</div>
+                    </div>
+                    <button class="proj-list-btn del" onclick="deleteVendorTemplate('${v.id}')">削除</button>
+                </div>`;
+            }
+        }
+
+        document.getElementById('dataModalBody').innerHTML = `
+        <div class="data-section-title">バックアップ</div>
+        <div class="data-action-row">
+            <button class="btn-data primary" onclick="exportJSON()">📥　JSONで書き出す</button>
+        </div>
+        <div class="data-action-row">
+            <button class="btn-data" onclick="document.getElementById('importFile').click()">📤　JSONから読み込む</button>
+        </div>
+        <p class="import-note">読み込むと現在のデータはすべて上書きされます。<br>事前にJSONで書き出しておくことをおすすめします。</p>
+
+        <div class="data-section-title">未設定データの一括割り当て</div>
+        <div class="bulk-unassigned-count">未設定の発注記録：<strong>${unassigned.length}件</strong></div>
+        ${unassigned.length > 0 && projects.length > 0 ? `
+        <div class="bulk-row">
+            <select class="f-select" id="baBulkMonth" style="flex:1;">
+                <option value="">全期間（${unassigned.length}件）</option>
+                ${monthOpts}
+            </select>
+        </div>
+        <div class="bulk-row">
+            <select class="f-select" id="baBulkProject" style="flex:1;">
+                <option value="">割り当て先の作品を選択</option>
+                ${projOpts}
+            </select>
+        </div>
+        <div class="data-action-row">
+            <button class="btn-data primary" onclick="bulkAssign()">一括割り当てを実行</button>
+        </div>` : unassigned.length === 0 ? `
+        <p style="font-size:12px;color:var(--text-light);">未設定のデータはありません。</p>` : `
+        <p style="font-size:12px;color:var(--text-light);">作品を先に登録してください。</p>`}
+
+        <div class="data-section-title">発注先テンプレート</div>
+        ${tmplList}`;
+    }
+
+    /* ---------- JSON backup ---------- */
+    function exportJSON() {
+        const data = { version: 2, exportedAt: new Date().toISOString(), projects, vendors, orders };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `弁当発注バックアップ_${new Date().toLocaleDateString('ja-JP').replace(/\//g,'-')}.json`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        showToast('JSONを書き出しました');
+    }
+
+    function importJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        event.target.value = '';
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!data.orders || !Array.isArray(data.orders)) {
+                    alert('このファイルは対応フォーマットではありません。');
+                    return;
+                }
+                if (!confirm(`読み込むと現在のデータが上書きされます。\n発注記録 ${data.orders.length}件 を読み込みますか？`)) return;
+                projects = data.projects || [];
+                vendors  = data.vendors  || [];
+                orders   = data.orders;
+                persist();
+                curProject = null;
+                renderProjectBar();
+                render();
+                renderDataModal();
+                showToast(`${orders.length}件のデータを読み込みました`);
+            } catch {
+                alert('ファイルの読み込みに失敗しました。正しいJSONファイルを選択してください。');
+            }
+        };
+        reader.readAsText(file, 'utf-8');
+    }
+
+    /* ---------- bulk assign ---------- */
+    function bulkAssign() {
+        const projId = document.getElementById('baBulkProject').value;
+        const month  = document.getElementById('baBulkMonth').value;
+        if (!projId) { alert('割り当て先の作品を選択してください。'); return; }
+
+        const targets = orders.filter(o => !o.projectId && (!month || o.date.startsWith(month)));
+        if (targets.length === 0) { alert('対象の未設定記録がありません。'); return; }
+
+        const proj = projById(projId);
+        if (!confirm(`未設定の発注記録 ${targets.length}件 を「${proj.name}」に割り当てますか？`)) return;
+
+        orders = orders.map(o =>
+            (!o.projectId && (!month || o.date.startsWith(month)))
+                ? { ...o, projectId: projId }
+                : o
+        );
+        persist();
+        renderDataModal();
+        render();
+        showToast(`${targets.length}件を「${proj.name}」に割り当てました`);
+    }
+
+    /* ---------- delete vendor template ---------- */
+    function deleteVendorTemplate(id) {
+        const v = vendors.find(x => x.id === id);
+        if (!confirm(`「${v.name}」のテンプレートを削除しますか？`)) return;
+        vendors = vendors.filter(x => x.id !== id);
+        persist();
+        renderDataModal();
+        showToast('テンプレートを削除しました');
+    }
+
     /* ---------- copy ---------- */
     function copyOrder(id) {
         const o    = orders.find(x => x.id === id);
         if (!o) return;
         const tc   = sumItems(o);
         const proj = projById(o.projectId);
-
         const lines = [];
         lines.push(`【弁当発注】${o.meal}`);
         lines.push(dayLabel(o.date));
@@ -1410,28 +1628,22 @@
         lines.push('');
         lines.push('── 内訳 ──');
         for (const i of o.items) {
-            const iPrice = parseInt(i.price) || 0;
-            if (iPrice > 0) {
-                const iAmt = (parseInt(i.qty)||0) * iPrice;
-                lines.push(`${i.name}　×${i.qty}個　@${iPrice.toLocaleString('ja-JP')}円　= ${fmtYen(iAmt)}`);
+            const iPrice = parseInt(i.price)||0;
+            if (iPrice>0) {
+                lines.push(`${i.name}　×${i.qty}個　@${iPrice.toLocaleString('ja-JP')}円　= ${fmtYen((parseInt(i.qty)||0)*iPrice)}`);
             } else {
                 lines.push(`${i.name}　×${i.qty}個`);
             }
         }
         const orderAmt = sumAmount(o);
         lines.push('────────');
-        lines.push(`合計　${tc}個${orderAmt > 0 ? '　' + fmtYen(orderAmt) : ''}`);
+        lines.push(`合計　${tc}個${orderAmt>0?'　'+fmtYen(orderAmt):''}`);
         lines.push(`支払　${o.pay}`);
-        if (o.memo) {
-            lines.push('');
-            lines.push(`備考：${o.memo}`);
-        }
+        if (o.memo) { lines.push(''); lines.push(`備考：${o.memo}`); }
 
         const text = lines.join('\n');
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text)
-                .then(() => showToast('コピーしました'))
-                .catch(() => fallbackCopy(text));
+            navigator.clipboard.writeText(text).then(()=>showToast('コピーしました')).catch(()=>fallbackCopy(text));
         } else {
             fallbackCopy(text);
         }
@@ -1442,8 +1654,7 @@
         ta.value = text;
         ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
         document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
+        ta.focus(); ta.select();
         try { document.execCommand('copy'); showToast('コピーしました'); }
         catch { showToast('コピーに失敗しました'); }
         document.body.removeChild(ta);
@@ -1461,146 +1672,77 @@
     function exportCSV() {
         const mo = monthOrders();
         if (mo.length === 0) { alert('この月の発注記録がありません。'); return; }
-
-        const y        = cur.getFullYear();
-        const m        = cur.getMonth() + 1;
-        const projLabel = curProject ? (projById(curProject)?.name || '') : '全作品';
-        const dn        = ['日','月','火','水','木','金','土'];
-
-        const csvEsc = v => {
-            const s = String(v ?? '');
-            return (s.includes(',') || s.includes('"') || s.includes('\n'))
-                ? '"' + s.replace(/"/g, '""') + '"'
-                : s;
-        };
-
-        const rows = [
-            ['日付','曜日','食事区分','作品名','発注先','電話番号','配達場所','配達時間','内訳','合計個数','合計金額','支払方法','備考']
-        ];
-
+        const y = cur.getFullYear(), m = cur.getMonth()+1;
+        const projLabel = curProject ? (projById(curProject)?.name||'') : '全作品';
+        const dn = ['日','月','火','水','木','金','土'];
+        const csvEsc = v => { const s=String(v??''); return (s.includes(',')||s.includes('"')||s.includes('\n'))?'"'+s.replace(/"/g,'""')+'"':s; };
+        const rows = [['日付','曜日','食事区分','作品名','発注先','電話番号','配達場所','配達時間','内訳','合計個数','合計金額','支払方法','備考']];
         for (const o of mo) {
             const proj  = projById(o.projectId);
-            const d     = new Date(o.date + 'T00:00:00');
-            const items = o.items.map(i => {
-                const p = parseInt(i.price) || 0;
-                return p > 0 ? `${i.name}×${i.qty}個@${p}円` : `${i.name}×${i.qty}個`;
-            }).join(' / ');
-            const amt = sumAmount(o);
-            rows.push([
-                o.date,
-                dn[d.getDay()],
-                o.meal,
-                proj ? proj.name : '',
-                o.vendor,
-                o.phone        || '',
-                o.delivery     || '',
-                o.deliveryTime || '',
-                items,
-                sumItems(o),
-                amt > 0 ? amt : '',
-                o.pay,
-                o.memo || '',
-            ].map(csvEsc));
+            const d     = new Date(o.date+'T00:00:00');
+            const items = o.items.map(i => { const p=parseInt(i.price)||0; return p>0?`${i.name}×${i.qty}個@${p}円`:`${i.name}×${i.qty}個`; }).join(' / ');
+            const amt   = sumAmount(o);
+            rows.push([o.date,dn[d.getDay()],o.meal,proj?proj.name:'',o.vendor,o.phone||'',o.delivery||'',o.deliveryTime||'',items,sumItems(o),amt>0?amt:'',o.pay,o.memo||''].map(csvEsc));
         }
-
-        const bom  = '﻿';
-        const csv  = bom + rows.map(r => r.join(',')).join('\r\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const csv  = '﻿' + rows.map(r=>r.join(',')).join('\r\n');
+        const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
         const url  = URL.createObjectURL(blob);
         const a    = document.createElement('a');
-        a.href     = url;
-        a.download = `弁当発注_${y}年${m}月_${projLabel}.csv`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        a.href=url; a.download=`弁当発注_${y}年${m}月_${projLabel}.csv`; a.click();
+        setTimeout(()=>URL.revokeObjectURL(url),5000);
         showToast('CSVをダウンロードしました');
     }
 
     /* ---------- print ---------- */
     function printMonth() {
         const mo = monthOrders();
-        if (mo.length === 0) { alert('この月の発注記録がありません。'); return; }
-
-        const y         = cur.getFullYear();
-        const m         = cur.getMonth() + 1;
-        const lastDay   = new Date(y, m, 0).getDate();
-        const tot       = mo.reduce((s, o) => s + sumItems(o), 0);
-        const projLabel = curProject ? (projById(curProject)?.name || '') : null;
-        const showProjCol = curProject === null;
+        if (mo.length===0) { alert('この月の発注記録がありません。'); return; }
+        const y=cur.getFullYear(), m=cur.getMonth()+1, lastDay=new Date(y,m,0).getDate();
+        const tot=mo.reduce((s,o)=>s+sumItems(o),0);
+        const projLabel   = curProject ? (projById(curProject)?.name||'') : null;
+        const showProjCol = curProject===null;
 
         const mealSum = {};
         for (const o of mo) {
-            if (!mealSum[o.meal]) mealSum[o.meal] = { count: 0, amount: 0 };
+            if (!mealSum[o.meal]) mealSum[o.meal]={count:0,amount:0};
             mealSum[o.meal].count  += sumItems(o);
             mealSum[o.meal].amount += sumAmount(o);
         }
+        const mealSumHtml = MEAL_ORDER.filter(t=>mealSum[t])
+            .map(t=>`<tr><td>${t}</td><td class="num">${mealSum[t].count}個</td><td class="num">${mealSum[t].amount>0?fmtYen(mealSum[t].amount):'—'}</td></tr>`).join('');
 
-        const mealSumHtml = MEAL_ORDER
-            .filter(t => mealSum[t])
-            .map(t => `<tr><td>${t}</td><td class="num">${mealSum[t].count}個</td><td class="num">${mealSum[t].amount > 0 ? fmtYen(mealSum[t].amount) : '—'}</td></tr>`)
-            .join('');
-
-        // 全作品表示時は作品別合計を追加
         let projSumHtml = '';
         if (showProjCol) {
             const pSum = {};
             for (const o of mo) {
-                const key = o.projectId || '__none__';
-                if (!pSum[key]) pSum[key] = { count: 0, amount: 0 };
+                const key = o.projectId||'__none__';
+                if (!pSum[key]) pSum[key]={count:0,amount:0};
                 pSum[key].count  += sumItems(o);
                 pSum[key].amount += sumAmount(o);
             }
             let pRows = '';
-            for (const [key, val] of Object.entries(pSum)) {
-                const pName = key === '__none__' ? '（未設定）' : (projById(key)?.name || '（削除済み）');
-                pRows += `<tr><td>${esc(pName)}</td><td class="num">${val.count}個</td><td class="num">${val.amount > 0 ? fmtYen(val.amount) : '—'}</td></tr>`;
+            for (const [key,val] of Object.entries(pSum)) {
+                const pName = key==='__none__' ? '（未設定）' : (projById(key)?.name||'（削除済み）');
+                pRows += `<tr><td>${esc(pName)}</td><td class="num">${val.count}個</td><td class="num">${val.amount>0?fmtYen(val.amount):'—'}</td></tr>`;
             }
-            projSumHtml = `
-            <div class="side-title" style="margin-top:12px;">作品別合計</div>
-            <table>
-                <thead><tr><th>作品</th><th>数量</th><th>金額</th></tr></thead>
-                <tbody>${pRows}</tbody>
-            </table>`;
+            projSumHtml = `<div class="side-title" style="margin-top:12px;">作品別合計</div><table><thead><tr><th>作品</th><th>数量</th><th>金額</th></tr></thead><tbody>${pRows}</tbody></table>`;
         }
 
-        const inv      = mo.filter(o => o.pay === '請求書払い').length;
-        const cash     = mo.filter(o => o.pay === '現金払い').length;
-        const invAmt   = mo.filter(o => o.pay === '請求書払い').reduce((s, o) => s + sumAmount(o), 0);
-        const cashAmt  = mo.filter(o => o.pay === '現金払い').reduce((s, o) => s + sumAmount(o), 0);
-        const grandAmt = invAmt + cashAmt;
+        const inv=mo.filter(o=>o.pay==='請求書払い').length, cash=mo.filter(o=>o.pay==='現金払い').length;
+        const invAmt=mo.filter(o=>o.pay==='請求書払い').reduce((s,o)=>s+sumAmount(o),0);
+        const cashAmt=mo.filter(o=>o.pay==='現金払い').reduce((s,o)=>s+sumAmount(o),0);
+        const grandAmt=invAmt+cashAmt;
 
-        const rowsHtml = mo.map((o, idx) => {
-            const tc       = sumItems(o);
-            const rowAmt   = sumAmount(o);
-            const proj     = projById(o.projectId);
-            const itemsStr = o.items.map(i => {
-                const p = parseInt(i.price) || 0;
-                return p > 0 ? `${i.name} ×${i.qty} @${p.toLocaleString('ja-JP')}円` : `${i.name} ×${i.qty}`;
-            }).join('　');
-            const bg = idx % 2 === 1 ? 'background:#f5f6f9;' : '';
-            return `<tr style="${bg}">
-                <td>${esc(dayLabel(o.date))}</td>
-                <td>${esc(o.meal)}</td>
-                ${showProjCol ? `<td>${esc(proj ? proj.name : '—')}</td>` : ''}
-                <td>${esc(o.vendor)}</td>
-                <td>${esc(o.phone || '—')}</td>
-                <td>${esc(itemsStr)}</td>
-                <td class="num">${tc}個</td>
-                <td class="num">${rowAmt > 0 ? fmtYen(rowAmt) : '—'}</td>
-                <td>${esc(o.pay)}</td>
-                <td style="white-space:pre-line;">${esc(o.memo || '')}</td>
-            </tr>`;
+        const rowsHtml = mo.map((o,idx)=>{
+            const tc=sumItems(o),rowAmt=sumAmount(o),proj=projById(o.projectId);
+            const itemsStr=o.items.map(i=>{const p=parseInt(i.price)||0;return p>0?`${i.name} ×${i.qty} @${p.toLocaleString('ja-JP')}円`:`${i.name} ×${i.qty}`;}).join('　');
+            const bg=idx%2===1?'background:#f5f6f9;':'';
+            return `<tr style="${bg}"><td>${esc(dayLabel(o.date))}</td><td>${esc(o.meal)}</td>${showProjCol?`<td>${esc(proj?proj.name:'—')}</td>`:''}<td>${esc(o.vendor)}</td><td>${esc(o.phone||'—')}</td><td>${esc(itemsStr)}</td><td class="num">${tc}個</td><td class="num">${rowAmt>0?fmtYen(rowAmt):'—'}</td><td>${esc(o.pay)}</td><td style="white-space:pre-line;">${esc(o.memo||'')}</td></tr>`;
         }).join('');
 
-        const titleLine = projLabel
-            ? `${y}年${m}月　弁当発注一覧　【${projLabel}】`
-            : `${y}年${m}月　弁当発注一覧`;
+        const titleLine = projLabel ? `${y}年${m}月　弁当発注一覧　【${projLabel}】` : `${y}年${m}月　弁当発注一覧`;
 
-        const html = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<title>${titleLine}</title>
-<style>
+        const html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>${titleLine}</title><style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;font-size:9.5pt;color:#111;background:white;}
 .wrap{padding:14px 16px;}
@@ -1613,8 +1755,7 @@ body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;font-size:9.5pt;color
 .stat-cell:last-child{border-right:none;}
 .stat-cell strong{display:block;font-size:11pt;color:#1c2b4a;margin-top:1px;}
 .split{display:flex;gap:14px;margin-bottom:12px;}
-.tbl-wrap{flex:3;}
-.side-wrap{flex:1;}
+.tbl-wrap{flex:3;}.side-wrap{flex:1;}
 .side-title{font-size:8pt;font-weight:700;color:#505870;letter-spacing:0.1em;padding-bottom:4px;border-bottom:1px solid #c4c9d8;margin-bottom:6px;}
 table{width:100%;border-collapse:collapse;}
 th{background:#1c2b4a;color:white;padding:6px 7px;font-size:8.5pt;font-weight:600;letter-spacing:0.04em;text-align:left;border:1px solid #1c2b4a;}
@@ -1622,81 +1763,40 @@ td{padding:5px 7px;border:1px solid #c4c9d8;vertical-align:top;font-size:8.5pt;}
 .num{text-align:right;font-weight:600;}
 .footer{margin-top:14px;padding-top:8px;border-top:1px solid #c4c9d8;display:flex;justify-content:space-between;font-size:8pt;color:#777;}
 @media print{@page{size:A4 landscape;margin:10mm;}body{font-size:8.5pt;}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="doc-header">
-    <div>
-      <div class="doc-title">${esc(titleLine)}</div>
-      <div class="doc-sub">BENTO ORDER REPORT</div>
-    </div>
-    <div class="doc-meta">
-      出力日：${new Date().toLocaleDateString('ja-JP')}<br>
-      対象期間：${y}/${String(m).padStart(2,'0')}/01 〜 ${y}/${String(m).padStart(2,'0')}/${lastDay}
-    </div>
-  </div>
-
-  <div class="stat-row">
-    <div class="stat-cell">発注件数<strong>${mo.length}件</strong></div>
-    <div class="stat-cell">合計数量<strong>${tot}個</strong></div>
-    <div class="stat-cell">合計金額<strong>${grandAmt > 0 ? fmtYen(grandAmt) : '—'}</strong></div>
-    <div class="stat-cell">請求書払い<strong>${inv}件　${invAmt > 0 ? fmtYen(invAmt) : '—'}</strong></div>
-    <div class="stat-cell">現金払い<strong>${cash}件　${cashAmt > 0 ? fmtYen(cashAmt) : '—'}</strong></div>
-  </div>
-
-  <div class="split">
-    <div class="tbl-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="min-width:100px;">日付</th>
-            <th style="min-width:36px;">区分</th>
-            ${showProjCol ? '<th style="min-width:80px;">作品</th>' : ''}
-            <th style="min-width:90px;">発注先</th>
-            <th style="min-width:80px;">電話番号</th>
-            <th>内訳（品名×数 @単価）</th>
-            <th style="min-width:42px;">合計数</th>
-            <th style="min-width:72px;">金額</th>
-            <th style="min-width:62px;">支払</th>
-            <th style="min-width:80px;">備考</th>
-          </tr>
-        </thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-    </div>
-    <div class="side-wrap">
-      <div class="side-title">食事区分別合計</div>
-      <table>
-        <thead><tr><th>区分</th><th>数量</th><th>金額</th></tr></thead>
-        <tbody>${mealSumHtml}</tbody>
-      </table>
-      ${projSumHtml}
-      <div class="side-title" style="margin-top:12px;">支払方法別合計</div>
-      <table>
-        <thead><tr><th>支払</th><th>件数</th><th>金額</th></tr></thead>
-        <tbody>
-          <tr><td>請求書払い</td><td class="num">${inv}件</td><td class="num">${invAmt > 0 ? fmtYen(invAmt) : '—'}</td></tr>
-          <tr><td>現金払い</td><td class="num">${cash}件</td><td class="num">${cashAmt > 0 ? fmtYen(cashAmt) : '—'}</td></tr>
-          <tr style="font-weight:700;background:#e8eef6;"><td>合　計</td><td class="num">${mo.length}件</td><td class="num">${grandAmt > 0 ? fmtYen(grandAmt) : '—'}</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="footer">
-    <span>弁当発注管理システム</span>
-    <span>合計 ${mo.length}件 / ${tot}個${grandAmt > 0 ? ' / ' + fmtYen(grandAmt) : ''}</span>
-  </div>
+</style></head><body><div class="wrap">
+<div class="doc-header"><div><div class="doc-title">${esc(titleLine)}</div><div class="doc-sub">BENTO ORDER REPORT</div></div>
+<div class="doc-meta">出力日：${new Date().toLocaleDateString('ja-JP')}<br>対象期間：${y}/${String(m).padStart(2,'0')}/01 〜 ${y}/${String(m).padStart(2,'0')}/${lastDay}</div></div>
+<div class="stat-row">
+<div class="stat-cell">発注件数<strong>${mo.length}件</strong></div>
+<div class="stat-cell">合計数量<strong>${tot}個</strong></div>
+<div class="stat-cell">合計金額<strong>${grandAmt>0?fmtYen(grandAmt):'—'}</strong></div>
+<div class="stat-cell">請求書払い<strong>${inv}件　${invAmt>0?fmtYen(invAmt):'—'}</strong></div>
+<div class="stat-cell">現金払い<strong>${cash}件　${cashAmt>0?fmtYen(cashAmt):'—'}</strong></div>
 </div>
-<script>window.onload=()=>window.print();<\/script>
-</body>
-</html>`;
+<div class="split"><div class="tbl-wrap"><table><thead><tr>
+<th style="min-width:100px;">日付</th><th style="min-width:36px;">区分</th>
+${showProjCol?'<th style="min-width:80px;">作品</th>':''}
+<th style="min-width:90px;">発注先</th><th style="min-width:80px;">電話番号</th>
+<th>内訳（品名×数 @単価）</th><th style="min-width:42px;">合計数</th>
+<th style="min-width:72px;">金額</th><th style="min-width:62px;">支払</th><th style="min-width:80px;">備考</th>
+</tr></thead><tbody>${rowsHtml}</tbody></table></div>
+<div class="side-wrap">
+<div class="side-title">食事区分別合計</div>
+<table><thead><tr><th>区分</th><th>数量</th><th>金額</th></tr></thead><tbody>${mealSumHtml}</tbody></table>
+${projSumHtml}
+<div class="side-title" style="margin-top:12px;">支払方法別合計</div>
+<table><thead><tr><th>支払</th><th>件数</th><th>金額</th></tr></thead><tbody>
+<tr><td>請求書払い</td><td class="num">${inv}件</td><td class="num">${invAmt>0?fmtYen(invAmt):'—'}</td></tr>
+<tr><td>現金払い</td><td class="num">${cash}件</td><td class="num">${cashAmt>0?fmtYen(cashAmt):'—'}</td></tr>
+<tr style="font-weight:700;background:#e8eef6;"><td>合　計</td><td class="num">${mo.length}件</td><td class="num">${grandAmt>0?fmtYen(grandAmt):'—'}</td></tr>
+</tbody></table></div></div>
+<div class="footer"><span>弁当発注管理システム</span><span>合計 ${mo.length}件 / ${tot}個${grandAmt>0?' / '+fmtYen(grandAmt):''}</span></div>
+</div><script>window.onload=()=>window.print();<\/script></body></html>`;
 
-        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const blob = new Blob([html],{type:'text/html;charset=utf-8'});
         const url  = URL.createObjectURL(blob);
         window.open(url);
-        setTimeout(() => URL.revokeObjectURL(url), 15000);
+        setTimeout(()=>URL.revokeObjectURL(url),15000);
     }
 
     /* ---------- init ---------- */
