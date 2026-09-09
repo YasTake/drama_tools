@@ -1,0 +1,3236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1c2b4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="仮払い・立替">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-180.png">
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAADsUlEQVR42u3dIW8UQRiA4fsh+wvAk0tlxUExFeT81aAwqBM4fsC5OgwkNajKJgRbUUlIUHgsBF/GQkJyN929nW++5/Ja6O7sk9zuzuzeYnj8XKpuYQgEkAASQAJIAkgACSABJAEkgASQAJIAEkACSABJAAkgASSABJAEkAASQAJIAkgACSABJAEkgASQAJIAEkACSAAJIAkgASSABJAEkAASQAJIAkgACSABNFnL1cV6s60o+gGo2+syXAD91aPl+uev3/eHfz5ef4qrp2x8xS6XgSrDBdC/PX3xKpWhaj1loHyFZTfUh54WT6KrDb1+s4uip2xqH3oavQorJ4n3VZ8Qhur0lE+bVwyLzka5cUP97dfCWNujbm8k9nSu0Ou5Xet3ot99uO7AULWesvvuRGe/4u373kSMubBqQ7Pf8i8b0PedrTCTqXWGvn77PuNd//Knywb0fV80DKDqgzGXoXAb3P9yjkCHJImeeOuBqg/M7d2XY25n+XMZ9IRcUNb+iUXE07VcKxJbvjDuZpq98yWtbRrKpif2muhqQ7vLqym2p/y32fSEX1Rfhr6R6cnqidLQenp4KqOFKe5eF59keaxn3uOXWU8/z4XN9Q3SzncoQPHOYVs7iwco0lV0toeQUgA6miF6ugV0hJmEDIs0UgOadC4zymwuQC2upsizSCM7oCkONj25AI1+spJqkQZAI69pj7uqH6D5F34kXKQB0GjP9fXxZCNAsxmiB6CHTrimnSgFaAZDqfQMCV/zO6mhbHqGnO+JnshQQj1D2heN112ZZ5soBehIhtLqGZL/1MEohjLrGfxWxs3n24foKf88+QBmB1Q94ZphohSgw9qfjrECCCCAAAIIIIAAAkgAAQQQQAABdMTWm+3u8mrEDno7woiF/ungwIDqXsfR4Cf0yzoAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIoP+0XF2sN9sR2/+Qj/t3Q7+Eymy82XiAAAIIIIAAAshJtJNol/Eu4wECCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAgggL1fwcgWz8WbjAQIIIIAAAgggAQQQQADNe19gz4wVQAJIAAkgASQBJIAE0JQ9OXl2frbqvrKbAE3S25enP96fdF/ZTYAAAggggAACCCCAAAIIIIAACg/o/GxVBrf7ym4CJHeiJYAEkAASQBJAAkgACSAJIAEkgASQAJIAEkACSABJAAkgASSAJIAEkAASQBJAAkgACSABZBQEkAASQMrXH/MlxKG6jqCIAAAAAElFTkSuQmCC">
+    <title>仮払い・立替メモ</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+        --primary: #1c2b4a;
+        --primary-dark: #121d33;
+        --primary-deep: #0e1726;
+        --accent: #3b5998;
+        --accent-light: #eaedfa;
+        --bg: #eceff5;
+        --card: #ffffff;
+        --border: #c4c9d8;
+        --border-strong: #9aa3bd;
+        --text: #1a1f2e;
+        --text-sub: #505870;
+        --text-light: #8890a8;
+        --danger: #b03030;
+        --danger-light: #ffeaea;
+        --success: #2d6a4f;
+        --success-light: #d4f0e0;
+        --advance: #2b5f8a;         /* 仮払い */
+        --advance-light: #e3eef7;
+        --reimburse: #9a5b12;       /* 立替 */
+        --reimburse-light: #fdf0dd;
+        --unsettled: #b03030;       /* 未精算 */
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+        font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100dvh;
+        -webkit-font-smoothing: antialiased;
+        overscroll-behavior-y: none;
+    }
+
+    button, input, select, textarea { font-family: inherit; font-size: 16px; color: inherit; }
+
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+    /* ===== HEADER ===== */
+    .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--primary);
+        color: #fff;
+        padding-top: env(safe-area-inset-top);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+    }
+
+    .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+    }
+
+    .header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.06em; }
+
+    .header-sub {
+        font-size: 10px;
+        color: rgba(255,255,255,0.45);
+        letter-spacing: 0.12em;
+        margin-top: 2px;
+    }
+
+    .header-btns { display: flex; gap: 6px; }
+
+    .btn-header {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.32);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+    }
+
+    .btn-header:active { background: rgba(255,255,255,0.22); }
+
+    /* ===== PROJECT BAR ===== */
+    .project-bar {
+        position: sticky;
+        top: 0;
+        z-index: 99;
+        background: var(--primary-deep);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .project-bar::-webkit-scrollbar { display: none; }
+
+    .proj-pill {
+        flex-shrink: 0;
+        padding: 7px 15px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1.5px solid rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.65);
+        background: transparent;
+        letter-spacing: 0.03em;
+    }
+
+    .proj-pill.active { background: #fff; color: var(--primary); border-color: #fff; }
+    .proj-pill.add { border-style: dashed; color: rgba(255,255,255,0.5); }
+
+    /* ===== VIEWS ===== */
+    .view { display: none; padding: 14px 12px calc(84px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
+    .view.active { display: block; }
+    #viewHome.active { padding-bottom: calc(178px + env(safe-area-inset-bottom)); }
+    #viewSettle.active { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+
+    /* ===== HERO（立替・仮払いの未精算を2段で表示） ===== */
+    .hero {
+        background: var(--card);
+        border: 2px solid var(--primary);
+        border-radius: 12px;
+        padding: 4px 14px 10px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(20,30,60,0.10);
+    }
+
+    .hero-row {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 12px 0 11px;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .hero-row + .hero-row { border-top: 1px solid var(--border); }
+    .hero-row:active { background: #f2f4f9; }
+
+    .hero-bar { width: 6px; align-self: stretch; border-radius: 3px; flex-shrink: 0; }
+    .hero-bar.rei { background: var(--unsettled); }
+    .hero-bar.adv { background: var(--advance); }
+
+    .hero-txt { flex: 1; min-width: 0; }
+
+    .hero-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-sub);
+        letter-spacing: 0.08em;
+    }
+
+    .hero-amt {
+        display: block;
+        font-size: 31px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+        margin-top: 2px;
+        word-break: break-all;
+    }
+
+    .hero-amt.zero { color: var(--text-light); }
+    .hero-yen { font-size: 17px; font-weight: 700; margin-left: 2px; }
+
+    .hero-side { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .hero-count { font-size: 12px; color: var(--text-sub); font-weight: 700; }
+    .hero-go { color: var(--border-strong); font-size: 18px; }
+
+    .hero-scope {
+        font-size: 11px;
+        color: var(--text-light);
+        font-weight: 600;
+        padding-top: 8px;
+        border-top: 1px solid var(--border);
+    }
+
+    /* ===== MINI STATS ===== */
+    .stat-row { display: flex; gap: 8px; margin-bottom: 14px; }
+
+    .stat-box {
+        flex: 1;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 10px 11px;
+        min-width: 0;
+    }
+
+    .stat-box-label { font-size: 10px; color: var(--text-sub); font-weight: 700; letter-spacing: 0.06em; }
+    .stat-box-value { font-size: 17px; font-weight: 700; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ===== SECTION TITLE ===== */
+    .sec-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-sub);
+        letter-spacing: 0.14em;
+        padding-bottom: 6px;
+        border-bottom: 1.5px solid var(--border-strong);
+        margin: 18px 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sec-title:first-child { margin-top: 0; }
+
+    .sec-act {
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.02em;
+        padding: 2px 0;
+    }
+
+    /* ===== HISTORY ===== */
+    .day-group { margin-bottom: 12px; }
+
+    .day-head {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-sub);
+        padding: 0 2px 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+
+    .day-sum { font-size: 11px; color: var(--text-light); font-weight: 600; }
+
+    .rec {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        text-align: left;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--advance);
+        border-radius: 8px;
+        padding: 11px 12px;
+        margin-bottom: 6px;
+        cursor: pointer;
+    }
+
+    .rec:active { background: #f2f4f9; }
+    .rec.t-reimburse { border-left-color: var(--reimburse); }
+    .rec.unsettled { border-left-color: var(--unsettled); background: #fff8f8; }
+
+    .rec-main { flex: 1; min-width: 0; }
+
+    .rec-line1 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    .tag {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 3px;
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+    }
+
+    .tag-advance { background: var(--advance-light); color: var(--advance); border: 1px solid #bcd4e8; }
+    .tag-reimburse { background: var(--reimburse-light); color: var(--reimburse); border: 1px solid #e8cfa4; }
+    .tag-unsettled { background: var(--unsettled); color: #fff; }
+    .tag-settled { background: var(--success-light); color: var(--success); border: 1px solid #a9d6bf; }
+
+    .rec-person { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .rec-line2 {
+        font-size: 11px;
+        color: var(--text-sub);
+        margin-top: 3px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .rec-amount { font-size: 18px; font-weight: 800; flex-shrink: 0; }
+    .rec-arrow { color: var(--border-strong); font-size: 16px; flex-shrink: 0; }
+
+    /* ===== EMPTY ===== */
+    .empty { text-align: center; padding: 40px 20px; color: var(--text-light); }
+    .empty-icon { font-size: 40px; margin-bottom: 10px; }
+    .empty-text { font-size: 13px; line-height: 1.7; }
+
+    /* ===== HOME ACTIONS ===== */
+    .home-actions {
+        position: fixed;
+        left: 0; right: 0;
+        bottom: calc(62px + env(safe-area-inset-bottom));
+        z-index: 60;
+        display: flex;
+        gap: 9px;
+        padding: 9px 12px;
+        max-width: 640px;
+        margin: 0 auto;
+        background: linear-gradient(to top, var(--bg) 62%, rgba(236,239,245,0));
+    }
+
+    .big-btn {
+        flex: 1;
+        border: none;
+        border-radius: 10px;
+        padding: 15px 8px 13px;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 3px 12px rgba(20,30,60,0.28);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .big-btn-main { font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
+    .big-btn-sub { font-size: 10px; opacity: 0.75; letter-spacing: 0.04em; }
+    .big-btn.advance { background: var(--advance); }
+    .big-btn.reimburse { background: var(--reimburse); }
+    .big-btn:active { filter: brightness(1.18); transform: scale(0.985); }
+
+    /* ===== TAB BAR ===== */
+    .tabbar {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 80;
+        display: flex;
+        background: var(--primary);
+        padding-bottom: env(safe-area-inset-bottom);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.28);
+    }
+
+    .tab {
+        flex: 1;
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.5);
+        padding: 8px 2px 9px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        position: relative;
+    }
+
+    .tab.active { color: #fff; }
+    .tab.active::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 22%; right: 22%;
+        height: 3px;
+        background: #fff;
+        border-radius: 0 0 3px 3px;
+    }
+
+    .tab-icon { font-size: 19px; line-height: 1; }
+    .tab-label { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
+
+    .tab-badge {
+        position: absolute;
+        top: 4px;
+        right: calc(50% - 24px);
+        background: var(--unsettled);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+        min-width: 16px;
+        height: 16px;
+        border-radius: 8px;
+        padding: 0 4px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .tab-badge.show { display: flex; }
+
+    /* ===== ENTRY SHEET (full screen) ===== */
+    .entry {
+        position: fixed;
+        inset: 0;
+        z-index: 300;
+        background: var(--bg);
+        display: none;
+        flex-direction: column;
+    }
+
+    .entry.open { display: flex; }
+
+    .entry-head {
+        background: var(--advance);
+        color: #fff;
+        padding-top: env(safe-area-inset-top);
+        flex-shrink: 0;
+    }
+
+    .entry.reimburse .entry-head { background: var(--reimburse); }
+
+    .entry-head-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 14px;
+    }
+
+    .entry-title { font-size: 15px; font-weight: 800; letter-spacing: 0.05em; }
+
+    .entry-close {
+        background: rgba(255,255,255,0.18);
+        border: none;
+        color: #fff;
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* meta row: 日付 / 作品 / 現場 */
+    .entry-meta {
+        display: flex;
+        gap: 6px;
+        padding: 0 10px 7px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .entry-meta::-webkit-scrollbar { display: none; }
+
+    .meta-chip {
+        flex-shrink: 0;
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.38);
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        max-width: 46vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .meta-chip:active { background: rgba(255,255,255,0.3); }
+    .meta-chip.empty { border-style: dashed; color: rgba(255,255,255,0.7); }
+
+    /* amount display */
+    .amount-bar {
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        padding: 8px 14px 7px;
+        display: flex;
+        align-items: baseline;
+        justify-content: flex-end;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .amount-yen { font-size: 18px; font-weight: 700; color: var(--text-sub); }
+
+    .amount-val {
+        font-size: 33px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+        word-break: break-all;
+        text-align: right;
+    }
+
+    .amount-val.placeholder { color: var(--border-strong); }
+
+    .amount-hint { font-size: 11px; color: var(--text-light); font-weight: 600; margin-right: auto; align-self: center; }
+
+    /* scroll area: 相手・用途 */
+    .entry-body {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px 12px 6px;
+    }
+
+    .pick-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 7px;
+    }
+
+    .pick-label { font-size: 11px; font-weight: 700; color: var(--text-sub); letter-spacing: 0.12em; }
+    .pick-req { color: var(--danger); margin-left: 3px; }
+    .pick-group { margin-bottom: 11px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+
+    /* 既定は横1行スクロール（使用頻度順なので先頭ほど当たりやすい）。
+       「一覧」を押すと折り返し表示に切り替わる。 */
+    .chips-row {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 7px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+    }
+
+    .chips-row::-webkit-scrollbar { display: none; }
+    .chips-row .chip { flex-shrink: 0; }
+
+    .chip {
+        background: var(--card);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 13px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .chip:active { background: #e8ebf3; }
+    .chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .chip.add { border-style: dashed; color: var(--accent); font-weight: 700; }
+    .chip-amt { font-size: 12px; font-weight: 700; opacity: 0.85; }
+
+    .mode-toggle {
+        display: flex;
+        border: 1.5px solid var(--border-strong);
+        border-radius: 7px;
+        overflow: hidden;
+        background: var(--card);
+    }
+
+    .mode-toggle button {
+        border: none;
+        background: transparent;
+        padding: 7px 9px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-sub);
+        cursor: pointer;
+    }
+
+    .mode-toggle button.on { background: var(--primary); color: #fff; }
+
+    /* multi list (個別金額) */
+    .multi-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--card);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 11px;
+        margin-bottom: 5px;
+        cursor: pointer;
+        min-height: 44px;
+    }
+
+    .multi-row.active { border-color: var(--primary); background: var(--accent-light); box-shadow: inset 0 0 0 1px var(--primary); }
+    .multi-name { flex: 1; font-size: 15px; font-weight: 700; }
+    .multi-amt { font-size: 17px; font-weight: 800; }
+    .multi-amt.zero { color: var(--border-strong); }
+
+    .multi-del {
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-size: 17px;
+        cursor: pointer;
+        padding: 4px 2px 4px 6px;
+    }
+
+    /* keypad */
+    .keypad {
+        flex-shrink: 0;
+        background: #dfe3ec;
+        border-top: 1px solid var(--border-strong);
+        padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    }
+
+    .quick-row { display: flex; gap: 6px; padding: 0 1px 5px; }
+
+    .quick-btn {
+        flex: 1;
+        background: #fff;
+        border: 1px solid var(--border-strong);
+        border-radius: 6px;
+        padding: 7px 2px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent);
+        cursor: pointer;
+    }
+
+    .quick-btn:active { background: var(--accent-light); }
+
+    .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+
+    .key {
+        background: #fff;
+        border: 1px solid #b9c0d2;
+        border-radius: 7px;
+        font-size: 23px;
+        font-weight: 700;
+        padding: 9px 0;
+        cursor: pointer;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.10);
+    }
+
+    .key:active { background: #e2e7f2; }
+    .key.fn { font-size: 18px; color: var(--text-sub); background: #eef0f6; }
+
+    .entry-save {
+        margin-top: 6px;
+        width: 100%;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 800;
+        padding: 13px 10px;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .entry-save:active { background: var(--accent); }
+    .entry-save:disabled { background: #a9b0c4; }
+    .entry-save-sum { font-size: 14px; font-weight: 700; opacity: 0.9; }
+
+    /* ===== MODAL (sheet) ===== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+        z-index: 400;
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-sheet {
+        background: var(--card);
+        width: 100%;
+        max-width: 600px;
+        max-height: 92dvh;
+        border-radius: 14px 14px 0 0;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .modal-header {
+        background: var(--primary);
+        color: #fff;
+        padding: 14px 16px;
+        border-radius: 14px 14px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+    }
+
+    .modal-title { font-size: 15px; font-weight: 700; letter-spacing: 0.05em; }
+
+    .modal-close {
+        background: rgba(255,255,255,0.16);
+        border: none;
+        color: #fff;
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        font-size: 17px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .modal-body { padding: 16px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+
+    .modal-footer {
+        padding: 12px 16px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+        background: #f6f7fa;
+    }
+
+    /* ===== FORM ===== */
+    .f-group { margin-bottom: 14px; }
+
+    .f-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-sub);
+        margin-bottom: 6px;
+        letter-spacing: 0.04em;
+    }
+
+    .f-input, .f-select, .f-textarea {
+        width: 100%;
+        border: 1.5px solid var(--border-strong);
+        border-radius: 7px;
+        padding: 12px 12px;
+        background: #fff;
+        min-height: 48px;
+    }
+
+    .f-textarea { min-height: 72px; resize: vertical; }
+    .f-input:focus, .f-select:focus, .f-textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+    .btn {
+        border: none;
+        border-radius: 7px;
+        padding: 14px 16px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; flex: 1; }
+    .btn-primary:active { background: var(--accent); }
+    .btn-primary:disabled { background: #a9b0c4; }
+    .btn-ghost { background: #fff; color: var(--text-sub); border: 1.5px solid var(--border-strong); }
+    .btn-ghost:active { background: var(--bg); }
+    .btn-danger { background: var(--danger-light); color: var(--danger); border: 1.5px solid #e5b4b4; }
+    .btn-danger:active { background: #ffd9d9; }
+    .btn-full { width: 100%; }
+
+    /* ===== SETTLE VIEW ===== */
+    .seg {
+        display: flex;
+        background: #dde1ea;
+        border-radius: 8px;
+        padding: 3px;
+        margin-bottom: 12px;
+        gap: 3px;
+    }
+
+    .seg button {
+        flex: 1;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        padding: 10px 4px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-sub);
+        cursor: pointer;
+    }
+
+    .seg button.on { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.14); }
+
+    .settle-row {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        background: var(--card);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 11px 12px;
+        margin-bottom: 6px;
+        cursor: pointer;
+    }
+
+    .settle-row.checked { border-color: var(--primary); background: var(--accent-light); }
+
+    .cbox {
+        width: 26px; height: 26px;
+        border: 2px solid var(--border-strong);
+        border-radius: 5px;
+        flex-shrink: 0;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: transparent;
+        font-weight: 900;
+    }
+
+    .settle-row.checked .cbox { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    .settle-bar {
+        position: fixed;
+        left: 0; right: 0;
+        bottom: calc(62px + env(safe-area-inset-bottom));
+        z-index: 60;
+        max-width: 640px;
+        margin: 0 auto;
+        background: var(--card);
+        border-top: 2px solid var(--primary);
+        box-shadow: 0 -3px 14px rgba(20,30,60,0.18);
+        padding: 9px 12px 11px;
+        display: none;
+    }
+
+    .settle-bar.show { display: block; }
+
+    .settle-bar-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .settle-bar-count { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+    .settle-bar-sum { font-size: 22px; font-weight: 800; }
+    .settle-bar-btns { display: flex; gap: 7px; }
+
+    .settle-bar-btns .btn { padding: 12px 8px; font-size: 13px; flex: 1; }
+
+    /* ===== STATS ===== */
+    .break-row { margin-bottom: 9px; }
+
+    .break-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 13px;
+        margin-bottom: 4px;
+        gap: 8px;
+    }
+
+    .break-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .break-val { font-weight: 700; flex-shrink: 0; }
+    .break-cnt { font-size: 11px; color: var(--text-light); font-weight: 600; margin-left: 5px; }
+
+    .break-bar { height: 8px; background: #dbe0ea; border-radius: 4px; overflow: hidden; }
+    .break-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+    .break-fill.adv { background: var(--advance); }
+    .break-fill.rei { background: var(--reimburse); }
+
+    .range-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .range-row .f-input { padding: 10px; min-height: 44px; font-size: 14px; }
+
+    /* ===== DATA / MASTER ===== */
+    .list-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 11px 12px;
+        margin-bottom: 6px;
+    }
+
+    .list-name { flex: 1; font-size: 15px; font-weight: 600; }
+    .list-count { font-size: 11px; color: var(--text-light); font-weight: 600; }
+
+    .icon-btn {
+        background: #f1f3f8;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        width: 38px; height: 38px;
+        font-size: 15px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .icon-btn:active { background: #e2e6ef; }
+    .icon-btn.del { color: var(--danger); }
+
+    .note {
+        font-size: 12px;
+        line-height: 1.75;
+        color: var(--text-sub);
+        background: #fff;
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--accent);
+        border-radius: 7px;
+        padding: 11px 12px;
+        margin-bottom: 12px;
+    }
+
+    .data-btns { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ===== DETAIL ===== */
+    .detail-amount {
+        font-size: 34px;
+        font-weight: 800;
+        text-align: center;
+        padding: 6px 0 12px;
+    }
+
+    .detail-tags { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+
+    .kv { display: flex; border-bottom: 1px solid var(--border); padding: 11px 2px; gap: 12px; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { font-size: 12px; font-weight: 700; color: var(--text-sub); width: 76px; flex-shrink: 0; padding-top: 2px; }
+    .kv-v { font-size: 15px; flex: 1; word-break: break-word; }
+
+    /* ===== TOAST ===== */
+    #toast {
+        position: fixed;
+        left: 50%;
+        bottom: calc(172px + env(safe-area-inset-bottom));
+        transform: translateX(-50%) translateY(14px);
+        background: rgba(18,29,51,0.96);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        z-index: 900;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s, transform .2s;
+        max-width: 88vw;
+        text-align: center;
+    }
+
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .settle-preview {
+        font-family: 'SF Mono', Menlo, Consolas, monospace;
+        font-size: 11px;
+        line-height: 1.65;
+        white-space: pre;
+        overflow-x: auto;
+        background: #f6f7fa;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+    /* ===== v2 追加分 ===== */
+
+    /* 領収書の有無 */
+    .rcpt {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 5px;
+        border-radius: 3px;
+        border: 1px solid #a9c4b6;
+        background: var(--success-light);
+        color: var(--success);
+        flex-shrink: 0;
+    }
+
+    /* 通し番号 */
+    .serial {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-light);
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+    }
+
+    /* 精算の差額表示 */
+    .diff-box {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin: 10px 0 4px;
+        border: 2px solid var(--success);
+        background: var(--success-light);
+    }
+
+    .diff-box.ng { border-color: var(--danger); background: var(--danger-light); }
+    .diff-label { font-size: 12px; font-weight: 700; color: var(--text-sub); white-space: nowrap; }
+    .diff-val { font-size: 26px; font-weight: 800; color: var(--success); }
+    .diff-box.ng .diff-val { color: var(--danger); }
+    .diff-note { font-size: 11px; font-weight: 700; color: var(--danger); margin-top: 2px; }
+
+    /* 宛先ごとのグループ見出し */
+    .group-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 8px 8px 0 0;
+        padding: 9px 12px;
+        margin-top: 14px;
+    }
+
+    .group-name { font-size: 14px; font-weight: 700; }
+    .group-sum { font-size: 12px; font-weight: 700; opacity: 0.85; }
+
+    .group-sel {
+        background: rgba(255,255,255,0.16);
+        border: 1px solid rgba(255,255,255,0.4);
+        color: #fff;
+        border-radius: 5px;
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    /* 精算シートの金額欄（.multi-row を流用） */
+    .amt-field-label { font-size: 13px; font-weight: 700; flex: 1; }
+    .amt-field-sub { font-size: 10px; font-weight: 600; color: var(--text-light); display: block; margin-top: 2px; }
+
+    .sign-btn {
+        background: #fff;
+        border: 1.5px solid var(--border-strong);
+        border-radius: 6px;
+        padding: 6px 9px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-sub);
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .sign-btn.on { background: var(--reimburse); border-color: var(--reimburse); color: #fff; }
+
+    /* 精算シートの上部サマリ */
+    .settle-summary {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 11px;
+    }
+
+    .settle-summary-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .settle-summary-who { font-size: 15px; font-weight: 700; }
+    .settle-summary-amt { font-size: 21px; font-weight: 800; flex-shrink: 0; }
+
+    .settle-summary-sub {
+        font-size: 11px;
+        color: var(--text-sub);
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
+    /* キーパッド直上に固定する差額バー */
+    #settleDiff { flex-shrink: 0; padding: 0 12px 7px; background: var(--bg); }
+    #settleDiff .diff-box { margin: 0; }
+
+    /* 精算済みを表示するトグル */
+    .show-settled {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 2px 0;
+    }
+
+    .sw {
+        width: 34px; height: 20px;
+        border-radius: 10px;
+        background: var(--border-strong);
+        position: relative;
+        flex-shrink: 0;
+        transition: background .15s;
+    }
+
+    .sw::after {
+        content: '';
+        position: absolute;
+        top: 2px; left: 2px;
+        width: 16px; height: 16px;
+        border-radius: 50%;
+        background: #fff;
+        transition: transform .15s;
+    }
+
+    .sw.on { background: var(--primary); }
+    .sw.on::after { transform: translateX(14px); }
+
+    /* 精算済みの行 */
+    .rec.done { opacity: 0.72; border-left-color: var(--success); }
+
+    /* 並び替えボタン */
+    .icon-btn.sm { width: 32px; height: 34px; font-size: 13px; }
+
+    /* 精算書（宛先ごと） */
+    .sheet-block { margin-bottom: 18px; }
+    .sheet-block:last-child { margin-bottom: 4px; }
+
+    .sheet-block-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 7px;
+    }
+
+    .sheet-block-name { font-size: 14px; font-weight: 700; }
+
+    .btn-copy {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .btn-copy:active { background: var(--accent); }
+
+    /* ===== 画面が短い端末向けの調整 =====
+       他のルールを確実に上書きするため、スタイルの最後に置く */
+
+    /* 画面の縦が短い端末（iPhone SE など）ではさらに詰めて、
+       相手と用途をスクロールせずに出す */
+    @media (max-height: 680px) {
+        .entry-head-inner { padding: 7px 12px; }
+        .entry-title { font-size: 14px; }
+        .amount-bar { padding: 6px 12px 5px; }
+        .amount-val { font-size: 29px; }
+        .amount-yen { font-size: 16px; }
+        .entry-body { padding: 8px 12px 4px; }
+        .pick-group { margin-bottom: 8px; }
+        .pick-head { margin-bottom: 5px; }
+        .chip { min-height: 42px; padding: 9px 12px; font-size: 14px; }
+        .quick-btn { padding: 5px 2px; font-size: 11px; }
+        .quick-row { padding-bottom: 4px; }
+        .key { padding: 6px 0; font-size: 21px; }
+        .key.fn { font-size: 16px; }
+        .entry-save { padding: 11px 10px; font-size: 15px; margin-top: 5px; }
+        .multi-row { min-height: 40px; padding: 7px 10px; }
+
+        /* 精算シートは欄が3つあるので、行をさらに詰める */
+        #settleSheet .multi-row { min-height: 38px; padding: 5px 10px; margin-bottom: 4px; }
+        .amt-field-sub { margin-top: 1px; line-height: 1.35; }
+    }
+
+    /* iPhone SE 級（縦が特に短い端末）では精算シートをさらに詰める。
+       領収書額・返金額・差額がスクロールなしで見えるようにするため。 */
+    @media (max-height: 610px) {
+        .settle-summary { padding: 7px 10px; margin-bottom: 8px; }
+        .settle-summary-sub { display: none; }
+        .settle-summary-who { font-size: 14px; }
+        .settle-summary-amt { font-size: 19px; }
+        .diff-box { padding: 9px 12px; }
+        .diff-val { font-size: 22px; }
+        .diff-label { font-size: 11px; }
+        #settleDiff { padding: 0 12px 5px; }
+        #settleSheet .entry-body { padding: 7px 12px 4px; }
+        #settleSheet .multi-row { margin-bottom: 4px; }
+        /* 欄名だけで意味は分かるので、狭い画面では補足を落とす */
+        .amt-field-sub { display: none; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="app-header">
+    <div class="header-inner">
+        <div>
+            <div class="header-title">仮払い・立替メモ</div>
+            <div class="header-sub">ON:SUITE / CASH MEMO</div>
+        </div>
+        <div class="header-btns">
+            <button class="btn-header" onclick="openMasterModal('person')">相手</button>
+            <button class="btn-header" onclick="switchTab('data')">管理</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PROJECT BAR ===== -->
+<div class="project-bar" id="projectBar"></div>
+
+<!-- ===== HOME ===== -->
+<div class="view active" id="viewHome">
+    <div class="hero">
+        <button class="hero-row" onclick="gotoSettle('reimburse')">
+            <span class="hero-bar rei"></span>
+            <span class="hero-txt">
+                <span class="hero-label">立替 未精算 合計</span>
+                <span class="hero-amt num" id="heroRei">0<span class="hero-yen">円</span></span>
+            </span>
+            <span class="hero-side"><span class="hero-count" id="heroReiCount">0件</span><span class="hero-go">›</span></span>
+        </button>
+        <button class="hero-row" onclick="gotoSettle('advance')">
+            <span class="hero-bar adv"></span>
+            <span class="hero-txt">
+                <span class="hero-label">仮払い 未精算 合計</span>
+                <span class="hero-amt num" id="heroAdv">0<span class="hero-yen">円</span></span>
+            </span>
+            <span class="hero-side"><span class="hero-count" id="heroAdvCount">0件</span><span class="hero-go">›</span></span>
+        </button>
+        <div class="hero-scope" id="heroScope"></div>
+    </div>
+
+    <div class="stat-row" id="homeStats"></div>
+
+    <div class="sec-title">
+        <span id="histTitle">履歴</span>
+        <button class="show-settled" onclick="toggleShowSettled()">
+            <span class="sw" id="swSettled"></span><span>精算済みを表示</span>
+        </button>
+    </div>
+    <div id="historyList"></div>
+    <div id="histMore"></div>
+</div>
+
+<!-- ===== 精算 ===== -->
+<div class="view" id="viewSettle">
+    <div class="seg">
+        <button id="segAdvance" onclick="setSettleTab('advance')">仮払い</button>
+        <button id="segReimburse" class="on" onclick="setSettleTab('reimburse')">立替</button>
+        <button id="segDone" onclick="setSettleTab('done')">精算済み</button>
+    </div>
+    <div class="sec-title">
+        <span id="settleTitle"></span>
+        <button class="sec-act" onclick="toggleSelectAll()" id="selectAllBtn">全選択</button>
+    </div>
+    <div id="settleList"></div>
+</div>
+
+<!-- ===== 集計 ===== -->
+<div class="view" id="viewStats">
+    <div class="seg">
+        <button class="on" onclick="setPeriod('thisMonth')" data-p="thisMonth">今月</button>
+        <button onclick="setPeriod('lastMonth')" data-p="lastMonth">先月</button>
+        <button onclick="setPeriod('all')" data-p="all">全期間</button>
+        <button onclick="setPeriod('custom')" data-p="custom">期間指定</button>
+    </div>
+    <div class="range-row" id="rangeRow" style="display:none;">
+        <input type="date" class="f-input" id="rangeFrom" onchange="render()">
+        <span style="font-size:13px;color:var(--text-sub);">〜</span>
+        <input type="date" class="f-input" id="rangeTo" onchange="render()">
+    </div>
+    <div id="statsBody"></div>
+</div>
+
+<!-- ===== 管理 ===== -->
+<div class="view" id="viewData">
+    <div class="sec-title">マスタ</div>
+    <div class="data-btns">
+        <button class="btn btn-ghost btn-full" onclick="openMasterModal('project')">作品を編集</button>
+        <button class="btn btn-ghost btn-full" onclick="openMasterModal('person')">相手（仮払い先）を編集</button>
+        <button class="btn btn-ghost btn-full" onclick="openMasterModal('payee')">宛先（立替の請求先）を編集</button>
+        <button class="btn btn-ghost btn-full" onclick="openMasterModal('category')">用途を編集</button>
+    </div>
+
+    <div class="sec-title">バックアップ</div>
+    <div class="note">
+        データはこの端末のブラウザ内（localStorage）にのみ保存されます。<br>
+        ブラウザのデータ削除・機種変更で消えるため、<b>定期的にJSONを書き出して</b>メールやクラウドに保管してください。<br>
+        書き出しには記録本体に加えて、作品・相手・宛先・用途の各マスタ、並び順、通し番号も含まれます。<br>
+        復元は<b>全置換</b>です（いまのデータに追加ではなく、丸ごと入れ替わります）。
+    </div>
+    <div class="data-btns">
+        <button class="btn btn-primary btn-full" onclick="exportJSON()">JSONバックアップを書き出す</button>
+        <button class="btn btn-ghost btn-full" onclick="document.getElementById('importFile').click()">バックアップから復元（全置換）</button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importJSON(event)">
+    </div>
+    <div id="backupInfo" style="font-size:11px;color:var(--text-light);margin-top:9px;font-weight:600;"></div>
+
+    <div class="sec-title">CSV書き出し</div>
+    <div class="data-btns">
+        <button class="btn btn-ghost btn-full" onclick="exportCSV('all')">全件CSV</button>
+        <button class="btn btn-ghost btn-full" onclick="exportCSV('project')" id="csvProjBtn">選択中の作品のCSV</button>
+    </div>
+
+    <div class="sec-title">データ</div>
+    <div id="dataStats" style="font-size:12px;color:var(--text-sub);line-height:1.9;margin-bottom:12px;"></div>
+    <button class="btn btn-danger btn-full" onclick="wipeAll()">全データを削除</button>
+    <div style="height:14px"></div>
+</div>
+
+<!-- ===== TAB BAR ===== -->
+<nav class="tabbar">
+    <button class="tab active" id="tabHome" onclick="switchTab('home')">
+        <span class="tab-icon">🏠</span><span class="tab-label">ホーム</span>
+    </button>
+    <button class="tab" id="tabSettle" onclick="switchTab('settle')">
+        <span class="tab-icon">✓</span><span class="tab-label">精算</span>
+        <span class="tab-badge" id="tabBadge">0</span>
+    </button>
+    <button class="tab" id="tabStats" onclick="switchTab('stats')">
+        <span class="tab-icon">📊</span><span class="tab-label">集計</span>
+    </button>
+    <button class="tab" id="tabData" onclick="switchTab('data')">
+        <span class="tab-icon">⚙️</span><span class="tab-label">管理</span>
+    </button>
+</nav>
+
+<!-- ===== HOME ACTIONS ===== -->
+<div class="home-actions" id="homeActions">
+    <button class="big-btn advance" onclick="openEntry('advance')">
+        <span class="big-btn-main">仮払いを渡す</span>
+        <span class="big-btn-sub">制作費から現金を渡す</span>
+    </button>
+    <button class="big-btn reimburse" onclick="openEntry('reimburse')">
+        <span class="big-btn-main">立替払い</span>
+        <span class="big-btn-sub">自分の財布から払う</span>
+    </button>
+</div>
+
+<!-- ===== 立替の選択バー ===== -->
+<div class="settle-bar" id="settleBar">
+    <div class="settle-bar-top">
+        <span class="settle-bar-count" id="settleBarCount">0件を選択中</span>
+        <span class="settle-bar-sum num" id="settleBarSum">¥0</span>
+    </div>
+    <div class="settle-bar-btns" id="settleBarBtns"></div>
+</div>
+
+<!-- ===== 入力シート ===== -->
+<div class="entry" id="entrySheet">
+    <div class="entry-head">
+        <div class="entry-head-inner">
+            <div class="entry-title" id="entryTitle">仮払いを渡す</div>
+            <button class="entry-close" onclick="closeEntry()">✕</button>
+        </div>
+        <div class="entry-meta">
+            <button class="meta-chip" id="chipDate" onclick="pickDate()"></button>
+            <button class="meta-chip" id="chipProject" onclick="pickEntryProject()"></button>
+            <button class="meta-chip" id="chipReceipt" onclick="toggleReceipt()"></button>
+            <button class="meta-chip" id="chipMemo" onclick="pickMemo()"></button>
+        </div>
+    </div>
+
+    <div class="amount-bar">
+        <span class="amount-hint" id="amountHint"></span>
+        <span class="amount-yen">¥</span>
+        <span class="amount-val num placeholder" id="amountVal">0</span>
+    </div>
+
+    <div class="entry-body" id="entryBody"></div>
+
+    <div class="keypad">
+        <div id="entryKeypad"></div>
+        <button class="entry-save" id="entrySave" onclick="saveEntry()">保存</button>
+    </div>
+</div>
+
+<!-- ===== 仮払いの精算シート ===== -->
+<div class="entry" id="settleSheet">
+    <div class="entry-head">
+        <div class="entry-head-inner">
+            <div class="entry-title">仮払いの精算</div>
+            <button class="entry-close" onclick="closeAdvanceSettle()">✕</button>
+        </div>
+    </div>
+
+    <div class="amount-bar">
+        <span class="amount-hint" id="stAmountHint"></span>
+        <span class="amount-yen">¥</span>
+        <span class="amount-val num placeholder" id="stAmountVal">0</span>
+    </div>
+
+    <div class="entry-body" id="settleBody"></div>
+
+    <!-- 差額は常に見えている必要があるので、スクロール領域の外に固定する -->
+    <div id="settleDiff"></div>
+
+    <div class="keypad">
+        <div id="settleKeypad"></div>
+        <button class="entry-save" id="settleSave" onclick="commitAdvanceSettle()">精算を確定</button>
+    </div>
+</div>
+
+<!-- ===== 汎用モーダル ===== -->
+<div class="modal-overlay" id="modalOverlay" onclick="modalOverlayClick(event)">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle"></span>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =====================================================================
+   仮払い・立替メモ  v2  —  On:Suite
+   データは localStorage のみ。バックアップはJSON書き出しで。
+   ===================================================================== */
+
+const STORAGE_KEY = 'karibarai_v2';
+const OLD_KEY     = 'karibarai_v1';
+
+const DEFAULT_PEOPLE     = ['進行部A', '進行部B', '先発マイクロ', '本隊マイクロ', '機材車', '照明車', '美術部'];
+const DEFAULT_PAYEES     = ['プロデューサー'];
+const DEFAULT_CATEGORIES = ['タクシー', '差し入れ', 'ホテル', '駐車場', '備品', '雑費'];
+const DOW = ['日', '月', '火', '水', '木', '金', '土'];
+
+let projects   = [];   /* {name}         作品 */
+let people     = [];   /* {name, count}  相手（仮払いを渡す先。人名ではなく役割名） */
+let payees     = [];   /* {name, count}  宛先（立替の請求先） */
+let categories = [];   /* {name, count}  用途 */
+let records    = [];
+let nextSerial = 1;    /* 通し番号。紙の領収書に書き込んで突き合わせる */
+let manualOrder = { person: false, payee: false, category: false };
+let curProject = null;
+let lastBackup = null;
+let dataCorrupt = false;   /* 保存データが壊れている間は書き込みを止める */
+
+/* ---------- 画面状態 ---------- */
+let curTab      = 'home';
+let showSettled = false;   /* ホームで精算済みも出すか */
+let histLimit   = 30;
+let settleTab   = 'reimburse';
+let selectedIds = new Set();
+let period      = 'thisMonth';
+
+/* =====================================================================
+   保存・読み込み
+   ===================================================================== */
+function load() {
+    let raw = null;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { raw = null; }
+
+    if (raw) {
+        try {
+            apply(JSON.parse(raw));
+        } catch (e) {
+            /* 壊れたデータを黙って上書きすると復元できなくなるので、
+               原本を退避したうえで書き込みを止める */
+            dataCorrupt = true;
+            try { localStorage.setItem(STORAGE_KEY + '_broken_' + Date.now(), raw); } catch (_) {}
+        }
+    } else {
+        /* v1 のデータがあれば引き継ぐ */
+        let old = null;
+        try { old = localStorage.getItem(OLD_KEY); } catch (e) { old = null; }
+        if (old) {
+            try { migrateFromV1(JSON.parse(old)); } catch (e) { /* 失敗したら初期状態 */ }
+        }
+    }
+
+    if (people.length === 0)     people     = DEFAULT_PEOPLE.map(n => ({ name: n, count: 0 }));
+    if (payees.length === 0)     payees     = DEFAULT_PAYEES.map(n => ({ name: n, count: 0 }));
+    if (categories.length === 0) categories = DEFAULT_CATEGORIES.map(n => ({ name: n, count: 0 }));
+    if (curProject && !projects.some(p => p.name === curProject)) curProject = null;
+    records.forEach(normalizeRecord);
+    const maxSerial = records.reduce((m, r) => Math.max(m, r.serial || 0), 0);
+    if (nextSerial <= maxSerial) nextSerial = maxSerial + 1;
+}
+
+function apply(d) {
+    projects    = Array.isArray(d.projects)   ? d.projects   : [];
+    people      = Array.isArray(d.people)     ? d.people     : [];
+    payees      = Array.isArray(d.payees)     ? d.payees     : [];
+    categories  = Array.isArray(d.categories) ? d.categories : [];
+    records     = Array.isArray(d.records)    ? d.records    : [];
+    nextSerial  = parseInt(d.nextSerial, 10) || 1;
+    manualOrder = Object.assign({ person: false, payee: false, category: false }, d.manualOrder || {});
+    curProject  = d.curProject || null;
+    lastBackup  = d.lastBackup || null;
+}
+
+/* v1（現場あり・仮払いに精算なし・相手と宛先が同一マスタ）からの移行 */
+function migrateFromV1(d) {
+    projects   = Array.isArray(d.projects)   ? d.projects   : [];
+    people     = Array.isArray(d.people)     ? d.people     : [];
+    categories = Array.isArray(d.categories) ? d.categories : [];
+    curProject = d.curProject || null;
+    lastBackup = d.lastBackup || null;
+
+    const old = Array.isArray(d.records) ? d.records : [];
+    /* v1 は相手と宛先が同じマスタだったので、立替に使われた名前を宛先に移す。
+       立替でしか使っていない名前は、相手マスタからは外す。 */
+    const usedIn = t => new Set(old.filter(r => r.type === t).map(r => r.person).filter(Boolean));
+    const reiNames = usedIn('reimburse');
+    const advNames = usedIn('advance');
+    payees = [...new Set(DEFAULT_PAYEES.concat([...reiNames]))].map(n => ({ name: n, count: 0 }));
+    people = people.filter(x => !(reiNames.has(x.name) && !advNames.has(x.name)));
+
+    records = old.map((r, i) => {
+        /* v2 で「現場」欄が無くなったので、値があればメモに残して失わないようにする */
+        const memo = [r.memo, r.location ? '現場:' + r.location : ''].filter(Boolean).join('／');
+        return {
+            id: r.id || uid(),
+            serial: i + 1,
+            date: r.date,
+            type: r.type === 'reimburse' ? 'reimburse' : 'advance',
+            project: r.project || '',
+            person: r.person || '',
+            amount: parseInt(r.amount, 10) || 0,
+            category: r.category || '',
+            hasReceipt: false,
+            memo: memo,
+            settled: r.type === 'reimburse' ? !!r.settled : false,
+            settledDate: r.type === 'reimburse' ? (r.settledDate || null) : null,
+            receiptAmount: null,
+            refundAmount: null,
+            additionalAmount: null,
+            createdAt: r.createdAt || (r.date + 'T00:00:00.000Z')
+        };
+    });
+    nextSerial = records.length + 1;
+    persist();
+}
+
+function normalizeRecord(r) {
+    r.amount = parseInt(r.amount, 10) || 0;
+    if (r.type !== 'reimburse') r.type = 'advance';
+    r.settled    = !!r.settled;
+    r.hasReceipt = !!r.hasReceipt;
+    if (!r.serial) r.serial = nextSerial++;
+    if (r.type === 'advance') {
+        /* 旧形式（returnAmount 1本・マイナスは追加渡し）を2欄に分ける */
+        if (r.returnAmount != null && r.refundAmount == null && r.additionalAmount == null) {
+            const v = parseInt(r.returnAmount, 10) || 0;
+            r.refundAmount     = v >= 0 ?  v : 0;
+            r.additionalAmount = v <  0 ? -v : 0;
+        }
+        delete r.returnAmount;
+        r.receiptAmount    = r.receiptAmount    == null ? null : (parseInt(r.receiptAmount, 10) || 0);
+        r.refundAmount     = r.refundAmount     == null ? null : (parseInt(r.refundAmount, 10) || 0);
+        r.additionalAmount = r.additionalAmount == null ? null : (parseInt(r.additionalAmount, 10) || 0);
+    } else {
+        r.receiptAmount = null;
+        r.refundAmount = null;
+        r.additionalAmount = null;
+    }
+    if (!r.settled) r.settledDate = null;
+    if (!r.createdAt) r.createdAt = r.date + 'T00:00:00.000Z';
+    return r;
+}
+
+function persist() {
+    if (dataCorrupt) return;   /* 復元前に上書きしない */
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            version: 2, projects, people, payees, categories, records,
+            nextSerial, manualOrder, curProject, lastBackup
+        }));
+    } catch (e) {
+        alert('保存できませんでした。ブラウザの空き容量が不足している可能性があります。\nJSONバックアップを書き出して確認してください。');
+    }
+}
+
+/* =====================================================================
+   小物
+   ===================================================================== */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmt(n) { const v = parseInt(n, 10) || 0; return v.toLocaleString('ja-JP'); }
+function yen(n) { const v = parseInt(n, 10) || 0; return (v < 0 ? '-¥' : '¥') + fmt(Math.abs(v)); }
+function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function dLabel(s) { const d = new Date(s + 'T00:00:00'); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; }
+function dLabelFull(s) { const d = new Date(s + 'T00:00:00'); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; }
+function typeLabel(t) { return t === 'advance' ? '仮払い' : '立替'; }
+function serialLabel(r) { return 'No.' + String(r.serial).padStart(3, '0'); }
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* 仮払いの差額： 渡した額 − 領収書額 − 返金額 ＋ 追加で渡した額 */
+function diffOf(r) {
+    if (r.type !== 'advance') return 0;
+    return r.amount - (r.receiptAmount || 0) - (r.refundAmount || 0) + (r.additionalAmount || 0);
+}
+
+/* ---------- マスタ ---------- */
+function masterList(kind) {
+    return kind === 'project' ? projects : kind === 'person' ? people : kind === 'payee' ? payees : categories;
+}
+function masterName(kind) {
+    return kind === 'project' ? '作品' : kind === 'person' ? '相手' : kind === 'payee' ? '宛先' : '用途';
+}
+/* 既定は使用頻度順。管理画面で並べ替えると、その順序を優先する。 */
+function orderedMaster(kind) {
+    const list = masterList(kind);
+    if (kind === 'project' || manualOrder[kind]) return list.slice();
+    return list.slice().sort((a, b) => (b.count || 0) - (a.count || 0) || a.name.localeCompare(b.name, 'ja'));
+}
+function bumpMaster(kind, name) {
+    const list = masterList(kind);
+    const it = list.find(x => x.name === name);
+    if (it) it.count = (it.count || 0) + 1;
+    else list.push({ name, count: 1 });
+}
+/* 仮払いは「相手」、立替は「宛先」を使う */
+function peopleKindFor(type) { return type === 'advance' ? 'person' : 'payee'; }
+
+/* ---------- レコード抽出 ---------- */
+function recs() {
+    return curProject ? records.filter(r => r.project === curProject) : records.slice();
+}
+function byDateDesc(a, b) {
+    return a.date < b.date ? 1 : a.date > b.date ? -1 : (a.createdAt < b.createdAt ? 1 : -1);
+}
+function sum(list) { return list.reduce((s, r) => s + r.amount, 0); }
+function unsettled(list, type) { return list.filter(r => r.type === type && !r.settled); }
+
+/* =====================================================================
+   タブ・作品バー
+   ===================================================================== */
+function switchTab(tab) {
+    curTab = tab;
+    ['home', 'settle', 'stats', 'data'].forEach(t => {
+        const cap = t[0].toUpperCase() + t.slice(1);
+        document.getElementById('view' + cap).classList.toggle('active', t === tab);
+        document.getElementById('tab' + cap).classList.toggle('active', t === tab);
+    });
+    document.getElementById('homeActions').style.display = tab === 'home' ? 'flex' : 'none';
+    if (tab !== 'settle') selectedIds.clear();
+    window.scrollTo(0, 0);
+    render();
+}
+
+function gotoSettle(which) {
+    settleTab = which;
+    selectedIds.clear();
+    switchTab('settle');
+}
+
+function renderProjectBar() {
+    const bar = document.getElementById('projectBar');
+    let h = `<button class="proj-pill ${curProject === null ? 'active' : ''}" onclick="selectProject(-1)">全作品</button>`;
+    projects.forEach((p, i) => {
+        h += `<button class="proj-pill ${curProject === p.name ? 'active' : ''}" onclick="selectProject(${i})">${esc(p.name)}</button>`;
+    });
+    h += `<button class="proj-pill add" onclick="addMaster('project')">＋作品</button>`;
+    bar.innerHTML = h;
+}
+
+/* 作品バーは名前ではなく添字で渡す（記号を含む作品名でも壊れないように） */
+function selectProject(idx) {
+    curProject = (idx == null || idx < 0) ? null : (projects[idx] ? projects[idx].name : null);
+    selectedIds.clear();
+    persist();
+    renderProjectBar();
+    render();
+}
+
+/* =====================================================================
+   描画ディスパッチ
+   ===================================================================== */
+function render() {
+    const n = unsettled(records, 'reimburse').length + unsettled(records, 'advance').length;
+    const badge = document.getElementById('tabBadge');
+    badge.textContent = n;
+    badge.classList.toggle('show', n > 0);
+
+    if (curTab === 'home')   renderHome();
+    if (curTab === 'settle') renderSettle();
+    if (curTab === 'stats')  renderStats();
+    if (curTab === 'data')   renderData();
+
+    /* 精算タブ以外に移ったとき、選択バーが残らないように毎回見直す */
+    if (curTab !== 'settle') renderSettleBar();
+}
+
+/* =====================================================================
+   ホーム
+   ===================================================================== */
+function renderHome() {
+    const mine = recs();
+    const unRei = unsettled(mine, 'reimburse');
+    const unAdv = unsettled(mine, 'advance');
+
+    const setHero = (idEl, idCnt, list) => {
+        const el = document.getElementById(idEl);
+        const total = sum(list);
+        el.innerHTML = fmt(total) + '<span class="hero-yen">円</span>';
+        el.classList.toggle('zero', total === 0);
+        document.getElementById(idCnt).textContent = list.length + '件';
+    };
+    setHero('heroRei', 'heroReiCount', unRei);
+    setHero('heroAdv', 'heroAdvCount', unAdv);
+
+    const scope = document.getElementById('heroScope');
+    if (curProject) {
+        const allRei = unsettled(records, 'reimburse');
+        const allAdv = unsettled(records, 'advance');
+        const same = allRei.length === unRei.length && allAdv.length === unAdv.length;
+        scope.textContent = `作品：${curProject}` +
+            (same ? '' : `　／　全作品 立替 ${yen(sum(allRei))}・仮払い ${yen(sum(allAdv))}`);
+    } else {
+        scope.textContent = '全作品';
+    }
+    scope.textContent += '　／　未精算額＝まだ精算が終わっていない「渡した額・立て替えた額」の合計';
+
+    /* 今月 */
+    const now = new Date();
+    const pre = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const month = mine.filter(r => r.date.startsWith(pre));
+    const adv = month.filter(r => r.type === 'advance');
+    const rei = month.filter(r => r.type === 'reimburse');
+    document.getElementById('homeStats').innerHTML = `
+        <div class="stat-box">
+            <div class="stat-box-label">今月の仮払い</div>
+            <div class="stat-box-value num">${yen(sum(adv))}<span class="list-count"> ${adv.length}件</span></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-label">今月の立替</div>
+            <div class="stat-box-value num">${yen(sum(rei))}<span class="list-count"> ${rei.length}件</span></div>
+        </div>`;
+
+    /* 履歴：既定では未精算のみ（精算済みが混ざると未精算が埋もれるため） */
+    document.getElementById('swSettled').classList.toggle('on', showSettled);
+    const all = mine.filter(r => showSettled || !r.settled).sort(byDateDesc);
+    const shown = all.slice(0, histLimit);
+    document.getElementById('histTitle').textContent =
+        (showSettled ? '履歴' : '未精算の履歴') + `　${all.length}件`;
+
+    const list = document.getElementById('historyList');
+    if (shown.length === 0) {
+        list.innerHTML = `<div class="empty">
+            <div class="empty-icon">${showSettled ? '📓' : '🎉'}</div>
+            <div class="empty-text">${showSettled ? 'まだ記録がありません。<br>下のボタンから登録してください。' : '未精算はありません。<br>「精算済みを表示」で全件見られます。'}</div>
+        </div>`;
+        document.getElementById('histMore').innerHTML = '';
+        return;
+    }
+
+    let h = '', curDate = null, buf = [];
+    const flush = () => {
+        if (!curDate) return;
+        h += `<div class="day-group"><div class="day-head"><span>${dLabelFull(curDate)}</span>
+              <span class="day-sum num">${buf.length}件 / ${yen(sum(buf))}</span></div>
+              ${buf.map(recRow).join('')}</div>`;
+        buf = [];
+    };
+    shown.forEach(r => {
+        if (r.date !== curDate) { flush(); curDate = r.date; }
+        buf.push(r);
+    });
+    flush();
+    list.innerHTML = h;
+
+    document.getElementById('histMore').innerHTML = all.length > shown.length
+        ? `<button class="btn btn-ghost btn-full" onclick="moreHistory()">さらに表示（残り ${all.length - shown.length}件）</button>`
+        : '';
+}
+
+function moreHistory() { histLimit += 50; renderHome(); }
+function toggleShowSettled() { showSettled = !showSettled; histLimit = 30; renderHome(); }
+
+function recRow(r) {
+    const isAdv = r.type === 'advance';
+    const un = !r.settled;
+    let tags = isAdv ? `<span class="tag tag-advance">仮払い</span>` : `<span class="tag tag-reimburse">立替</span>`;
+    tags += un ? `<span class="tag tag-unsettled">未精算</span>` : `<span class="tag tag-settled">精算済</span>`;
+    if (r.hasReceipt) tags += `<span class="rcpt">領収書</span>`;
+
+    const d = diffOf(r);
+    const sub = [
+        serialLabel(r),
+        r.category,
+        curProject ? null : r.project,
+        (!isAdv || un) ? null : (d === 0 ? '差額 0' : '差額 ' + yen(d)),
+        r.memo
+    ].filter(Boolean).join('・');
+
+    return `<button class="rec ${isAdv ? '' : 't-reimburse'} ${un ? 'unsettled' : 'done'}" onclick="openDetail('${r.id}')">
+        <div class="rec-main">
+            <div class="rec-line1">${tags}<span class="rec-person">${esc(r.person)}</span></div>
+            <div class="rec-line2">${esc(sub || '—')}</div>
+        </div>
+        <div class="rec-amount num">${yen(r.amount)}</div>
+        <div class="rec-arrow">›</div>
+    </button>`;
+}
+
+/* =====================================================================
+   テンキー（入力シートと精算シートで共用）
+   ===================================================================== */
+const KEYPAD_HTML = `
+    <div class="quick-row">
+        <button class="quick-btn" onclick="quickAdd(1000)">+千</button>
+        <button class="quick-btn" onclick="quickAdd(5000)">+5千</button>
+        <button class="quick-btn" onclick="quickAdd(10000)">+1万</button>
+        <button class="quick-btn" onclick="quickAdd(100000)">+10万</button>
+    </div>
+    <div class="keys">
+        <button class="key" onclick="keyPress('7')">7</button>
+        <button class="key" onclick="keyPress('8')">8</button>
+        <button class="key" onclick="keyPress('9')">9</button>
+        <button class="key" onclick="keyPress('4')">4</button>
+        <button class="key" onclick="keyPress('5')">5</button>
+        <button class="key" onclick="keyPress('6')">6</button>
+        <button class="key" onclick="keyPress('1')">1</button>
+        <button class="key" onclick="keyPress('2')">2</button>
+        <button class="key" onclick="keyPress('3')">3</button>
+        <button class="key fn" onclick="keyPress('000')">000</button>
+        <button class="key" onclick="keyPress('0')">0</button>
+        <button class="key fn" onclick="keyPress('back')">⌫</button>
+    </div>`;
+
+/* いま開いているシートが、テンキーの入力先を教える */
+let kpTarget = null;   /* {get(), set(v), after()} */
+
+function keyPress(k) {
+    if (!kpTarget) return;
+    const cur = kpTarget.get();
+    if (cur === null) { showToast(kpTarget.hint || '入力先を選んでください'); return; }
+    let v;
+    if (k === 'back')     v = cur.slice(0, -1);
+    else if (k === '000') v = cur === '' ? '' : cur + '000';
+    else                  v = cur + k;
+    kpTarget.set(v.replace(/^0+(?=\d)/, '').slice(0, 9));
+    kpTarget.after();
+}
+
+function quickAdd(n) {
+    if (!kpTarget) return;
+    const cur = kpTarget.get();
+    if (cur === null) { showToast(kpTarget.hint || '入力先を選んでください'); return; }
+    kpTarget.set(String(Math.min((parseInt(cur, 10) || 0) + n, 999999999)));
+    kpTarget.after();
+}
+
+/* =====================================================================
+   入力シート（仮払い／立替／一括登録）
+   ===================================================================== */
+let entry = null;
+let entryPeople = [];
+let entryCats   = [];
+
+function newEntry(type) {
+    return {
+        type,
+        editId: null,
+        date: todayStr(),
+        project: curProject || (projects[0] ? projects[0].name : ''),
+        memo: '',
+        category: '',
+        hasReceipt: false,
+        sel: [],
+        multi: false,
+        multiMode: 'same',
+        amountStr: '',
+        activeIdx: 0,
+        openPerson: false,
+        openCat: false
+    };
+}
+
+function openEntry(type, editId) {
+    entry = newEntry(type);
+
+    if (editId) {
+        const r = records.find(x => x.id === editId);
+        if (!r) return;
+        entry.editId     = r.id;
+        entry.type       = r.type;
+        entry.date       = r.date;
+        entry.project    = r.project || '';
+        entry.memo       = r.memo || '';
+        entry.category   = r.category || '';
+        entry.hasReceipt = !!r.hasReceipt;
+        entry.sel        = [{ name: r.person, amt: String(r.amount || '') }];
+        entry.amountStr  = String(r.amount || '');
+    } else if (entry.type === 'reimburse') {
+        /* 立替の宛先は基本プロデューサー。既定で選んでおいてタップを1つ減らす */
+        const def = payees[0];
+        if (def) entry.sel = [{ name: def.name, amt: '' }];
+    }
+
+    kpTarget = {
+        hint: '相手を選んでください',
+        get: () => {
+            if (entry.multi && entry.multiMode === 'each') {
+                const row = entry.sel[entry.activeIdx];
+                return row ? (row.amt || '') : null;
+            }
+            return entry.amountStr;
+        },
+        set: v => {
+            if (entry.multi && entry.multiMode === 'each') {
+                const row = entry.sel[entry.activeIdx];
+                if (row) row.amt = v;
+            } else {
+                entry.amountStr = v;
+            }
+        },
+        after: renderEntry
+    };
+
+    entry._snap = entrySnapshot();
+    const sheet = document.getElementById('entrySheet');
+    sheet.classList.toggle('reimburse', entry.type === 'reimburse');
+    sheet.classList.add('open');
+    document.getElementById('entryTitle').textContent =
+        entry.editId ? '記録を修正' : (entry.type === 'advance' ? '仮払いを渡す' : '立替払い');
+    renderEntry();
+}
+
+/* 入力途中で閉じるときは破棄の確認を挟む */
+function closeEntry(force) {
+    if (!force && entry && entryDirty()) {
+        if (!confirm('入力中の内容が保存されていません。\n破棄して閉じますか？')) return;
+    }
+    document.getElementById('entrySheet').classList.remove('open');
+    document.getElementById('entrySave').disabled = false;
+    entry = null;
+    kpTarget = null;
+}
+
+function entrySnapshot() {
+    return JSON.stringify([entry.date, entry.project, entry.memo, entry.category,
+                           entry.hasReceipt, entry.amountStr, entry.sel]);
+}
+function entryDirty() { return entry._snap !== undefined && entry._snap !== entrySnapshot(); }
+
+function entryRows() {
+    if (!entry.multi) {
+        const name = entry.sel[0] ? entry.sel[0].name : '';
+        return name ? [{ name, amount: parseInt(entry.amountStr, 10) || 0 }] : [];
+    }
+    if (entry.multiMode === 'same') {
+        const a = parseInt(entry.amountStr, 10) || 0;
+        return entry.sel.map(s => ({ name: s.name, amount: a }));
+    }
+    return entry.sel.map(s => ({ name: s.name, amount: parseInt(s.amt, 10) || 0 }));
+}
+
+function entryTotal() { return entryRows().reduce((s, r) => s + r.amount, 0); }
+
+function renderEntry() {
+    if (!entry) return;
+    const kind = peopleKindFor(entry.type);
+
+    /* 上部のメタ情報 */
+    document.getElementById('chipDate').textContent = dLabel(entry.date) + (entry.date === todayStr() ? ' 今日' : '');
+    const cp = document.getElementById('chipProject');
+    cp.textContent = entry.project || '作品を選ぶ';
+    cp.classList.toggle('empty', !entry.project);
+    const cr = document.getElementById('chipReceipt');
+    cr.textContent = entry.hasReceipt ? '📄 領収書あり' : '領収書なし';
+    cr.classList.toggle('empty', !entry.hasReceipt);
+    const cm = document.getElementById('chipMemo');
+    cm.textContent = entry.memo ? '📝' + entry.memo : '＋メモ';
+    cm.classList.toggle('empty', !entry.memo);
+
+    /* 金額表示 */
+    const s = kpTarget.get();
+    const val = document.getElementById('amountVal');
+    val.textContent = (s === null || s === '') ? '0' : fmt(s);
+    val.classList.toggle('placeholder', s === null || s === '');
+
+    let hint = '';
+    if (entry.multi && entry.multiMode === 'same' && entry.sel.length > 0) {
+        hint = `1人あたり（${entry.sel.length}人 計 ${yen(entryTotal())}）`;
+    } else if (entry.multi && entry.multiMode === 'each') {
+        const row = entry.sel[entry.activeIdx];
+        hint = row ? `${row.name} の金額` : '相手を選んでください';
+    }
+    document.getElementById('amountHint').textContent = hint;
+
+    const rows = entryRows();
+    const save = document.getElementById('entrySave');
+    save.innerHTML = entry.multi && rows.length > 1
+        ? `${rows.length}件を保存 <span class="entry-save-sum num">計 ${yen(entryTotal())}</span>`
+        : `保存 <span class="entry-save-sum num">${yen(entryTotal())}</span>`;
+
+    /* 本文 */
+    entryPeople = orderedMaster(kind);
+    entryCats   = orderedMaster('category');
+    const selNames = entry.sel.map(x => x.name);
+    const label = masterName(kind);
+
+    let h = `<div class="pick-group">
+        <div class="pick-head">
+            <span class="pick-label">${label}<span class="pick-req">*</span></span>`;
+    if (entryPeople.length > 4) {
+        h += `<button class="sec-act" style="margin-right:auto;margin-left:10px;" onclick="toggleOpen('person')">${entry.openPerson ? '閉じる ▴' : '一覧 ▾'}</button>`;
+    }
+    if (!entry.editId) {
+        h += `<div class="mode-toggle">
+                <button class="${!entry.multi ? 'on' : ''}" onclick="setMulti(false)">1人</button>
+                <button class="${entry.multi && entry.multiMode === 'same' ? 'on' : ''}" onclick="setMulti(true,'same')">複数・同額</button>
+                <button class="${entry.multi && entry.multiMode === 'each' ? 'on' : ''}" onclick="setMulti(true,'each')">複数・個別</button>
+              </div>`;
+    }
+    h += `</div><div class="${entry.openPerson ? 'chips' : 'chips-row'}">`;
+    entryPeople.forEach((p, i) => {
+        const on = selNames.includes(p.name);
+        h += `<button class="chip ${on ? 'on' : ''}" onclick="tapPerson(${i})">${esc(p.name)}${on && entry.multi ? ' ✓' : ''}</button>`;
+    });
+    h += `<button class="chip add" onclick="addMaster('${kind}')">＋新規</button></div>`;
+
+    if (entry.multi && entry.multiMode === 'each' && entry.sel.length > 0) {
+        h += `<div style="margin-top:10px;">`;
+        entry.sel.forEach((row, i) => {
+            const a = parseInt(row.amt, 10) || 0;
+            h += `<div class="multi-row ${i === entry.activeIdx ? 'active' : ''}" onclick="setActiveRow(${i})">
+                    <span class="multi-name">${esc(row.name)}</span>
+                    <span class="multi-amt num ${a === 0 ? 'zero' : ''}">${yen(a)}</span>
+                    <button class="multi-del" onclick="event.stopPropagation();removeRow(${i})">✕</button>
+                  </div>`;
+        });
+        h += `</div>`;
+    } else if (entry.multi && entry.sel.length > 0) {
+        h += `<div style="margin-top:8px;font-size:12px;color:var(--text-sub);font-weight:600;">
+                選択中：${entry.sel.map(x => esc(x.name)).join('、')}（${entry.sel.length}人）
+              </div>`;
+    }
+    h += `</div>`;
+
+    h += `<div class="pick-group">
+        <div class="pick-head">
+            <span class="pick-label">用途<span class="pick-req">*</span></span>
+            ${entryCats.length > 4 ? `<button class="sec-act" onclick="toggleOpen('cat')">${entry.openCat ? '閉じる ▴' : '一覧 ▾'}</button>` : ''}
+        </div>
+        <div class="${entry.openCat ? 'chips' : 'chips-row'}">`;
+    entryCats.forEach((c, i) => {
+        h += `<button class="chip ${entry.category === c.name ? 'on' : ''}" onclick="tapCategory(${i})">${esc(c.name)}</button>`;
+    });
+    h += `<button class="chip add" onclick="addMaster('category')">＋新規</button></div></div>`;
+
+    document.getElementById('entryBody').innerHTML = h;
+}
+
+function toggleOpen(which) {
+    if (which === 'person') entry.openPerson = !entry.openPerson;
+    else                    entry.openCat    = !entry.openCat;
+    renderEntry();
+}
+function toggleReceipt() { entry.hasReceipt = !entry.hasReceipt; renderEntry(); }
+
+function setMulti(on, mode) {
+    entry.multi = on;
+    if (mode) entry.multiMode = mode;
+    if (!on && entry.sel.length > 1) entry.sel = entry.sel.slice(0, 1);
+    entry.activeIdx = Math.min(entry.activeIdx, Math.max(entry.sel.length - 1, 0));
+    renderEntry();
+}
+
+function tapPerson(i) {
+    const name = entryPeople[i].name;
+    if (!entry.multi) {
+        entry.sel = (entry.sel[0] && entry.sel[0].name === name) ? [] : [{ name, amt: '' }];
+    } else {
+        const at = entry.sel.findIndex(s => s.name === name);
+        if (at >= 0) entry.sel.splice(at, 1);
+        else         entry.sel.push({ name, amt: '' });
+        if (entry.multiMode === 'each') entry.activeIdx = Math.max(entry.sel.length - 1, 0);
+    }
+    renderEntry();
+}
+
+function setActiveRow(i) { entry.activeIdx = i; renderEntry(); }
+function removeRow(i) {
+    entry.sel.splice(i, 1);
+    entry.activeIdx = Math.min(entry.activeIdx, Math.max(entry.sel.length - 1, 0));
+    renderEntry();
+}
+function tapCategory(i) {
+    const name = entryCats[i].name;
+    entry.category = entry.category === name ? '' : name;
+    renderEntry();
+}
+
+const CONFIRM_OVER = 100000;   /* この額以上は登録前に確認を挟む */
+
+function saveEntry() {
+    if (!entry || entry._saving) return;            /* 二重タップ対策 */
+    const kind = peopleKindFor(entry.type);
+    const rows = entryRows();
+    if (rows.length === 0) { showToast(masterName(kind) + 'を選んでください'); return; }
+    if (!entry.category)   { showToast('用途を選んでください'); return; }
+    if (rows.some(r => r.amount <= 0)) {
+        showToast(entry.multi && entry.multiMode === 'each' ? '金額が0円の相手があります' : '金額を入力してください');
+        return;
+    }
+
+    /* 桁の打ち間違い（30万→300万）を止める */
+    if (rows.some(r => r.amount >= CONFIRM_OVER)) {
+        const lines = rows.map(r => `　${r.name}　${yen(r.amount)}`).join('\n');
+        const head  = `${typeLabel(entry.type)}　${dLabel(entry.date)}　${entry.category}`;
+        const tail  = rows.length > 1 ? `\n\n合計 ${rows.length}件　${yen(entryTotal())}` : '';
+        if (!confirm(`この内容で登録します。金額を確認してください。\n\n${head}\n${lines}${tail}`)) return;
+    }
+
+    entry._saving = true;
+    const saveBtn = document.getElementById('entrySave');
+    saveBtn.disabled = true;
+
+    if (entry.editId) {
+        const r = records.find(x => x.id === entry.editId);
+        if (r) {
+            r.date       = entry.date;
+            r.project    = entry.project;
+            r.person     = rows[0].name;
+            r.amount     = rows[0].amount;
+            r.category   = entry.category;
+            r.memo       = entry.memo;
+            r.hasReceipt = entry.hasReceipt;
+            normalizeRecord(r);
+        }
+        bumpMaster(kind, rows[0].name);
+        bumpMaster('category', entry.category);
+        persist();
+        closeEntry(true);
+        render();
+        showToast('修正しました');
+        return;
+    }
+
+    const now  = new Date().toISOString();
+    const type = entry.type;
+    const created = [];
+    rows.forEach(row => {
+        const rec = normalizeRecord({
+            id: uid(),
+            serial: nextSerial++,
+            date: entry.date,
+            type: type,
+            project: entry.project,
+            person: row.name,
+            amount: row.amount,
+            category: entry.category,
+            hasReceipt: entry.hasReceipt,
+            memo: entry.memo,
+            settled: false,
+            settledDate: null,
+            receiptAmount: null,
+            refundAmount: null,
+            additionalAmount: null,
+            createdAt: now
+        });
+        records.push(rec);
+        created.push(rec);
+        bumpMaster(kind, row.name);
+    });
+    bumpMaster('category', entry.category);
+    if (entry.project && !projects.some(p => p.name === entry.project)) projects.push({ name: entry.project });
+    persist();
+    closeEntry(true);
+    if (curTab !== 'home') switchTab('home'); else render();
+
+    const serials = created.map(r => serialLabel(r)).join(' ');
+    showToast(created.length > 1
+        ? `${typeLabel(type)} ${created.length}件を登録（計 ${yen(sum(created))}）${serials}`
+        : `${typeLabel(type)} ${yen(created[0].amount)} を登録 ${serials}`);
+}
+
+/* =====================================================================
+   精算タブ
+   ===================================================================== */
+function setSettleTab(t) { settleTab = t; selectedIds.clear(); renderSettle(); }
+
+function settleTargets() {
+    const mine = recs();
+    if (settleTab === 'advance')   return unsettled(mine, 'advance').sort(byDateDesc);
+    if (settleTab === 'reimburse') return unsettled(mine, 'reimburse').sort(byDateDesc);
+    return mine.filter(r => r.settled).sort((a, b) =>
+        (b.settledDate || '').localeCompare(a.settledDate || '') || byDateDesc(a, b));
+}
+
+function renderSettle() {
+    ['advance', 'reimburse', 'done'].forEach(t => {
+        document.getElementById('seg' + t[0].toUpperCase() + t.slice(1)).classList.toggle('on', settleTab === t);
+    });
+
+    const list = settleTargets();
+    const title = settleTab === 'advance' ? '未精算の仮払い' : settleTab === 'reimburse' ? '未精算の立替' : '精算済み';
+    document.getElementById('settleTitle').textContent = `${title}　${list.length}件 / ${yen(sum(list))}`;
+
+    /* 全選択は立替タブだけ（仮払いは1件ずつ精算するため） */
+    const allBtn = document.getElementById('selectAllBtn');
+    allBtn.style.display = (settleTab === 'reimburse' && list.length) ? '' : 'none';
+    const allSelected = list.length > 0 && list.every(r => selectedIds.has(r.id));
+    allBtn.textContent = allSelected ? '全解除' : '全選択';
+
+    const el = document.getElementById('settleList');
+    if (list.length === 0) {
+        el.innerHTML = `<div class="empty">
+            <div class="empty-icon">${settleTab === 'done' ? '📁' : '🎉'}</div>
+            <div class="empty-text">${settleTab === 'done' ? '精算済みの記録はまだありません。' : '未精算はありません。'}</div>
+        </div>`;
+    } else if (settleTab === 'advance') {
+        el.innerHTML = `<p style="font-size:12px;color:var(--text-sub);margin-bottom:10px;line-height:1.7;">
+            行をタップすると、領収書額と返金額を入れて精算できます。</p>` +
+            list.map(r => `<div class="settle-row" onclick="openAdvanceSettle('${r.id}')">
+                <div class="rec-main">
+                    <div class="rec-line1">
+                        <span class="tag tag-advance">${dLabel(r.date)}</span>
+                        <span class="serial">${serialLabel(r)}</span>
+                        <span class="rec-person">${esc(r.person)}</span>
+                        ${r.hasReceipt ? '<span class="rcpt">領収書</span>' : ''}
+                    </div>
+                    <div class="rec-line2">${esc([r.category, curProject ? null : r.project, r.memo].filter(Boolean).join('・') || '—')}</div>
+                </div>
+                <div class="rec-amount num">${yen(r.amount)}</div>
+                <div class="rec-arrow">›</div>
+            </div>`).join('');
+    } else if (settleTab === 'reimburse') {
+        el.dataset.note = '1';
+        /* 宛先ごとにまとめる。精算書も宛先ごとに出すため */
+        const groups = new Map();
+        list.forEach(r => {
+            if (!groups.has(r.person)) groups.set(r.person, []);
+            groups.get(r.person).push(r);
+        });
+        let h = '';
+        /* 宛先名は添字で渡す（記号を含む名前でも壊れないように） */
+        const sorted = [...groups.entries()].sort((a, b) => sum(b[1]) - sum(a[1]));
+        window._settleGroups = sorted.map(g => g[0]);
+        sorted.forEach(([name, rows], gi) => {
+            const allOn = rows.every(r => selectedIds.has(r.id));
+            h += `<div class="group-head">
+                    <span class="group-name">${esc(name)}</span>
+                    <span class="group-sum num">${rows.length}件 / ${yen(sum(rows))}</span>
+                    <button class="group-sel" onclick="selectGroup(${gi}, ${!allOn})">${allOn ? '解除' : 'この宛先を選択'}</button>
+                  </div>`;
+            h += rows.map(r => {
+                const on = selectedIds.has(r.id);
+                return `<div class="settle-row ${on ? 'checked' : ''}" onclick="toggleSelect('${r.id}')">
+                    <div class="cbox">✓</div>
+                    <div class="rec-main">
+                        <div class="rec-line1">
+                            <span class="tag tag-reimburse">${dLabel(r.date)}</span>
+                            <span class="serial">${serialLabel(r)}</span>
+                            <span class="rec-person">${esc(r.category || '—')}</span>
+                            ${r.hasReceipt ? '<span class="rcpt">領収書</span>' : ''}
+                        </div>
+                        <div class="rec-line2">${esc([curProject ? null : r.project, r.memo].filter(Boolean).join('・') || '—')}</div>
+                    </div>
+                    <div class="rec-amount num">${yen(r.amount)}</div>
+                    <button class="icon-btn" onclick="event.stopPropagation();openDetail('${r.id}')">›</button>
+                </div>`;
+            }).join('');
+        });
+        el.innerHTML = `<p style="font-size:12px;color:var(--text-sub);margin-bottom:10px;line-height:1.7;">
+            「精算済みにする」は<b>実際に返金を受け取った</b>ときに押します（請求しただけの段階では押しません）。
+            立替は全額返金が前提です。</p>` + h;
+    } else {
+        el.innerHTML = list.map(r => {
+            const d = diffOf(r);
+            const extra = r.type === 'advance'
+                ? `領収書 ${yen(r.receiptAmount || 0)}・返金 ${yen(r.refundAmount || 0)}`
+                  + ((r.additionalAmount || 0) ? `・追加 ${yen(r.additionalAmount)}` : '')
+                  + (d !== 0 ? `・差額 ${yen(d)}` : '')
+                : '';
+            return `<div class="settle-row" onclick="openDetail('${r.id}')">
+                <div class="rec-main">
+                    <div class="rec-line1">
+                        <span class="tag ${r.type === 'advance' ? 'tag-advance' : 'tag-reimburse'}">${typeLabel(r.type)}</span>
+                        <span class="serial">${serialLabel(r)}</span>
+                        <span class="rec-person">${esc(r.person)}</span>
+                    </div>
+                    <div class="rec-line2">${esc([dLabel(r.date), r.category, extra].filter(Boolean).join('・'))}　／　精算 ${r.settledDate ? dLabel(r.settledDate) : '—'}</div>
+                </div>
+                <div class="rec-amount num">${yen(r.amount)}</div>
+                <div class="rec-arrow">›</div>
+            </div>`;
+        }).join('');
+    }
+    renderSettleBar();
+}
+
+function toggleSelect(id) {
+    if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+    renderSettle();
+}
+
+function selectGroup(gi, on) {
+    const name = (window._settleGroups || [])[gi];
+    if (name == null) return;
+    settleTargets().filter(r => r.person === name).forEach(r => {
+        if (on) selectedIds.add(r.id); else selectedIds.delete(r.id);
+    });
+    renderSettle();
+}
+
+function toggleSelectAll() {
+    const list = settleTargets();
+    const allSelected = list.length > 0 && list.every(r => selectedIds.has(r.id));
+    if (allSelected) selectedIds.clear();
+    else list.forEach(r => selectedIds.add(r.id));
+    renderSettle();
+}
+
+function selectedRecords() { return settleTargets().filter(r => selectedIds.has(r.id)); }
+
+function renderSettleBar() {
+    const bar = document.getElementById('settleBar');
+    const sel = selectedRecords();
+    const show = sel.length > 0 && curTab === 'settle' && settleTab === 'reimburse';
+    bar.classList.toggle('show', show);
+    if (!show) return;
+    const payeeCount = new Set(sel.map(r => r.person)).size;
+    document.getElementById('settleBarCount').textContent =
+        `${sel.length}件を選択中` + (payeeCount > 1 ? `（宛先${payeeCount}件）` : '');
+    document.getElementById('settleBarSum').textContent = yen(sum(sel));
+    document.getElementById('settleBarBtns').innerHTML =
+        `<button class="btn btn-ghost" onclick="openSettleSheet()">精算書</button>
+         <button class="btn btn-primary" onclick="markSettled()">精算済みにする</button>`;
+}
+
+function markSettled() {
+    const sel = selectedRecords();
+    if (sel.length === 0) return;
+    if (!confirm(`${sel.length}件（計 ${yen(sum(sel))}）を精算済みにします。よろしいですか？`)) return;
+    const today = todayStr();
+    sel.forEach(r => { r.settled = true; r.settledDate = today; });
+    selectedIds.clear();
+    persist();
+    render();
+    showToast(`${sel.length}件を精算済みにしました`);
+}
+
+/* =====================================================================
+   仮払いの精算（1件ずつ：領収書額・返金額・差額）
+   ===================================================================== */
+let stState = null;
+
+function openAdvanceSettle(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    stState = {
+        id: r.id,
+        receipt: r.receiptAmount    == null ? '' : String(r.receiptAmount),
+        refund:  r.refundAmount     == null ? '' : String(r.refundAmount),
+        extra:   r.additionalAmount == null ? '' : String(r.additionalAmount),
+        field: 'receipt'
+    };
+    kpTarget = {
+        hint: '入力する欄をタップしてください',
+        get: () => stState[stState.field],
+        set: v => { stState[stState.field] = v; },
+        after: renderAdvanceSettle
+    };
+    document.getElementById('settleSheet').classList.add('open');
+    renderAdvanceSettle();
+}
+
+function closeAdvanceSettle() {
+    document.getElementById('settleSheet').classList.remove('open');
+    document.getElementById('settleSave').disabled = false;
+    stState = null;
+    kpTarget = null;
+}
+
+function stValues() {
+    const r = records.find(x => x.id === stState.id);
+    const receipt = parseInt(stState.receipt, 10) || 0;
+    const refund  = parseInt(stState.refund, 10) || 0;
+    const extra   = parseInt(stState.extra, 10) || 0;
+    return { r, receipt, refund, extra, diff: r.amount - receipt - refund + extra };
+}
+
+const ST_FIELDS = [
+    { key: 'receipt', label: '領収書の合計額', sub: '預かった領収書の合計' },
+    { key: 'refund',  label: '返金額',        sub: '相手から戻ってきた現金' },
+    { key: 'extra',   label: '追加で渡した額', sub: '領収書が渡した額を超えたとき' }
+];
+
+function renderAdvanceSettle() {
+    if (!stState) return;
+    const { r, diff } = stValues();
+    const vals = stValues();
+
+    const s = kpTarget.get();
+    const val = document.getElementById('stAmountVal');
+    val.textContent = s === '' ? '0' : fmt(s);
+    val.classList.toggle('placeholder', s === '');
+    document.getElementById('stAmountHint').textContent =
+        (ST_FIELDS.find(f => f.key === stState.field) || {}).label || '';
+
+    document.getElementById('settleBody').innerHTML = `
+        <div class="settle-summary">
+            <div class="settle-summary-top">
+                <span class="settle-summary-who">${serialLabel(r)}　${esc(r.person)}</span>
+                <span class="settle-summary-amt num">${yen(r.amount)}</span>
+            </div>
+            <div class="settle-summary-sub">渡した額　／　${dLabelFull(r.date)}・${esc(r.category || '—')}${r.project ? '・' + esc(r.project) : ''}</div>
+        </div>
+
+        ${ST_FIELDS.map(f => `
+        <div class="multi-row ${stState.field === f.key ? 'active' : ''}" onclick="stField('${f.key}')">
+            <span class="amt-field-label">${f.label}<span class="amt-field-sub">${f.sub}</span></span>
+            <span class="multi-amt num ${vals[f.key] === 0 ? 'zero' : ''}">${yen(vals[f.key])}</span>
+        </div>`).join('')}`;
+
+    document.getElementById('settleDiff').innerHTML = `
+        <div class="diff-box ${diff === 0 ? '' : 'ng'}">
+            <div>
+                <div class="diff-label">差額</div>
+                ${diff === 0 ? '' : `<div class="diff-note">${diff > 0 ? '回収が ' + yen(diff) + ' 足りません' : yen(-diff) + ' 多く回収しています'}</div>`}
+            </div>
+            <div class="diff-val num">${yen(diff)}</div>
+        </div>`;
+
+    const btn = document.getElementById('settleSave');
+    btn.textContent = diff === 0 ? '精算を確定' : '差額ありのまま精算する';
+    btn.style.background = diff === 0 ? '' : 'var(--danger)';
+}
+
+function stField(f) { stState.field = f; renderAdvanceSettle(); }
+
+function commitAdvanceSettle() {
+    if (!stState || stState._saving) return;        /* 二重タップ対策 */
+    const { r, receipt, refund, extra, diff } = stValues();
+
+    const warn = [];
+    if (!r.hasReceipt) warn.push('・領収書を預かった記録がありません');
+    if (diff > 0)      warn.push(`・差額が ${yen(diff)} 残っています（回収が足りません）`);
+    if (diff < 0)      warn.push(`・${yen(-diff)} 多く回収しています`);
+    if (warn.length && !confirm(`${serialLabel(r)}　${r.person}\n\n${warn.join('\n')}\n\nこのまま精算済みにしますか？`)) return;
+
+    stState._saving = true;
+    document.getElementById('settleSave').disabled = true;
+    r.receiptAmount    = receipt;
+    r.refundAmount     = refund;
+    r.additionalAmount = extra;
+    r.settled          = true;
+    r.settledDate      = todayStr();
+    if (receipt > 0) r.hasReceipt = true;
+    persist();
+    closeAdvanceSettle();
+    render();
+    showToast(diff === 0 ? `${serialLabel(r)} を精算しました` : `${serialLabel(r)} を差額 ${yen(diff)} で精算しました`);
+}
+
+/* =====================================================================
+   精算書（宛先ごとに分けて出力する）
+   ===================================================================== */
+function padW(s, w) {
+    /* 全角を2文字ぶんとして数え、等幅で桁を揃える */
+    let width = 0;
+    for (const ch of String(s)) width += ch.charCodeAt(0) > 0x2000 ? 2 : 1;
+    return String(s) + ' '.repeat(Math.max(w - width, 1));
+}
+
+function settleTextFor(name, rows) {
+    const sorted = rows.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+    const total  = sum(sorted);
+    const nRcpt  = sorted.filter(r => r.hasReceipt).length;
+    const from   = sorted[0].date, to = sorted[sorted.length - 1].date;
+    const projs  = [...new Set(sorted.map(r => r.project).filter(Boolean))];
+
+    let t = '立替精算書\n';
+    t += `宛先：${name}\n`;
+    t += `作品：${projs.length ? projs.join('／') : '—'}\n`;
+    t += `期間：${from.replace(/-/g, '/')} 〜 ${to.replace(/-/g, '/')}\n`;
+    t += `作成日：${dLabelFull(todayStr())}\n`;
+    t += '─'.repeat(24) + '\n';
+    sorted.forEach(r => {
+        t += `${padW(serialLabel(r), 8)}${r.date.slice(5).replace('-', '/')}  ${padW(r.category || '—', 12)}${yen(r.amount).padStart(10)}\n`;
+    });
+    t += '─'.repeat(24) + '\n';
+    t += `合計 ${sorted.length}件${yen(total).padStart(21)}\n`;
+    t += `領収書 ${nRcpt}枚 / ${sorted.length}件\n`;
+    return t;
+}
+
+function groupByPayee(list) {
+    const m = new Map();
+    list.forEach(r => { if (!m.has(r.person)) m.set(r.person, []); m.get(r.person).push(r); });
+    return [...m.entries()];
+}
+
+function openSettleSheet() {
+    const sel = selectedRecords();
+    if (sel.length === 0) return;
+    const groups = groupByPayee(sel);
+    window._sheetGroups = groups.map(([name, rows]) => ({ name, rows, text: settleTextFor(name, rows) }));
+
+    const body = window._sheetGroups.map((g, i) => `
+        <div class="sheet-block">
+            <div class="sheet-block-head">
+                <span class="sheet-block-name">${esc(g.name)}　<span class="list-count">${g.rows.length}件 / ${yen(sum(g.rows))}</span></span>
+                <button class="btn-copy" onclick="copySheet(${i})">コピー</button>
+            </div>
+            <div class="settle-preview">${esc(g.text)}</div>
+        </div>`).join('');
+
+    openModal(`精算書（宛先${groups.length}件）`, body,
+        `<button class="btn btn-ghost" onclick="downloadSettleCSV()">CSV</button>
+         <button class="btn btn-primary" onclick="copySheet(-1)">${groups.length > 1 ? 'すべてコピー' : 'コピー'}</button>`);
+}
+
+function copySheet(i) {
+    const gs = window._sheetGroups || [];
+    const text = i < 0 ? gs.map(g => g.text).join('\n\n') : gs[i].text;
+    const done = () => showToast(i < 0 && gs.length > 1 ? `${gs.length}件ぶんをコピーしました` : 'コピーしました');
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(() => legacyCopy(text, done));
+    } else {
+        legacyCopy(text, done);
+    }
+}
+
+function legacyCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) done(); else showToast('コピーできませんでした。長押しで選択してください');
+}
+
+function downloadSettleCSV() {
+    const gs = window._sheetGroups || [];
+    if (!gs.length) return;
+    const rows = [['宛先', '通し番号', '日付', '用途', '作品', '金額', '領収書', 'メモ']];
+    gs.forEach(g => {
+        g.rows.slice().sort((a, b) => a.date < b.date ? -1 : 1).forEach(r => {
+            rows.push([g.name, serialLabel(r), r.date, r.category, r.project || '', r.amount, r.hasReceipt ? 'あり' : '', r.memo || '']);
+        });
+        rows.push([g.name + ' 小計', `${g.rows.length}件`, '', '', '', sum(g.rows), `領収書${g.rows.filter(r => r.hasReceipt).length}枚`, '']);
+    });
+    downloadCSV(rows, `karibarai_seisansho_${todayStr()}.csv`);
+    showToast('CSVをダウンロードしました');
+}
+
+/* =====================================================================
+   汎用モーダル
+   ===================================================================== */
+function openModal(title, body, footer) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = body;
+    const f = document.getElementById('modalFooter');
+    f.innerHTML = footer || '';
+    f.style.display = footer ? 'flex' : 'none';
+    document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    if (entry) renderEntry();
+}
+
+function modalOverlayClick(e) { if (e.target.id === 'modalOverlay') closeModal(); }
+
+/* =====================================================================
+   入力シートのメタ情報ピッカー
+   ===================================================================== */
+function pickDate() {
+    const d = new Date(); d.setDate(d.getDate() - 1);
+    const yest = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    openModal('日付', `
+        <div class="f-group">
+            <label class="f-label">日付</label>
+            <input type="date" class="f-input" id="mDate" value="${entry.date}">
+        </div>
+        <div class="chips">
+            <button class="chip" onclick="setEntryDate('${todayStr()}')">今日</button>
+            <button class="chip" onclick="setEntryDate('${yest}')">昨日</button>
+        </div>`,
+        `<button class="btn btn-primary" onclick="setEntryDate(document.getElementById('mDate').value)">決定</button>`);
+}
+
+function setEntryDate(v) { if (v) entry.date = v; closeModal(); }
+
+function pickEntryProject() {
+    let h = '<div class="chips">';
+    projects.forEach((p, i) => {
+        h += `<button class="chip ${entry.project === p.name ? 'on' : ''}" onclick="setEntryProject(${i})">${esc(p.name)}</button>`;
+    });
+    h += `<button class="chip add" onclick="addMaster('project')">＋新規</button></div>`;
+    if (projects.length === 0) h = '<p style="font-size:13px;color:var(--text-sub);margin-bottom:12px;">作品がまだ登録されていません。</p>' + h;
+    openModal('作品を選ぶ', h,
+        `<button class="btn btn-ghost" onclick="setEntryProject(-1)">作品なし</button>
+         <button class="btn btn-primary" onclick="closeModal()">閉じる</button>`);
+}
+
+function setEntryProject(i) { entry.project = i < 0 ? '' : projects[i].name; closeModal(); }
+
+function pickMemo() {
+    openModal('メモ', `
+        <div class="f-group">
+            <label class="f-label">メモ（任意）</label>
+            <textarea class="f-textarea" id="mMemo" placeholder="例：深夜宅送／◯◯さん分も含む">${esc(entry.memo)}</textarea>
+        </div>`,
+        `<button class="btn btn-ghost" onclick="setEntryMemo('')">クリア</button>
+         <button class="btn btn-primary" onclick="setEntryMemo(document.getElementById('mMemo').value)">決定</button>`);
+}
+
+function setEntryMemo(v) { entry.memo = (v || '').trim(); closeModal(); }
+
+/* =====================================================================
+   マスタ（作品・相手・宛先・用途）
+   ===================================================================== */
+function addMaster(kind, backToList) {
+    window._addBack = !!backToList;
+    const ph = kind === 'person' ? '例：進行部C（人名ではなく役割名で）'
+             : kind === 'payee'  ? '例：チーフプロデューサー'
+             : kind === 'project' ? '例：連続ドラマ◯◯' : '例：高速代';
+    openModal(masterName(kind) + 'を追加', `
+        <div class="f-group">
+            <label class="f-label">${masterName(kind)}名</label>
+            <input type="text" class="f-input" id="mNew" placeholder="${ph}">
+        </div>
+        ${kind === 'person' ? '<p style="font-size:12px;color:var(--text-sub);line-height:1.7;">作品をまたいで使い回すため、相手は人名ではなく役割名で登録します。</p>' : ''}`,
+        `<button class="btn btn-ghost" onclick="closeModal()">やめる</button>
+         <button class="btn btn-primary" onclick="commitAddMaster('${kind}')">追加</button>`);
+    setTimeout(() => { const el = document.getElementById('mNew'); if (el) el.focus(); }, 80);
+}
+
+function commitAddMaster(kind) {
+    const name = (document.getElementById('mNew').value || '').trim();
+    if (!name) { showToast('名前を入力してください'); return; }
+    const list = masterList(kind);
+    if (list.some(x => x.name === name)) { showToast('同じ名前がすでにあります'); return; }
+    list.push(kind === 'project' ? { name } : { name, count: 0 });
+    persist();
+
+    if (entry) {
+        const kindForEntry = peopleKindFor(entry.type);
+        if (kind === kindForEntry) {
+            if (!entry.multi) entry.sel = [{ name, amt: '' }];
+            else { entry.sel.push({ name, amt: '' }); entry.activeIdx = entry.sel.length - 1; }
+        }
+        if (kind === 'category') entry.category = name;
+        if (kind === 'project')  entry.project  = name;
+    } else if (kind === 'project') {
+        curProject = name;
+    }
+    renderProjectBar();
+    render();
+    if (window._addBack) renderMasterModal(); else closeModal();
+    showToast(`「${name}」を追加しました`);
+}
+
+function openMasterModal(kind) { window._masterKind = kind; renderMasterModal(); }
+
+function renderMasterModal() {
+    const kind = window._masterKind;
+    const list = orderedMaster(kind);
+    const label = masterName(kind);
+    const canOrder = kind !== 'project';
+
+    let h = `<button class="btn btn-primary btn-full" style="margin-bottom:12px;" onclick="addMaster('${kind}', true)">${label}を追加</button>`;
+
+    if (canOrder) {
+        h += `<p style="font-size:12px;color:var(--text-sub);line-height:1.7;margin-bottom:10px;">
+                並び順：<b>${manualOrder[kind] ? '手動' : '使用頻度順'}</b>
+                ${manualOrder[kind] ? ' 　<button class="sec-act" onclick="resetOrder(\'' + kind + '\')">使用頻度順に戻す</button>' : '（↑↓で手動に変更）'}
+              </p>`;
+    }
+
+    if (list.length === 0) {
+        h += `<p style="font-size:13px;color:var(--text-light);">まだ登録がありません。</p>`;
+    } else {
+        h += list.map((it, i) => {
+            const idx = masterList(kind).findIndex(x => x.name === it.name);
+            return `<div class="list-item">
+                <span class="list-name">${esc(it.name)}<span class="list-count"> 　${countUsage(kind, it.name)}件</span></span>
+                ${canOrder ? `<button class="icon-btn sm" onclick="moveMaster('${kind}',${i},-1)" ${i === 0 ? 'disabled style="opacity:.3"' : ''}>↑</button>
+                <button class="icon-btn sm" onclick="moveMaster('${kind}',${i},1)" ${i === list.length - 1 ? 'disabled style="opacity:.3"' : ''}>↓</button>` : ''}
+                <button class="icon-btn" onclick="renameMaster('${kind}',${idx})">✎</button>
+                <button class="icon-btn del" onclick="deleteMaster('${kind}',${idx})">🗑</button>
+            </div>`;
+        }).join('');
+    }
+    openModal(label + 'マスタ', h, `<button class="btn btn-primary" onclick="closeMasterModal()">閉じる</button>`);
+}
+
+function closeMasterModal() { window._masterKind = null; closeModal(); }
+
+/* 表示順で入れ替える。並べ替えた時点で手動順に切り替わる。 */
+function moveMaster(kind, i, dir) {
+    const ordered = orderedMaster(kind);
+    const j = i + dir;
+    if (j < 0 || j >= ordered.length) return;
+    [ordered[i], ordered[j]] = [ordered[j], ordered[i]];
+    const list = masterList(kind);
+    list.length = 0;
+    ordered.forEach(x => list.push(x));
+    manualOrder[kind] = true;
+    persist();
+    renderMasterModal();
+}
+
+function resetOrder(kind) {
+    manualOrder[kind] = false;
+    persist();
+    renderMasterModal();
+    showToast('使用頻度順に戻しました');
+}
+
+function countUsage(kind, name) {
+    if (kind === 'project')  return records.filter(r => r.project === name).length;
+    if (kind === 'category') return records.filter(r => r.category === name).length;
+    const type = kind === 'person' ? 'advance' : 'reimburse';
+    return records.filter(r => r.type === type && r.person === name).length;
+}
+
+function renameMaster(kind, idx) {
+    const list = masterList(kind);
+    const old = list[idx].name;
+    openModal(masterName(kind) + '名を変更', `
+        <div class="f-group">
+            <label class="f-label">新しい名前</label>
+            <input type="text" class="f-input" id="mRen" value="${esc(old)}">
+        </div>
+        <p style="font-size:12px;color:var(--text-sub);line-height:1.7;">
+            この名前を使った記録が <b>${countUsage(kind, old)}件</b> あります。<br>
+            過去の記録の表記をどうするか選んでください。
+        </p>
+        <div class="data-btns" style="margin-top:12px;">
+            <button class="btn btn-primary btn-full" onclick="commitRename('${kind}',${idx},'all')">過去の記録も変更する</button>
+            <button class="btn btn-ghost btn-full" onclick="commitRename('${kind}',${idx},'future')">これから登録する分だけ変更</button>
+        </div>
+        <p style="font-size:11px;color:var(--text-light);line-height:1.7;margin-top:10px;">
+            表記ゆれの修正なら「過去の記録も変更」、役割を別の人に付け替えるなら「これから登録する分だけ」を選びます。
+        </p>`,
+        `<button class="btn btn-ghost btn-full" onclick="renderMasterModal()">やめる</button>`);
+}
+
+/* mode: 'all' = 過去の記録も書き換える / 'future' = マスタ名だけ変え、過去は登録時の名前のまま */
+function commitRename(kind, idx, mode) {
+    const list = masterList(kind);
+    const old = list[idx].name;
+    const name = (document.getElementById('mRen').value || '').trim();
+    if (!name) { showToast('名前を入力してください'); return; }
+    if (name !== old && list.some(x => x.name === name)) { showToast('同じ名前がすでにあります'); return; }
+
+    if (mode === 'all') {
+        if (kind === 'project')       records.forEach(r => { if (r.project === old) r.project = name; });
+        else if (kind === 'category') records.forEach(r => { if (r.category === old) r.category = name; });
+        else {
+            const type = kind === 'person' ? 'advance' : 'reimburse';
+            records.forEach(r => { if (r.type === type && r.person === old) r.person = name; });
+        }
+        if (kind === 'project' && curProject === old) curProject = name;
+    } else {
+        /* 過去は据え置き。付け替え後の集計が混ざらないよう使用回数はリセットする */
+        if (list[idx].count != null) list[idx].count = 0;
+    }
+    list[idx].name = name;
+    persist();
+    renderProjectBar();
+    render();
+    renderMasterModal();
+    showToast(mode === 'all' ? '過去の記録も変更しました' : 'これから登録する分だけ変更しました');
+}
+
+function deleteMaster(kind, idx) {
+    const list = masterList(kind);
+    const name = list[idx].name;
+    const used = countUsage(kind, name);
+    const msg = used > 0
+        ? `「${name}」をマスタから削除します。\n登録済みの記録${used}件はそのまま残ります（選択肢から消えるだけです）。\nよろしいですか？`
+        : `「${name}」を削除します。よろしいですか？`;
+    if (!confirm(msg)) return;
+    list.splice(idx, 1);
+    if (kind === 'project' && curProject === name) curProject = null;
+    persist();
+    renderProjectBar();
+    render();
+    renderMasterModal();
+    showToast('削除しました');
+}
+
+/* =====================================================================
+   記録の詳細・編集・削除
+   ===================================================================== */
+function openDetail(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    const isAdv = r.type === 'advance';
+    const un = !r.settled;
+    const d = diffOf(r);
+
+    let tags = isAdv ? `<span class="tag tag-advance">仮払い</span>` : `<span class="tag tag-reimburse">立替</span>`;
+    tags += un ? `<span class="tag tag-unsettled">未精算</span>`
+               : `<span class="tag tag-settled">精算済 ${r.settledDate ? dLabel(r.settledDate) : ''}</span>`;
+    if (r.hasReceipt) tags += `<span class="rcpt">領収書あり</span>`;
+
+    const settleRows = (!isAdv || un) ? '' : `
+        <div class="kv"><div class="kv-k">領収書額</div><div class="kv-v num">${yen(r.receiptAmount || 0)}</div></div>
+        <div class="kv"><div class="kv-k">返金額</div><div class="kv-v num">${yen(r.refundAmount || 0)}</div></div>
+        <div class="kv"><div class="kv-k">追加で渡した</div><div class="kv-v num">${yen(r.additionalAmount || 0)}</div></div>
+        <div class="kv"><div class="kv-k">差額</div><div class="kv-v num" style="font-weight:800;color:${d === 0 ? 'var(--success)' : 'var(--danger)'}">${yen(d)}</div></div>`;
+
+    const actions = isAdv
+        ? (un ? `<button class="btn btn-primary btn-full" onclick="closeModal();openAdvanceSettle('${r.id}')">精算する（領収書・返金を入力）</button>`
+              : `<button class="btn btn-ghost btn-full" onclick="unsettle('${r.id}')">未精算に戻す</button>`)
+        : (un ? `<button class="btn btn-primary btn-full" onclick="settleOne('${r.id}')">精算済みにする</button>`
+              : `<button class="btn btn-ghost btn-full" onclick="unsettle('${r.id}')">未精算に戻す</button>`);
+
+    openModal('記録の詳細', `
+        <div class="detail-tags">${tags}</div>
+        <div class="detail-amount num">${yen(r.amount)}</div>
+        <div class="kv"><div class="kv-k">通し番号</div><div class="kv-v">${serialLabel(r)}</div></div>
+        <div class="kv"><div class="kv-k">日付</div><div class="kv-v">${dLabelFull(r.date)}</div></div>
+        <div class="kv"><div class="kv-k">${isAdv ? '相手' : '宛先'}</div><div class="kv-v">${esc(r.person)}</div></div>
+        <div class="kv"><div class="kv-k">用途</div><div class="kv-v">${esc(r.category || '—')}</div></div>
+        <div class="kv"><div class="kv-k">作品</div><div class="kv-v">${esc(r.project || '—')}</div></div>
+        <div class="kv"><div class="kv-k">領収書</div><div class="kv-v">${r.hasReceipt ? '預かった' : 'なし'}　<button class="sec-act" onclick="flipReceipt('${r.id}')">切り替え</button></div></div>
+        <div class="kv"><div class="kv-k">メモ</div><div class="kv-v">${esc(r.memo || '—')}</div></div>
+        ${settleRows}
+        <div style="margin-top:14px;">${actions}</div>`,
+        `<button class="btn btn-danger" onclick="deleteRecord('${r.id}')">削除</button>
+         <button class="btn btn-primary" onclick="editRecord('${r.id}')">修正</button>`);
+}
+
+function editRecord(id) { closeModal(); openEntry(null, id); }
+
+function flipReceipt(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    r.hasReceipt = !r.hasReceipt;
+    persist();
+    render();
+    openDetail(id);
+    showToast(r.hasReceipt ? '領収書ありにしました' : '領収書なしにしました');
+}
+
+function settleOne(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    r.settled = true;
+    r.settledDate = todayStr();
+    persist();
+    closeModal();
+    render();
+    showToast('精算済みにしました');
+}
+
+function unsettle(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    r.settled = false;
+    r.settledDate = null;
+    if (r.type === 'advance') { r.receiptAmount = null; r.refundAmount = null; r.additionalAmount = null; }
+    persist();
+    closeModal();
+    render();
+    showToast('未精算に戻しました');
+}
+
+function deleteRecord(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    if (!confirm(`この記録を削除します。\n\n${serialLabel(r)}　${dLabelFull(r.date)}　${typeLabel(r.type)}\n${r.person}　${yen(r.amount)}（${r.category}）\n\n削除すると元に戻せません。よろしいですか？`)) return;
+    records = records.filter(x => x.id !== id);
+    selectedIds.delete(id);
+    persist();
+    closeModal();
+    render();
+    showToast('削除しました');
+}
+
+/* =====================================================================
+   集計
+   ===================================================================== */
+let breakType = 'all';
+let showAllPeople = false;
+
+function setPeriod(p) {
+    period = p;
+    document.querySelectorAll('#viewStats .seg button[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+    document.getElementById('rangeRow').style.display = p === 'custom' ? 'flex' : 'none';
+    if (p === 'custom' && !document.getElementById('rangeFrom').value) {
+        const d = new Date(); d.setMonth(d.getMonth() - 1);
+        document.getElementById('rangeFrom').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+        document.getElementById('rangeTo').value = todayStr();
+    }
+    renderStats();
+}
+
+function periodRange() {
+    const now = new Date();
+    if (period === 'all') return { from: null, to: null, label: '全期間' };
+    if (period === 'custom') {
+        const f = document.getElementById('rangeFrom').value || null;
+        const t = document.getElementById('rangeTo').value || null;
+        return { from: f, to: t, label: `${f ? f.replace(/-/g, '/') : '最初'} 〜 ${t ? t.replace(/-/g, '/') : '最新'}` };
+    }
+    const base = new Date(now.getFullYear(), now.getMonth() + (period === 'lastMonth' ? -1 : 0), 1);
+    const y = base.getFullYear(), m = base.getMonth();
+    const pad = n => String(n).padStart(2, '0');
+    return {
+        from: `${y}-${pad(m + 1)}-01`,
+        to:   `${y}-${pad(m + 1)}-${pad(new Date(y, m + 1, 0).getDate())}`,
+        label: `${y}年${m + 1}月`
+    };
+}
+
+function periodRecords() {
+    const { from, to } = periodRange();
+    return recs().filter(r => (!from || r.date >= from) && (!to || r.date <= to));
+}
+
+function setBreakType(t) { breakType = t; renderStats(); }
+function toggleAllPeople() { showAllPeople = !showAllPeople; renderStats(); }
+
+function breakdown(list, key) {
+    const map = new Map();
+    list.forEach(r => {
+        const k = r[key] || '（未設定）';
+        const e = map.get(k) || { name: k, total: 0, count: 0 };
+        e.total += r.amount; e.count++;
+        map.set(k, e);
+    });
+    return [...map.values()].sort((a, b) => b.total - a.total);
+}
+
+function breakRows(rows, cls) {
+    if (rows.length === 0) return `<p style="font-size:12px;color:var(--text-light);">対象の記録がありません。</p>`;
+    const max = rows[0].total || 1;
+    return rows.map(r => `<div class="break-row">
+        <div class="break-top">
+            <span class="break-name">${esc(r.name)}<span class="break-cnt">${r.count}件</span></span>
+            <span class="break-val num">${yen(r.total)}</span>
+        </div>
+        <div class="break-bar"><div class="break-fill ${cls}" style="width:${Math.max(Math.round(r.total / max * 100), 2)}%"></div></div>
+    </div>`).join('');
+}
+
+function renderStats() {
+    const { label } = periodRange();
+    const list = periodRecords();
+    const adv = list.filter(r => r.type === 'advance');
+    const rei = list.filter(r => r.type === 'reimburse');
+    const unAdv = adv.filter(r => !r.settled);
+    const unRei = rei.filter(r => !r.settled);
+
+    const catSrc = breakType === 'advance' ? adv : breakType === 'reimburse' ? rei : list;
+    const ppl = breakdown(list, 'person');
+    const shownPeople = showAllPeople ? ppl : ppl.slice(0, 10);
+
+    document.getElementById('statsBody').innerHTML = `
+        <div style="font-size:12px;color:var(--text-sub);font-weight:700;margin-bottom:10px;">
+            ${esc(curProject || '全作品')}　／　${esc(label)}　／　${list.length}件
+        </div>
+
+        <div class="stat-row" style="margin-bottom:8px;">
+            <div class="stat-box" style="border-left:4px solid var(--advance);">
+                <div class="stat-box-label">仮払い 合計</div>
+                <div class="stat-box-value num">${yen(sum(adv))}<span class="list-count"> ${adv.length}件</span></div>
+            </div>
+            <div class="stat-box" style="border-left:4px solid var(--reimburse);">
+                <div class="stat-box-label">立替 合計</div>
+                <div class="stat-box-value num">${yen(sum(rei))}<span class="list-count"> ${rei.length}件</span></div>
+            </div>
+        </div>
+        <div class="stat-row">
+            <div class="stat-box" style="border-left:4px solid var(--unsettled);">
+                <div class="stat-box-label">仮払い 未精算</div>
+                <div class="stat-box-value num">${yen(sum(unAdv))}<span class="list-count"> ${unAdv.length}件</span></div>
+            </div>
+            <div class="stat-box" style="border-left:4px solid var(--unsettled);">
+                <div class="stat-box-label">立替 未精算</div>
+                <div class="stat-box-value num">${yen(sum(unRei))}<span class="list-count"> ${unRei.length}件</span></div>
+            </div>
+        </div>
+
+        <div class="sec-title">用途別の内訳</div>
+        <div class="seg" style="margin-bottom:12px;">
+            <button class="${breakType === 'all' ? 'on' : ''}" onclick="setBreakType('all')">全体</button>
+            <button class="${breakType === 'advance' ? 'on' : ''}" onclick="setBreakType('advance')">仮払い</button>
+            <button class="${breakType === 'reimburse' ? 'on' : ''}" onclick="setBreakType('reimburse')">立替</button>
+        </div>
+        ${breakRows(breakdown(catSrc, 'category'), breakType === 'advance' ? 'adv' : breakType === 'reimburse' ? 'rei' : '')}
+
+        <div class="sec-title">
+            <span>相手・宛先別の内訳</span>
+            ${ppl.length > 10 ? `<button class="sec-act" onclick="toggleAllPeople()">${showAllPeople ? '上位のみ' : `すべて（${ppl.length}）`}</button>` : ''}
+        </div>
+        ${breakRows(shownPeople, '')}
+
+        ${curProject === null ? `<div class="sec-title">作品別の内訳</div>${breakRows(breakdown(list, 'project'), '')}` : ''}
+
+        <div class="sec-title">この条件でCSV</div>
+        <button class="btn btn-ghost btn-full" onclick="exportCSV('period')">CSVをダウンロード（${list.length}件）</button>
+        <div style="height:8px"></div>`;
+}
+
+/* =====================================================================
+   CSV
+   ===================================================================== */
+function csvEsc(v) {
+    const s = String(v == null ? '' : v);
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function downloadCSV(rows, filename) {
+    const csv = '﻿' + rows.map(r => r.map(csvEsc).join(',')).join('\r\n');
+    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), filename);
+}
+
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+function exportCSV(scope) {
+    let list, name;
+    if (scope === 'all') {
+        list = records.slice();
+        name = `karibarai_all_${todayStr()}.csv`;
+    } else if (scope === 'project') {
+        if (!curProject) { showToast('作品を選んでから実行してください'); return; }
+        list = records.filter(r => r.project === curProject);
+        name = `karibarai_sakuhin_${todayStr()}.csv`;
+    } else {
+        list = periodRecords();
+        name = `karibarai_shukei_${todayStr()}.csv`;
+    }
+    if (list.length === 0) { showToast('対象の記録がありません'); return; }
+
+    const rows = [['通し番号', '日付', '曜日', '種別', '作品', '相手/宛先', '用途', '金額', '領収書', '精算状況', '精算日', '領収書額', '返金額', '追加支払額', '差額', 'メモ']];
+    list.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0).forEach(r => {
+        const d = new Date(r.date + 'T00:00:00');
+        const isAdv = r.type === 'advance';
+        rows.push([
+            serialLabel(r), r.date, DOW[d.getDay()], typeLabel(r.type), r.project || '',
+            r.person, r.category || '', r.amount, r.hasReceipt ? 'あり' : '',
+            r.settled ? '精算済み' : '未精算', r.settledDate || '',
+            (isAdv && r.settled) ? r.receiptAmount : '',
+            (isAdv && r.settled) ? r.refundAmount : '',
+            (isAdv && r.settled) ? r.additionalAmount : '',
+            (isAdv && r.settled) ? diffOf(r) : '',
+            r.memo || ''
+        ]);
+    });
+    rows.push(['合計', '', '', '', '', '', '', sum(list), '', '', '', '', '', '', '', `${list.length}件`]);
+    downloadCSV(rows, name);
+    showToast(`${list.length}件のCSVをダウンロードしました`);
+}
+
+/* =====================================================================
+   管理・バックアップ
+   ===================================================================== */
+function renderData() {
+    document.getElementById('csvProjBtn').textContent =
+        curProject ? `「${curProject}」のCSV` : '選択中の作品のCSV（作品を選んでください）';
+
+    const info = document.getElementById('backupInfo');
+    info.textContent = lastBackup
+        ? `最後の書き出し：${dLabelFull(lastBackup.slice(0, 10))}`
+        : 'まだ一度も書き出していません。';
+    info.style.color = lastBackup ? 'var(--text-light)' : 'var(--danger)';
+
+    const dates = records.map(r => r.date).sort();
+    let bytes = 0;
+    try { bytes = (localStorage.getItem(STORAGE_KEY) || '').length; } catch (e) { bytes = 0; }
+    const unAdv = unsettled(records, 'advance');
+    const unRei = unsettled(records, 'reimburse');
+    document.getElementById('dataStats').innerHTML = `
+        記録：<b>${records.length}件</b>（仮払い ${records.filter(r => r.type === 'advance').length} / 立替 ${records.filter(r => r.type === 'reimburse').length}）<br>
+        未精算：仮払い <b>${unAdv.length}件 ${yen(sum(unAdv))}</b> / 立替 <b>${unRei.length}件 ${yen(sum(unRei))}</b><br>
+        通し番号：次は <b>No.${String(nextSerial).padStart(3, '0')}</b><br>
+        期間：${dates.length ? dates[0].replace(/-/g, '/') + ' 〜 ' + dates[dates.length - 1].replace(/-/g, '/') : '—'}<br>
+        マスタ：作品 ${projects.length} / 相手 ${people.length} / 宛先 ${payees.length} / 用途 ${categories.length}<br>
+        保存サイズ：約 ${(bytes / 1024).toFixed(1)} KB`;
+}
+
+function exportJSON() {
+    lastBackup = new Date().toISOString();
+    persist();
+    const data = { app: 'karibarai', version: 2, exportedAt: lastBackup,
+                   projects, people, payees, categories, records, nextSerial, manualOrder };
+    downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' }),
+                 `karibarai_backup_${todayStr()}.json`);
+    renderData();
+    showToast('バックアップを書き出しました');
+}
+
+function importJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    event.target.value = '';
+    const reader = new FileReader();
+    reader.onload = e => {
+        let data;
+        try { data = JSON.parse(e.target.result); }
+        catch (err) { alert('ファイルを読み込めませんでした。正しいJSONファイルを選んでください。'); return; }
+        if (!data || !Array.isArray(data.records)) { alert('このファイルは仮払い・立替メモのバックアップではありません。'); return; }
+
+        const isV1 = data.version === 1 || !data.payees;
+        if (!confirm(`読み込むと、いま端末にあるデータ（${records.length}件）は上書きされます。\n\n読み込む記録：${data.records.length}件${isV1 ? '\n（v1のバックアップとして取り込みます）' : ''}\nよろしいですか？`)) return;
+
+        if (isV1) {
+            migrateFromV1(data);
+        } else {
+            projects   = Array.isArray(data.projects)   ? data.projects   : [];
+            people     = Array.isArray(data.people)     ? data.people     : [];
+            payees     = Array.isArray(data.payees)     ? data.payees     : [];
+            categories = Array.isArray(data.categories) ? data.categories : [];
+            records    = data.records;
+            nextSerial = parseInt(data.nextSerial, 10) || 1;
+            manualOrder = Object.assign({ person: false, payee: false, category: false }, data.manualOrder || {});
+        }
+        if (people.length === 0)     people     = DEFAULT_PEOPLE.map(n => ({ name: n, count: 0 }));
+        if (payees.length === 0)     payees     = DEFAULT_PAYEES.map(n => ({ name: n, count: 0 }));
+        if (categories.length === 0) categories = DEFAULT_CATEGORIES.map(n => ({ name: n, count: 0 }));
+        records.forEach(normalizeRecord);
+        const maxSerial = records.reduce((m, r) => Math.max(m, r.serial || 0), 0);
+        if (nextSerial <= maxSerial) nextSerial = maxSerial + 1;
+        curProject = null;
+        selectedIds.clear();
+        persist();
+        renderProjectBar();
+        render();
+        showToast(`${records.length}件を読み込みました`);
+    };
+    reader.readAsText(file, 'utf-8');
+}
+
+function wipeAll() {
+    if (!confirm(`すべての記録（${records.length}件）とマスタを削除します。\n元に戻せません。よろしいですか？`)) return;
+    if (!confirm('本当に削除しますか？\n先にJSONバックアップを書き出すことをおすすめします。')) return;
+    records = []; projects = [];
+    people     = DEFAULT_PEOPLE.map(n => ({ name: n, count: 0 }));
+    payees     = DEFAULT_PAYEES.map(n => ({ name: n, count: 0 }));
+    categories = DEFAULT_CATEGORIES.map(n => ({ name: n, count: 0 }));
+    nextSerial = 1;
+    manualOrder = { person: false, payee: false, category: false };
+    curProject = null; lastBackup = null; selectedIds.clear();
+    persist();
+    renderProjectBar();
+    render();
+    showToast('すべて削除しました');
+}
+
+/* =====================================================================
+   起動
+   ===================================================================== */
+document.getElementById('entryKeypad').innerHTML  = KEYPAD_HTML;
+document.getElementById('settleKeypad').innerHTML = KEYPAD_HTML;
+
+load();
+renderProjectBar();
+render();
+document.getElementById('homeActions').style.display = 'flex';
+
+if (dataCorrupt) showCorruptNotice();
+
+function showCorruptNotice() {
+    openModal('保存データを読み込めません', `
+        <p style="font-size:13px;line-height:1.9;">
+            この端末に保存されていたデータが壊れていて読み込めませんでした。<br><br>
+            壊れたデータは<b>そのまま退避してあります</b>。上書きしないよう、
+            復元するまで保存を止めています。
+        </p>
+        <div class="note" style="margin-top:12px;">
+            JSONバックアップがあれば、下のボタンから復元してください。
+        </div>`,
+        `<button class="btn btn-ghost" onclick="startEmpty()">空で始める</button>
+         <button class="btn btn-primary" onclick="closeModal();switchTab('data');document.getElementById('importFile').click()">バックアップから復元</button>`);
+}
+
+function startEmpty() {
+    if (!confirm('空のデータで始めます。\n退避した壊れたデータは残りますが、アプリからは戻せません。\nよろしいですか？')) return;
+    dataCorrupt = false;
+    persist();
+    closeModal();
+    render();
+    showToast('空のデータで開始しました');
+}
+
+/* PWA：同じフォルダに sw.js があればオフライン用に登録する（無くても動く） */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => { /* 単体HTMLで開いた場合は何もしない */ });
+    });
+}
+
+/* シートを開いている間は背面をスクロールさせない */
+['entrySheet', 'settleSheet'].forEach(id => {
+    document.getElementById(id).addEventListener('touchmove', e => {
+        if (!e.target.closest('.entry-body')) e.preventDefault();
+    }, { passive: false });
+});
+</script>
+</body>
+</html>
