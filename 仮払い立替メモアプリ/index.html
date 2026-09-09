@@ -1,0 +1,2483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1c2b4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="仮払い・立替">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-180.png">
+    <link rel="icon" href="icon-192.png">
+    <title>仮払い・立替メモ</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+        --primary: #1c2b4a;
+        --primary-dark: #121d33;
+        --primary-deep: #0e1726;
+        --accent: #3b5998;
+        --accent-light: #eaedfa;
+        --bg: #eceff5;
+        --card: #ffffff;
+        --border: #c4c9d8;
+        --border-strong: #9aa3bd;
+        --text: #1a1f2e;
+        --text-sub: #505870;
+        --text-light: #8890a8;
+        --danger: #b03030;
+        --danger-light: #ffeaea;
+        --success: #2d6a4f;
+        --success-light: #d4f0e0;
+        --advance: #2b5f8a;         /* 仮払い */
+        --advance-light: #e3eef7;
+        --reimburse: #9a5b12;       /* 立替 */
+        --reimburse-light: #fdf0dd;
+        --unsettled: #b03030;       /* 未精算 */
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+        font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100dvh;
+        -webkit-font-smoothing: antialiased;
+        overscroll-behavior-y: none;
+    }
+
+    button, input, select, textarea { font-family: inherit; font-size: 16px; color: inherit; }
+
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+    /* ===== HEADER ===== */
+    .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--primary);
+        color: #fff;
+        padding-top: env(safe-area-inset-top);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+    }
+
+    .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+    }
+
+    .header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.06em; }
+
+    .header-sub {
+        font-size: 10px;
+        color: rgba(255,255,255,0.45);
+        letter-spacing: 0.12em;
+        margin-top: 2px;
+    }
+
+    .header-btns { display: flex; gap: 6px; }
+
+    .btn-header {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.32);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+    }
+
+    .btn-header:active { background: rgba(255,255,255,0.22); }
+
+    /* ===== PROJECT BAR ===== */
+    .project-bar {
+        position: sticky;
+        top: 0;
+        z-index: 99;
+        background: var(--primary-deep);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .project-bar::-webkit-scrollbar { display: none; }
+
+    .proj-pill {
+        flex-shrink: 0;
+        padding: 7px 15px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1.5px solid rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.65);
+        background: transparent;
+        letter-spacing: 0.03em;
+    }
+
+    .proj-pill.active { background: #fff; color: var(--primary); border-color: #fff; }
+    .proj-pill.add { border-style: dashed; color: rgba(255,255,255,0.5); }
+
+    /* ===== VIEWS ===== */
+    .view { display: none; padding: 14px 12px calc(84px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
+    .view.active { display: block; }
+    #viewHome.active { padding-bottom: calc(178px + env(safe-area-inset-bottom)); }
+    #viewSettle.active { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+
+    /* ===== HERO (未精算合計) ===== */
+    .hero {
+        background: var(--card);
+        border: 2px solid var(--primary);
+        border-radius: 12px;
+        padding: 16px 16px 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(20,30,60,0.10);
+    }
+
+    .hero-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-sub);
+        letter-spacing: 0.10em;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .hero-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--unsettled); flex-shrink: 0; }
+
+    .hero-amount {
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        line-height: 1.15;
+        margin-top: 6px;
+        color: var(--text);
+        word-break: break-all;
+    }
+
+    .hero-amount.zero { color: var(--text-light); }
+    .hero-yen { font-size: 22px; font-weight: 700; margin-left: 2px; }
+
+    .hero-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+    }
+
+    .hero-count { font-size: 12px; color: var(--text-sub); font-weight: 600; }
+
+    .hero-link {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .hero-link:active { background: var(--accent); }
+    .hero-link:disabled { background: var(--border); color: #fff; }
+
+    .hero-scope { font-size: 11px; color: var(--text-light); margin-top: 8px; font-weight: 600; }
+
+    /* ===== MINI STATS ===== */
+    .stat-row { display: flex; gap: 8px; margin-bottom: 14px; }
+
+    .stat-box {
+        flex: 1;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 10px 11px;
+        min-width: 0;
+    }
+
+    .stat-box-label { font-size: 10px; color: var(--text-sub); font-weight: 700; letter-spacing: 0.06em; }
+    .stat-box-value { font-size: 17px; font-weight: 700; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ===== SECTION TITLE ===== */
+    .sec-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-sub);
+        letter-spacing: 0.14em;
+        padding-bottom: 6px;
+        border-bottom: 1.5px solid var(--border-strong);
+        margin: 18px 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sec-title:first-child { margin-top: 0; }
+
+    .sec-act {
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.02em;
+        padding: 2px 0;
+    }
+
+    /* ===== HISTORY ===== */
+    .day-group { margin-bottom: 12px; }
+
+    .day-head {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-sub);
+        padding: 0 2px 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+
+    .day-sum { font-size: 11px; color: var(--text-light); font-weight: 600; }
+
+    .rec {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        text-align: left;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--advance);
+        border-radius: 8px;
+        padding: 11px 12px;
+        margin-bottom: 6px;
+        cursor: pointer;
+    }
+
+    .rec:active { background: #f2f4f9; }
+    .rec.t-reimburse { border-left-color: var(--reimburse); }
+    .rec.unsettled { border-left-color: var(--unsettled); background: #fff8f8; }
+
+    .rec-main { flex: 1; min-width: 0; }
+
+    .rec-line1 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    .tag {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 3px;
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+    }
+
+    .tag-advance { background: var(--advance-light); color: var(--advance); border: 1px solid #bcd4e8; }
+    .tag-reimburse { background: var(--reimburse-light); color: var(--reimburse); border: 1px solid #e8cfa4; }
+    .tag-unsettled { background: var(--unsettled); color: #fff; }
+    .tag-settled { background: var(--success-light); color: var(--success); border: 1px solid #a9d6bf; }
+
+    .rec-person { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .rec-line2 {
+        font-size: 11px;
+        color: var(--text-sub);
+        margin-top: 3px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .rec-amount { font-size: 18px; font-weight: 800; flex-shrink: 0; }
+    .rec-arrow { color: var(--border-strong); font-size: 16px; flex-shrink: 0; }
+
+    /* ===== EMPTY ===== */
+    .empty { text-align: center; padding: 40px 20px; color: var(--text-light); }
+    .empty-icon { font-size: 40px; margin-bottom: 10px; }
+    .empty-text { font-size: 13px; line-height: 1.7; }
+
+    /* ===== HOME ACTIONS ===== */
+    .home-actions {
+        position: fixed;
+        left: 0; right: 0;
+        bottom: calc(62px + env(safe-area-inset-bottom));
+        z-index: 60;
+        display: flex;
+        gap: 9px;
+        padding: 9px 12px;
+        max-width: 640px;
+        margin: 0 auto;
+        background: linear-gradient(to top, var(--bg) 62%, rgba(236,239,245,0));
+    }
+
+    .big-btn {
+        flex: 1;
+        border: none;
+        border-radius: 10px;
+        padding: 15px 8px 13px;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 3px 12px rgba(20,30,60,0.28);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .big-btn-main { font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
+    .big-btn-sub { font-size: 10px; opacity: 0.75; letter-spacing: 0.04em; }
+    .big-btn.advance { background: var(--advance); }
+    .big-btn.reimburse { background: var(--reimburse); }
+    .big-btn:active { filter: brightness(1.18); transform: scale(0.985); }
+
+    /* ===== TAB BAR ===== */
+    .tabbar {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 80;
+        display: flex;
+        background: var(--primary);
+        padding-bottom: env(safe-area-inset-bottom);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.28);
+    }
+
+    .tab {
+        flex: 1;
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.5);
+        padding: 8px 2px 9px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        position: relative;
+    }
+
+    .tab.active { color: #fff; }
+    .tab.active::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 22%; right: 22%;
+        height: 3px;
+        background: #fff;
+        border-radius: 0 0 3px 3px;
+    }
+
+    .tab-icon { font-size: 19px; line-height: 1; }
+    .tab-label { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
+
+    .tab-badge {
+        position: absolute;
+        top: 4px;
+        right: calc(50% - 24px);
+        background: var(--unsettled);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+        min-width: 16px;
+        height: 16px;
+        border-radius: 8px;
+        padding: 0 4px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .tab-badge.show { display: flex; }
+
+    /* ===== ENTRY SHEET (full screen) ===== */
+    .entry {
+        position: fixed;
+        inset: 0;
+        z-index: 300;
+        background: var(--bg);
+        display: none;
+        flex-direction: column;
+    }
+
+    .entry.open { display: flex; }
+
+    .entry-head {
+        background: var(--advance);
+        color: #fff;
+        padding-top: env(safe-area-inset-top);
+        flex-shrink: 0;
+    }
+
+    .entry.reimburse .entry-head { background: var(--reimburse); }
+
+    .entry-head-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 14px;
+    }
+
+    .entry-title { font-size: 15px; font-weight: 800; letter-spacing: 0.05em; }
+
+    .entry-close {
+        background: rgba(255,255,255,0.18);
+        border: none;
+        color: #fff;
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* meta row: 日付 / 作品 / 現場 */
+    .entry-meta {
+        display: flex;
+        gap: 6px;
+        padding: 0 10px 7px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .entry-meta::-webkit-scrollbar { display: none; }
+
+    .meta-chip {
+        flex-shrink: 0;
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.38);
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        max-width: 46vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .meta-chip:active { background: rgba(255,255,255,0.3); }
+    .meta-chip.empty { border-style: dashed; color: rgba(255,255,255,0.7); }
+
+    /* amount display */
+    .amount-bar {
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        padding: 8px 14px 7px;
+        display: flex;
+        align-items: baseline;
+        justify-content: flex-end;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .amount-yen { font-size: 18px; font-weight: 700; color: var(--text-sub); }
+
+    .amount-val {
+        font-size: 33px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+        word-break: break-all;
+        text-align: right;
+    }
+
+    .amount-val.placeholder { color: var(--border-strong); }
+
+    .amount-hint { font-size: 11px; color: var(--text-light); font-weight: 600; margin-right: auto; align-self: center; }
+
+    /* scroll area: 相手・用途 */
+    .entry-body {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px 12px 6px;
+    }
+
+    .pick-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 7px;
+    }
+
+    .pick-label { font-size: 11px; font-weight: 700; color: var(--text-sub); letter-spacing: 0.12em; }
+    .pick-req { color: var(--danger); margin-left: 3px; }
+    .pick-group { margin-bottom: 11px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+
+    /* 既定は横1行スクロール（使用頻度順なので先頭ほど当たりやすい）。
+       「一覧」を押すと折り返し表示に切り替わる。 */
+    .chips-row {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 7px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+    }
+
+    .chips-row::-webkit-scrollbar { display: none; }
+    .chips-row .chip { flex-shrink: 0; }
+
+    .chip {
+        background: var(--card);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 13px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .chip:active { background: #e8ebf3; }
+    .chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .chip.add { border-style: dashed; color: var(--accent); font-weight: 700; }
+    .chip-amt { font-size: 12px; font-weight: 700; opacity: 0.85; }
+
+    .mode-toggle {
+        display: flex;
+        border: 1.5px solid var(--border-strong);
+        border-radius: 7px;
+        overflow: hidden;
+        background: var(--card);
+    }
+
+    .mode-toggle button {
+        border: none;
+        background: transparent;
+        padding: 7px 9px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-sub);
+        cursor: pointer;
+    }
+
+    .mode-toggle button.on { background: var(--primary); color: #fff; }
+
+    /* multi list (個別金額) */
+    .multi-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--card);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 11px;
+        margin-bottom: 5px;
+        cursor: pointer;
+        min-height: 44px;
+    }
+
+    .multi-row.active { border-color: var(--primary); background: var(--accent-light); box-shadow: inset 0 0 0 1px var(--primary); }
+    .multi-name { flex: 1; font-size: 15px; font-weight: 700; }
+    .multi-amt { font-size: 17px; font-weight: 800; }
+    .multi-amt.zero { color: var(--border-strong); }
+
+    .multi-del {
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-size: 17px;
+        cursor: pointer;
+        padding: 4px 2px 4px 6px;
+    }
+
+    /* keypad */
+    .keypad {
+        flex-shrink: 0;
+        background: #dfe3ec;
+        border-top: 1px solid var(--border-strong);
+        padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    }
+
+    .quick-row { display: flex; gap: 6px; padding: 0 1px 5px; }
+
+    .quick-btn {
+        flex: 1;
+        background: #fff;
+        border: 1px solid var(--border-strong);
+        border-radius: 6px;
+        padding: 7px 2px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent);
+        cursor: pointer;
+    }
+
+    .quick-btn:active { background: var(--accent-light); }
+
+    .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+
+    .key {
+        background: #fff;
+        border: 1px solid #b9c0d2;
+        border-radius: 7px;
+        font-size: 23px;
+        font-weight: 700;
+        padding: 9px 0;
+        cursor: pointer;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.10);
+    }
+
+    .key:active { background: #e2e7f2; }
+    .key.fn { font-size: 18px; color: var(--text-sub); background: #eef0f6; }
+
+    .entry-save {
+        margin-top: 6px;
+        width: 100%;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 800;
+        padding: 13px 10px;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .entry-save:active { background: var(--accent); }
+    .entry-save:disabled { background: #a9b0c4; }
+    .entry-save-sum { font-size: 14px; font-weight: 700; opacity: 0.9; }
+
+    /* 画面の縦が短い端末（iPhone SE など）ではさらに詰めて、
+       相手と用途をスクロールせずに出す */
+    @media (max-height: 680px) {
+        .entry-head-inner { padding: 7px 12px; }
+        .entry-title { font-size: 14px; }
+        .amount-bar { padding: 6px 12px 5px; }
+        .amount-val { font-size: 29px; }
+        .amount-yen { font-size: 16px; }
+        .entry-body { padding: 8px 12px 4px; }
+        .pick-group { margin-bottom: 8px; }
+        .pick-head { margin-bottom: 5px; }
+        .chip { min-height: 42px; padding: 9px 12px; font-size: 14px; }
+        .quick-btn { padding: 5px 2px; font-size: 11px; }
+        .quick-row { padding-bottom: 4px; }
+        .key { padding: 6px 0; font-size: 21px; }
+        .key.fn { font-size: 16px; }
+        .entry-save { padding: 11px 10px; font-size: 15px; margin-top: 5px; }
+        .multi-row { min-height: 40px; padding: 7px 10px; }
+    }
+
+    /* ===== MODAL (sheet) ===== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+        z-index: 400;
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-sheet {
+        background: var(--card);
+        width: 100%;
+        max-width: 600px;
+        max-height: 92dvh;
+        border-radius: 14px 14px 0 0;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .modal-header {
+        background: var(--primary);
+        color: #fff;
+        padding: 14px 16px;
+        border-radius: 14px 14px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+    }
+
+    .modal-title { font-size: 15px; font-weight: 700; letter-spacing: 0.05em; }
+
+    .modal-close {
+        background: rgba(255,255,255,0.16);
+        border: none;
+        color: #fff;
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        font-size: 17px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .modal-body { padding: 16px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+
+    .modal-footer {
+        padding: 12px 16px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+        background: #f6f7fa;
+    }
+
+    /* ===== FORM ===== */
+    .f-group { margin-bottom: 14px; }
+
+    .f-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-sub);
+        margin-bottom: 6px;
+        letter-spacing: 0.04em;
+    }
+
+    .f-input, .f-select, .f-textarea {
+        width: 100%;
+        border: 1.5px solid var(--border-strong);
+        border-radius: 7px;
+        padding: 12px 12px;
+        background: #fff;
+        min-height: 48px;
+    }
+
+    .f-textarea { min-height: 72px; resize: vertical; }
+    .f-input:focus, .f-select:focus, .f-textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+    .btn {
+        border: none;
+        border-radius: 7px;
+        padding: 14px 16px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; flex: 1; }
+    .btn-primary:active { background: var(--accent); }
+    .btn-primary:disabled { background: #a9b0c4; }
+    .btn-ghost { background: #fff; color: var(--text-sub); border: 1.5px solid var(--border-strong); }
+    .btn-ghost:active { background: var(--bg); }
+    .btn-danger { background: var(--danger-light); color: var(--danger); border: 1.5px solid #e5b4b4; }
+    .btn-danger:active { background: #ffd9d9; }
+    .btn-full { width: 100%; }
+
+    /* ===== SETTLE VIEW ===== */
+    .seg {
+        display: flex;
+        background: #dde1ea;
+        border-radius: 8px;
+        padding: 3px;
+        margin-bottom: 12px;
+        gap: 3px;
+    }
+
+    .seg button {
+        flex: 1;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        padding: 10px 4px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-sub);
+        cursor: pointer;
+    }
+
+    .seg button.on { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.14); }
+
+    .settle-row {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        background: var(--card);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 11px 12px;
+        margin-bottom: 6px;
+        cursor: pointer;
+    }
+
+    .settle-row.checked { border-color: var(--primary); background: var(--accent-light); }
+
+    .cbox {
+        width: 26px; height: 26px;
+        border: 2px solid var(--border-strong);
+        border-radius: 5px;
+        flex-shrink: 0;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: transparent;
+        font-weight: 900;
+    }
+
+    .settle-row.checked .cbox { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    .settle-bar {
+        position: fixed;
+        left: 0; right: 0;
+        bottom: calc(62px + env(safe-area-inset-bottom));
+        z-index: 60;
+        max-width: 640px;
+        margin: 0 auto;
+        background: var(--card);
+        border-top: 2px solid var(--primary);
+        box-shadow: 0 -3px 14px rgba(20,30,60,0.18);
+        padding: 9px 12px 11px;
+        display: none;
+    }
+
+    .settle-bar.show { display: block; }
+
+    .settle-bar-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .settle-bar-count { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+    .settle-bar-sum { font-size: 22px; font-weight: 800; }
+    .settle-bar-btns { display: flex; gap: 7px; }
+
+    .settle-bar-btns .btn { padding: 12px 8px; font-size: 13px; flex: 1; }
+
+    /* ===== STATS ===== */
+    .break-row { margin-bottom: 9px; }
+
+    .break-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 13px;
+        margin-bottom: 4px;
+        gap: 8px;
+    }
+
+    .break-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .break-val { font-weight: 700; flex-shrink: 0; }
+    .break-cnt { font-size: 11px; color: var(--text-light); font-weight: 600; margin-left: 5px; }
+
+    .break-bar { height: 8px; background: #dbe0ea; border-radius: 4px; overflow: hidden; }
+    .break-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+    .break-fill.adv { background: var(--advance); }
+    .break-fill.rei { background: var(--reimburse); }
+
+    .range-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .range-row .f-input { padding: 10px; min-height: 44px; font-size: 14px; }
+
+    /* ===== DATA / MASTER ===== */
+    .list-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 11px 12px;
+        margin-bottom: 6px;
+    }
+
+    .list-name { flex: 1; font-size: 15px; font-weight: 600; }
+    .list-count { font-size: 11px; color: var(--text-light); font-weight: 600; }
+
+    .icon-btn {
+        background: #f1f3f8;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        width: 38px; height: 38px;
+        font-size: 15px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .icon-btn:active { background: #e2e6ef; }
+    .icon-btn.del { color: var(--danger); }
+
+    .note {
+        font-size: 12px;
+        line-height: 1.75;
+        color: var(--text-sub);
+        background: #fff;
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--accent);
+        border-radius: 7px;
+        padding: 11px 12px;
+        margin-bottom: 12px;
+    }
+
+    .data-btns { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ===== DETAIL ===== */
+    .detail-amount {
+        font-size: 34px;
+        font-weight: 800;
+        text-align: center;
+        padding: 6px 0 12px;
+    }
+
+    .detail-tags { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+
+    .kv { display: flex; border-bottom: 1px solid var(--border); padding: 11px 2px; gap: 12px; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { font-size: 12px; font-weight: 700; color: var(--text-sub); width: 76px; flex-shrink: 0; padding-top: 2px; }
+    .kv-v { font-size: 15px; flex: 1; word-break: break-word; }
+
+    /* ===== TOAST ===== */
+    #toast {
+        position: fixed;
+        left: 50%;
+        bottom: calc(172px + env(safe-area-inset-bottom));
+        transform: translateX(-50%) translateY(14px);
+        background: rgba(18,29,51,0.96);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        z-index: 900;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s, transform .2s;
+        max-width: 88vw;
+        text-align: center;
+    }
+
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .settle-preview {
+        font-family: 'SF Mono', Menlo, Consolas, monospace;
+        font-size: 11px;
+        line-height: 1.65;
+        white-space: pre;
+        overflow-x: auto;
+        background: #f6f7fa;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="app-header">
+    <div class="header-inner">
+        <div>
+            <div class="header-title">仮払い・立替メモ</div>
+            <div class="header-sub">ON:SUITE / CASH MEMO</div>
+        </div>
+        <div class="header-btns">
+            <button class="btn-header" onclick="openMasterModal('project')">作品</button>
+            <button class="btn-header" onclick="switchTab('data')">管理</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PROJECT BAR ===== -->
+<div class="project-bar" id="projectBar"></div>
+
+<!-- ===== HOME ===== -->
+<div class="view active" id="viewHome">
+    <div class="hero">
+        <div class="hero-label"><span class="hero-dot"></span>立替 未精算 合計</div>
+        <div class="hero-amount" id="heroAmount">0<span class="hero-yen">円</span></div>
+        <div class="hero-meta">
+            <span class="hero-count" id="heroCount">0件</span>
+            <button class="hero-link" id="heroBtn" onclick="switchTab('settle')">精算する ›</button>
+        </div>
+        <div class="hero-scope" id="heroScope"></div>
+    </div>
+
+    <div class="stat-row" id="homeStats"></div>
+
+    <div class="sec-title">
+        <span id="histTitle">直近の履歴</span>
+        <button class="sec-act" id="histToggle" onclick="toggleHistoryRange()">すべて表示</button>
+    </div>
+    <div id="historyList"></div>
+</div>
+
+<!-- ===== SETTLE ===== -->
+<div class="view" id="viewSettle">
+    <div class="seg">
+        <button id="segUnsettled" class="on" onclick="setSettleTab('unsettled')">未精算</button>
+        <button id="segSettled" onclick="setSettleTab('settled')">精算済み</button>
+    </div>
+    <div class="sec-title">
+        <span id="settleTitle">未精算の立替</span>
+        <button class="sec-act" onclick="toggleSelectAll()" id="selectAllBtn">全選択</button>
+    </div>
+    <div id="settleList"></div>
+</div>
+
+<!-- ===== STATS ===== -->
+<div class="view" id="viewStats">
+    <div class="seg">
+        <button class="on" onclick="setPeriod('thisMonth')" data-p="thisMonth">今月</button>
+        <button onclick="setPeriod('lastMonth')" data-p="lastMonth">先月</button>
+        <button onclick="setPeriod('all')" data-p="all">全期間</button>
+        <button onclick="setPeriod('custom')" data-p="custom">期間指定</button>
+    </div>
+    <div class="range-row" id="rangeRow" style="display:none;">
+        <input type="date" class="f-input" id="rangeFrom" onchange="render()">
+        <span style="font-size:13px;color:var(--text-sub);">〜</span>
+        <input type="date" class="f-input" id="rangeTo" onchange="render()">
+    </div>
+    <div id="statsBody"></div>
+</div>
+
+<!-- ===== DATA ===== -->
+<div class="view" id="viewData">
+    <div class="sec-title">マスタ</div>
+    <div class="data-btns">
+        <button class="btn btn-ghost btn-full" onclick="openMasterModal('project')">作品を編集</button>
+        <button class="btn btn-ghost btn-full" onclick="openMasterModal('person')">相手を編集</button>
+        <button class="btn btn-ghost btn-full" onclick="openMasterModal('category')">用途を編集</button>
+    </div>
+
+    <div class="sec-title">バックアップ</div>
+    <div class="note">
+        データはこの端末のブラウザ内（localStorage）にのみ保存されます。<br>
+        ブラウザのデータ削除・機種変更で消えるため、<b>定期的にJSONを書き出して</b>メールやクラウドに保管してください。
+    </div>
+    <div class="data-btns">
+        <button class="btn btn-primary btn-full" onclick="exportJSON()">JSONバックアップを書き出す</button>
+        <button class="btn btn-ghost btn-full" onclick="document.getElementById('importFile').click()">JSONを読み込む</button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importJSON(event)">
+    </div>
+    <div id="backupInfo" style="font-size:11px;color:var(--text-light);margin-top:9px;font-weight:600;"></div>
+
+    <div class="sec-title">CSV書き出し</div>
+    <div class="data-btns">
+        <button class="btn btn-ghost btn-full" onclick="exportCSV('all')">全件CSV</button>
+        <button class="btn btn-ghost btn-full" onclick="exportCSV('project')" id="csvProjBtn">選択中の作品のCSV</button>
+    </div>
+
+    <div class="sec-title">データ</div>
+    <div id="dataStats" style="font-size:12px;color:var(--text-sub);line-height:1.9;margin-bottom:12px;"></div>
+    <button class="btn btn-danger btn-full" onclick="wipeAll()">全データを削除</button>
+    <div style="height:14px"></div>
+</div>
+
+<!-- ===== TAB BAR ===== -->
+<nav class="tabbar">
+    <button class="tab active" id="tabHome" onclick="switchTab('home')">
+        <span class="tab-icon">🏠</span><span class="tab-label">ホーム</span>
+    </button>
+    <button class="tab" id="tabSettle" onclick="switchTab('settle')">
+        <span class="tab-icon">✓</span><span class="tab-label">精算</span>
+        <span class="tab-badge" id="tabBadge">0</span>
+    </button>
+    <button class="tab" id="tabStats" onclick="switchTab('stats')">
+        <span class="tab-icon">📊</span><span class="tab-label">集計</span>
+    </button>
+    <button class="tab" id="tabData" onclick="switchTab('data')">
+        <span class="tab-icon">⚙️</span><span class="tab-label">管理</span>
+    </button>
+</nav>
+
+<!-- ===== HOME ACTIONS ===== -->
+<div class="home-actions" id="homeActions">
+    <button class="big-btn advance" onclick="openEntry('advance')">
+        <span class="big-btn-main">仮払いを渡す</span>
+        <span class="big-btn-sub">制作費から現金を渡す</span>
+    </button>
+    <button class="big-btn reimburse" onclick="openEntry('reimburse')">
+        <span class="big-btn-main">立替払い</span>
+        <span class="big-btn-sub">自分の財布から払う</span>
+    </button>
+</div>
+
+<!-- ===== SETTLE ACTION BAR ===== -->
+<div class="settle-bar" id="settleBar">
+    <div class="settle-bar-top">
+        <span class="settle-bar-count" id="settleBarCount">0件を選択中</span>
+        <span class="settle-bar-sum num" id="settleBarSum">¥0</span>
+    </div>
+    <div class="settle-bar-btns" id="settleBarBtns"></div>
+</div>
+
+<!-- ===== ENTRY SHEET ===== -->
+<div class="entry" id="entrySheet">
+    <div class="entry-head">
+        <div class="entry-head-inner">
+            <div class="entry-title" id="entryTitle">仮払いを渡す</div>
+            <button class="entry-close" onclick="closeEntry()">✕</button>
+        </div>
+        <div class="entry-meta">
+            <button class="meta-chip" id="chipDate" onclick="pickDate()"></button>
+            <button class="meta-chip" id="chipProject" onclick="pickEntryProject()"></button>
+            <button class="meta-chip" id="chipLocation" onclick="pickLocation()"></button>
+            <button class="meta-chip" id="chipMemo" onclick="pickMemo()"></button>
+        </div>
+    </div>
+
+    <div class="amount-bar">
+        <span class="amount-hint" id="amountHint"></span>
+        <span class="amount-yen">¥</span>
+        <span class="amount-val num placeholder" id="amountVal">0</span>
+    </div>
+
+    <div class="entry-body" id="entryBody"></div>
+
+    <div class="keypad">
+        <div class="quick-row">
+            <button class="quick-btn" onclick="quickAdd(1000)">+千</button>
+            <button class="quick-btn" onclick="quickAdd(5000)">+5千</button>
+            <button class="quick-btn" onclick="quickAdd(10000)">+1万</button>
+            <button class="quick-btn" onclick="quickAdd(100000)">+10万</button>
+        </div>
+        <div class="keys">
+            <button class="key" onclick="keyPress('7')">7</button>
+            <button class="key" onclick="keyPress('8')">8</button>
+            <button class="key" onclick="keyPress('9')">9</button>
+            <button class="key" onclick="keyPress('4')">4</button>
+            <button class="key" onclick="keyPress('5')">5</button>
+            <button class="key" onclick="keyPress('6')">6</button>
+            <button class="key" onclick="keyPress('1')">1</button>
+            <button class="key" onclick="keyPress('2')">2</button>
+            <button class="key" onclick="keyPress('3')">3</button>
+            <button class="key fn" onclick="keyPress('000')">000</button>
+            <button class="key" onclick="keyPress('0')">0</button>
+            <button class="key fn" onclick="keyPress('back')">⌫</button>
+        </div>
+        <button class="entry-save" id="entrySave" onclick="saveEntry()">保存</button>
+    </div>
+</div>
+
+<!-- ===== GENERIC MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay" onclick="modalOverlayClick(event)">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle"></span>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =====================================================================
+   仮払い・立替メモ  —  On:Suite
+   データは localStorage のみ。バックアップはJSON書き出しで。
+   ===================================================================== */
+
+const STORAGE_KEY = 'karibarai_v1';
+const DEFAULT_CATEGORIES = ['タクシー', '差し入れ', 'ホテル', '駐車場', 'ロケ弁', '備品', '雑費'];
+const DOW = ['日', '月', '火', '水', '木', '金', '土'];
+
+let projects   = [];   /* {name}            作品マスタ */
+let people     = [];   /* {name, count}     相手マスタ（countは使用回数＝並び順） */
+let categories = [];   /* {name, count}     用途マスタ */
+let records    = [];   /* レコード本体 */
+let curProject = null; /* 選択中の作品名。null = 全作品 */
+let lastBackup = null;
+
+/* ---------- 画面状態 ---------- */
+let curTab      = 'home';
+let histAll     = false;
+let settleTab   = 'unsettled';
+let selectedIds = new Set();
+let period      = 'thisMonth';
+
+/* =====================================================================
+   保存・読み込み
+   ===================================================================== */
+function load() {
+    let raw = null;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { raw = null; }
+    if (raw) {
+        try {
+            const d = JSON.parse(raw);
+            projects   = Array.isArray(d.projects)   ? d.projects   : [];
+            people     = Array.isArray(d.people)     ? d.people     : [];
+            categories = Array.isArray(d.categories) ? d.categories : [];
+            records    = Array.isArray(d.records)    ? d.records    : [];
+            curProject = d.curProject || null;
+            lastBackup = d.lastBackup || null;
+        } catch (e) { /* 壊れていたら初期状態で続行 */ }
+    }
+    if (categories.length === 0) categories = DEFAULT_CATEGORIES.map(n => ({ name: n, count: 0 }));
+    if (curProject && !projects.some(p => p.name === curProject)) curProject = null;
+    records.forEach(normalizeRecord);
+}
+
+function normalizeRecord(r) {
+    r.amount = parseInt(r.amount, 10) || 0;
+    if (r.type !== 'reimburse') r.type = 'advance';
+    if (r.type === 'advance') { r.settled = false; r.settledDate = null; }
+    else r.settled = !!r.settled;
+    if (!r.createdAt) r.createdAt = r.date + 'T00:00:00.000Z';
+    return r;
+}
+
+function persist() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            version: 1, projects, people, categories, records, curProject, lastBackup
+        }));
+    } catch (e) {
+        alert('保存できませんでした。ブラウザの空き容量が不足している可能性があります。\nJSONバックアップを書き出して確認してください。');
+    }
+}
+
+/* =====================================================================
+   小物
+   ===================================================================== */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmt(n) { return (parseInt(n, 10) || 0).toLocaleString('ja-JP'); }
+function yen(n) { return '¥' + fmt(n); }
+function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function dLabel(s) { const d = new Date(s + 'T00:00:00'); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; }
+function dLabelFull(s) { const d = new Date(s + 'T00:00:00'); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; }
+function typeLabel(t) { return t === 'advance' ? '仮払い' : '立替'; }
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* マスタ：使用回数の多い順 → 名前順 */
+function sortedMaster(list) {
+    return list.slice().sort((a, b) => (b.count || 0) - (a.count || 0) || a.name.localeCompare(b.name, 'ja'));
+}
+
+function bumpMaster(list, name) {
+    const it = list.find(x => x.name === name);
+    if (it) it.count = (it.count || 0) + 1;
+    else list.push({ name, count: 1 });
+}
+
+function masterList(kind) {
+    return kind === 'project' ? projects : kind === 'person' ? people : categories;
+}
+function masterName(kind) {
+    return kind === 'project' ? '作品' : kind === 'person' ? '相手' : '用途';
+}
+
+/* 対象レコード（作品フィルタ適用） */
+function recs() {
+    return curProject ? records.filter(r => r.project === curProject) : records.slice();
+}
+function byDateDesc(a, b) {
+    return a.date < b.date ? 1 : a.date > b.date ? -1 : (a.createdAt < b.createdAt ? 1 : -1);
+}
+function sum(list) { return list.reduce((s, r) => s + r.amount, 0); }
+function unsettledOf(list) { return list.filter(r => r.type === 'reimburse' && !r.settled); }
+
+/* =====================================================================
+   タブ・作品バー
+   ===================================================================== */
+function switchTab(tab) {
+    curTab = tab;
+    ['home', 'settle', 'stats', 'data'].forEach(t => {
+        document.getElementById('view' + t[0].toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+        document.getElementById('tab' + t[0].toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
+    document.getElementById('homeActions').style.display = tab === 'home' ? 'flex' : 'none';
+    if (tab !== 'settle') selectedIds.clear();
+    window.scrollTo(0, 0);
+    render();
+}
+
+function renderProjectBar() {
+    const bar = document.getElementById('projectBar');
+    let h = `<button class="proj-pill ${curProject === null ? 'active' : ''}" onclick="selectProject(-1)">全作品</button>`;
+    projects.forEach((p, i) => {
+        h += `<button class="proj-pill ${curProject === p.name ? 'active' : ''}" onclick="selectProject(${i})">${esc(p.name)}</button>`;
+    });
+    h += `<button class="proj-pill add" onclick="addMaster('project')">＋作品</button>`;
+    bar.innerHTML = h;
+}
+
+/* 作品バーは名前ではなく添字で渡す（記号を含む作品名でも壊れないように） */
+function selectProject(idx) {
+    curProject = (idx == null || idx < 0) ? null : (projects[idx] ? projects[idx].name : null);
+    selectedIds.clear();
+    persist();
+    renderProjectBar();
+    render();
+}
+
+/* =====================================================================
+   描画ディスパッチ
+   ===================================================================== */
+function render() {
+    const unsettledAll = unsettledOf(records);
+    const badge = document.getElementById('tabBadge');
+    badge.textContent = unsettledAll.length;
+    badge.classList.toggle('show', unsettledAll.length > 0);
+
+    if (curTab === 'home')   renderHome();
+    if (curTab === 'settle') renderSettle();
+    if (curTab === 'stats')  renderStats();
+    if (curTab === 'data')   renderData();
+
+    /* 精算タブ以外に移ったとき、選択バーが残らないように毎回見直す */
+    if (curTab !== 'settle') renderSettleBar();
+}
+
+/* =====================================================================
+   ホーム
+   ===================================================================== */
+function renderHome() {
+    const mine = recs();
+    const un   = unsettledOf(mine);
+    const total = sum(un);
+
+    const amtEl = document.getElementById('heroAmount');
+    amtEl.innerHTML = fmt(total) + '<span class="hero-yen">円</span>';
+    amtEl.classList.toggle('zero', total === 0);
+    document.getElementById('heroCount').textContent = un.length + '件';
+    document.getElementById('heroBtn').disabled = un.length === 0;
+
+    /* 作品を絞っているときは全作品の合計も添える */
+    const scope = document.getElementById('heroScope');
+    if (curProject) {
+        const allUn = unsettledOf(records);
+        scope.textContent = `作品：${curProject}` + (allUn.length !== un.length ? `　／　全作品 ${yen(sum(allUn))}（${allUn.length}件）` : '');
+    } else {
+        scope.textContent = '全作品';
+    }
+
+    /* 今月の集計 */
+    const now = new Date();
+    const pre = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const month = mine.filter(r => r.date.startsWith(pre));
+    const adv = month.filter(r => r.type === 'advance');
+    const rei = month.filter(r => r.type === 'reimburse');
+    document.getElementById('homeStats').innerHTML = `
+        <div class="stat-box">
+            <div class="stat-box-label">今月の仮払い</div>
+            <div class="stat-box-value num">${yen(sum(adv))}<span class="list-count"> ${adv.length}件</span></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-label">今月の立替</div>
+            <div class="stat-box-value num">${yen(sum(rei))}<span class="list-count"> ${rei.length}件</span></div>
+        </div>`;
+
+    /* 履歴 */
+    const sorted = mine.sort(byDateDesc);
+    const shown  = histAll ? sorted : sorted.slice(0, 30);
+    document.getElementById('histTitle').textContent = histAll ? `履歴（${sorted.length}件）` : '直近の履歴';
+    const tgl = document.getElementById('histToggle');
+    tgl.style.display = sorted.length > 30 ? '' : 'none';
+    tgl.textContent = histAll ? '直近だけ表示' : `すべて表示（${sorted.length}件）`;
+
+    const list = document.getElementById('historyList');
+    if (shown.length === 0) {
+        list.innerHTML = `<div class="empty">
+            <div class="empty-icon">📓</div>
+            <div class="empty-text">まだ記録がありません。<br>下のボタンから登録してください。</div>
+        </div>`;
+        return;
+    }
+
+    /* 日付ごとにまとめる */
+    let h = '', curDate = null, buf = [];
+    const flush = () => {
+        if (!curDate) return;
+        h += `<div class="day-group"><div class="day-head"><span>${dLabelFull(curDate)}</span>
+              <span class="day-sum num">${buf.length}件 / ${yen(sum(buf))}</span></div>
+              ${buf.map(recRow).join('')}</div>`;
+        buf = [];
+    };
+    shown.forEach(r => {
+        if (r.date !== curDate) { flush(); curDate = r.date; }
+        buf.push(r);
+    });
+    flush();
+    list.innerHTML = h;
+}
+
+function recRow(r) {
+    const unsettled = r.type === 'reimburse' && !r.settled;
+    const tags = r.type === 'advance'
+        ? `<span class="tag tag-advance">仮払い</span>`
+        : `<span class="tag tag-reimburse">立替</span>` +
+          (unsettled ? `<span class="tag tag-unsettled">未精算</span>` : `<span class="tag tag-settled">精算済</span>`);
+    const sub = [r.category, curProject ? null : r.project, r.location, r.memo].filter(Boolean).join('・');
+    return `<button class="rec ${r.type === 'reimburse' ? 't-reimburse' : ''} ${unsettled ? 'unsettled' : ''}" onclick="openDetail('${r.id}')">
+        <div class="rec-main">
+            <div class="rec-line1">${tags}<span class="rec-person">${esc(r.person)}</span></div>
+            <div class="rec-line2">${esc(sub || '—')}</div>
+        </div>
+        <div class="rec-amount num">${yen(r.amount)}</div>
+        <div class="rec-arrow">›</div>
+    </button>`;
+}
+
+function toggleHistoryRange() { histAll = !histAll; renderHome(); }
+
+/* =====================================================================
+   入力シート（仮払い／立替／一括登録）
+   ===================================================================== */
+let entry = null;      /* 入力中の状態 */
+let entryPeople = [];  /* チップ表示中の相手（添字で参照する） */
+let entryCats   = [];
+
+function newEntry(type) {
+    return {
+        type,
+        editId: null,
+        date: todayStr(),
+        project: curProject || (projects[0] ? projects[0].name : ''),
+        location: '',
+        memo: '',
+        category: '',
+        sel: [],            /* [{name, amt}] 選ばれた相手 */
+        multi: false,       /* 複数人モード */
+        multiMode: 'same',  /* same = 同額 / each = 個別 */
+        amountStr: '',      /* 共通金額（同額・単一のとき） */
+        activeIdx: 0,       /* 個別モードでテンキーの対象になっている行 */
+        openPerson: false,  /* 相手を折り返し表示にする */
+        openCat: false      /* 用途を折り返し表示にする */
+    };
+}
+
+function openEntry(type, editId) {
+    entry = newEntry(type);
+    if (editId) {
+        const r = records.find(x => x.id === editId);
+        if (!r) return;
+        entry.editId    = r.id;
+        entry.type      = r.type;
+        entry.date      = r.date;
+        entry.project   = r.project || '';
+        entry.location  = r.location || '';
+        entry.memo      = r.memo || '';
+        entry.category  = r.category || '';
+        entry.sel       = [{ name: r.person, amt: String(r.amount || '') }];
+        entry.amountStr = String(r.amount || '');
+    }
+    const sheet = document.getElementById('entrySheet');
+    sheet.classList.toggle('reimburse', entry.type === 'reimburse');
+    sheet.classList.add('open');
+    document.getElementById('entryTitle').textContent =
+        entry.editId ? '記録を修正' : (entry.type === 'advance' ? '仮払いを渡す' : '立替払い');
+    renderEntry();
+}
+
+function closeEntry() {
+    document.getElementById('entrySheet').classList.remove('open');
+    entry = null;
+}
+
+/* ---------- 金額（テンキー） ---------- */
+function curAmtStr() {
+    if (entry.multi && entry.multiMode === 'each') {
+        const row = entry.sel[entry.activeIdx];
+        return row ? (row.amt || '') : '';
+    }
+    return entry.amountStr;
+}
+
+function setAmtStr(v) {
+    v = v.replace(/^0+(?=\d)/, '').slice(0, 9);
+    if (entry.multi && entry.multiMode === 'each') {
+        const row = entry.sel[entry.activeIdx];
+        if (row) row.amt = v;
+    } else {
+        entry.amountStr = v;
+    }
+}
+
+function keyPress(k) {
+    if (!entry) return;
+    if (entry.multi && entry.multiMode === 'each' && entry.sel.length === 0) {
+        showToast('先に相手を選んでください'); return;
+    }
+    const cur = curAmtStr();
+    if (k === 'back')      setAmtStr(cur.slice(0, -1));
+    else if (k === '000')  setAmtStr(cur === '' ? '' : cur + '000');
+    else                   setAmtStr(cur + k);
+    renderEntry();
+}
+
+function quickAdd(n) {
+    if (!entry) return;
+    if (entry.multi && entry.multiMode === 'each' && entry.sel.length === 0) {
+        showToast('先に相手を選んでください'); return;
+    }
+    setAmtStr(String(Math.min((parseInt(curAmtStr(), 10) || 0) + n, 999999999)));
+    renderEntry();
+}
+
+/* ---------- 保存対象の組み立て ---------- */
+function entryRows() {
+    if (!entry.multi) {
+        const name = entry.sel[0] ? entry.sel[0].name : '';
+        return name ? [{ name, amount: parseInt(entry.amountStr, 10) || 0 }] : [];
+    }
+    if (entry.multiMode === 'same') {
+        const a = parseInt(entry.amountStr, 10) || 0;
+        return entry.sel.map(s => ({ name: s.name, amount: a }));
+    }
+    return entry.sel.map(s => ({ name: s.name, amount: parseInt(s.amt, 10) || 0 }));
+}
+
+function entryTotal() { return entryRows().reduce((s, r) => s + r.amount, 0); }
+
+/* ---------- 入力シートの描画 ---------- */
+function renderEntry() {
+    if (!entry) return;
+
+    /* 上部のメタ情報 */
+    document.getElementById('chipDate').textContent = dLabel(entry.date) + (entry.date === todayStr() ? ' 今日' : '');
+    const cp = document.getElementById('chipProject');
+    cp.textContent = entry.project || '作品を選ぶ';
+    cp.classList.toggle('empty', !entry.project);
+    const cl = document.getElementById('chipLocation');
+    cl.textContent = entry.location || '＋現場';
+    cl.classList.toggle('empty', !entry.location);
+    const cm = document.getElementById('chipMemo');
+    cm.textContent = entry.memo ? '📝' + entry.memo : '＋メモ';
+    cm.classList.toggle('empty', !entry.memo);
+
+    /* 金額表示 */
+    const s   = curAmtStr();
+    const val = document.getElementById('amountVal');
+    val.textContent = s === '' ? '0' : fmt(s);
+    val.classList.toggle('placeholder', s === '');
+
+    let hint = '';
+    if (entry.multi && entry.multiMode === 'same' && entry.sel.length > 0) {
+        hint = `1人あたり（${entry.sel.length}人 計 ${yen(entryTotal())}）`;
+    } else if (entry.multi && entry.multiMode === 'each') {
+        const row = entry.sel[entry.activeIdx];
+        hint = row ? `${row.name} の金額` : '相手を選んでください';
+    }
+    document.getElementById('amountHint').textContent = hint;
+
+    /* 保存ボタン */
+    const rows = entryRows();
+    const save = document.getElementById('entrySave');
+    save.innerHTML = entry.multi && rows.length > 1
+        ? `${rows.length}件を保存 <span class="entry-save-sum num">計 ${yen(entryTotal())}</span>`
+        : `保存 <span class="entry-save-sum num">${yen(entryTotal())}</span>`;
+
+    /* 本文（相手・用途） */
+    entryPeople = sortedMaster(people);
+    entryCats   = sortedMaster(categories);
+    const selNames = entry.sel.map(s => s.name);
+
+    let h = '';
+
+    /* --- 相手 --- */
+    h += `<div class="pick-group">
+        <div class="pick-head">
+            <span class="pick-label">相手<span class="pick-req">*</span></span>`;
+    if (entryPeople.length > 4) {
+        h += `<button class="sec-act" style="margin-right:auto;margin-left:10px;" onclick="toggleOpen('person')">${entry.openPerson ? '閉じる ▴' : '一覧 ▾'}</button>`;
+    }
+    if (!entry.editId) {
+        h += `<div class="mode-toggle">
+                <button class="${!entry.multi ? 'on' : ''}" onclick="setMulti(false)">1人</button>
+                <button class="${entry.multi && entry.multiMode === 'same' ? 'on' : ''}" onclick="setMulti(true,'same')">複数・同額</button>
+                <button class="${entry.multi && entry.multiMode === 'each' ? 'on' : ''}" onclick="setMulti(true,'each')">複数・個別</button>
+              </div>`;
+    }
+    h += `</div>`;
+
+    h += `<div class="${entry.openPerson ? 'chips' : 'chips-row'}">`;
+    entryPeople.forEach((p, i) => {
+        const on = selNames.includes(p.name);
+        h += `<button class="chip ${on ? 'on' : ''}" onclick="tapPerson(${i})">${esc(p.name)}${on && entry.multi ? ' ✓' : ''}</button>`;
+    });
+    h += `<button class="chip add" onclick="addMaster('person')">＋新規</button></div>`;
+
+    /* 個別モードのときは選択順に金額欄を並べる */
+    if (entry.multi && entry.multiMode === 'each' && entry.sel.length > 0) {
+        h += `<div style="margin-top:10px;">`;
+        entry.sel.forEach((row, i) => {
+            const a = parseInt(row.amt, 10) || 0;
+            h += `<div class="multi-row ${i === entry.activeIdx ? 'active' : ''}" onclick="setActiveRow(${i})">
+                    <span class="multi-name">${esc(row.name)}</span>
+                    <span class="multi-amt num ${a === 0 ? 'zero' : ''}">${yen(a)}</span>
+                    <button class="multi-del" onclick="event.stopPropagation();removeRow(${i})">✕</button>
+                  </div>`;
+        });
+        h += `</div>`;
+    } else if (entry.multi && entry.sel.length > 0) {
+        h += `<div style="margin-top:8px;font-size:12px;color:var(--text-sub);font-weight:600;">
+                選択中：${entry.sel.map(s => esc(s.name)).join('、')}（${entry.sel.length}人）
+              </div>`;
+    }
+    h += `</div>`;
+
+    /* --- 用途 --- */
+    h += `<div class="pick-group">
+        <div class="pick-head">
+            <span class="pick-label">用途<span class="pick-req">*</span></span>
+            ${entryCats.length > 4 ? `<button class="sec-act" onclick="toggleOpen('cat')">${entry.openCat ? '閉じる ▴' : '一覧 ▾'}</button>` : ''}
+        </div>
+        <div class="${entry.openCat ? 'chips' : 'chips-row'}">`;
+    entryCats.forEach((c, i) => {
+        h += `<button class="chip ${entry.category === c.name ? 'on' : ''}" onclick="tapCategory(${i})">${esc(c.name)}</button>`;
+    });
+    h += `<button class="chip add" onclick="addMaster('category')">＋新規</button></div></div>`;
+
+    document.getElementById('entryBody').innerHTML = h;
+}
+
+/* ---------- 相手・用途の選択 ---------- */
+function setMulti(on, mode) {
+    entry.multi = on;
+    if (mode) entry.multiMode = mode;
+    if (!on && entry.sel.length > 1) entry.sel = entry.sel.slice(0, 1);
+    entry.activeIdx = Math.min(entry.activeIdx, Math.max(entry.sel.length - 1, 0));
+    renderEntry();
+}
+
+function tapPerson(i) {
+    const name = entryPeople[i].name;
+    if (!entry.multi) {
+        entry.sel = (entry.sel[0] && entry.sel[0].name === name) ? [] : [{ name, amt: '' }];
+    } else {
+        const at = entry.sel.findIndex(s => s.name === name);
+        if (at >= 0) entry.sel.splice(at, 1);
+        else         entry.sel.push({ name, amt: '' });
+        if (entry.multiMode === 'each') entry.activeIdx = Math.max(entry.sel.length - 1, 0);
+    }
+    renderEntry();
+}
+
+function toggleOpen(which) {
+    if (which === 'person') entry.openPerson = !entry.openPerson;
+    else                    entry.openCat    = !entry.openCat;
+    renderEntry();
+}
+
+function setActiveRow(i) { entry.activeIdx = i; renderEntry(); }
+function removeRow(i) {
+    entry.sel.splice(i, 1);
+    entry.activeIdx = Math.min(entry.activeIdx, Math.max(entry.sel.length - 1, 0));
+    renderEntry();
+}
+function tapCategory(i) {
+    const name = entryCats[i].name;
+    entry.category = entry.category === name ? '' : name;
+    renderEntry();
+}
+
+/* ---------- 保存 ---------- */
+function saveEntry() {
+    const rows = entryRows();
+    if (rows.length === 0)       { showToast('相手を選んでください'); return; }
+    if (!entry.category)         { showToast('用途を選んでください'); return; }
+    if (rows.some(r => r.amount <= 0)) {
+        showToast(entry.multi && entry.multiMode === 'each' ? '金額が0円の相手があります' : '金額を入力してください');
+        return;
+    }
+
+    if (entry.editId) {
+        const r = records.find(x => x.id === entry.editId);
+        if (r) {
+            r.date     = entry.date;
+            r.project  = entry.project;
+            r.location = entry.location;
+            r.person   = rows[0].name;
+            r.amount   = rows[0].amount;
+            r.category = entry.category;
+            r.memo     = entry.memo;
+            normalizeRecord(r);
+        }
+        bumpMaster(people, rows[0].name);
+        bumpMaster(categories, entry.category);
+        persist();
+        closeEntry();
+        render();
+        showToast('修正しました');
+        return;
+    }
+
+    const now  = new Date().toISOString();
+    const type = entry.type;
+    rows.forEach(row => {
+        records.push(normalizeRecord({
+            id: uid(),
+            date: entry.date,
+            type: entry.type,
+            project: entry.project,
+            location: entry.location,
+            person: row.name,
+            amount: row.amount,
+            category: entry.category,
+            memo: entry.memo,
+            settled: false,
+            settledDate: null,
+            createdAt: now
+        }));
+        bumpMaster(people, row.name);
+    });
+    bumpMaster(categories, entry.category);
+    if (entry.project && !projects.some(p => p.name === entry.project)) projects.push({ name: entry.project });
+    persist();
+    closeEntry();
+    if (curTab !== 'home') switchTab('home'); else render();
+    showToast(rows.length > 1
+        ? `${typeLabel(type)} ${rows.length}件を登録（計 ${yen(rows.reduce((s, r) => s + r.amount, 0))}）`
+        : `${typeLabel(type)} ${yen(rows[0].amount)} を登録しました`);
+}
+
+/* =====================================================================
+   汎用モーダル
+   ===================================================================== */
+function openModal(title, body, footer) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = body;
+    const f = document.getElementById('modalFooter');
+    f.innerHTML = footer || '';
+    f.style.display = footer ? 'flex' : 'none';
+    document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    if (entry) renderEntry();
+}
+
+function modalOverlayClick(e) { if (e.target.id === 'modalOverlay') closeModal(); }
+
+/* =====================================================================
+   入力シートのメタ情報ピッカー
+   ===================================================================== */
+function pickDate() {
+    const d = new Date(); d.setDate(d.getDate() - 1);
+    const yest = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    openModal('日付', `
+        <div class="f-group">
+            <label class="f-label">日付</label>
+            <input type="date" class="f-input" id="mDate" value="${entry.date}">
+        </div>
+        <div class="chips">
+            <button class="chip" onclick="setEntryDate('${todayStr()}')">今日</button>
+            <button class="chip" onclick="setEntryDate('${yest}')">昨日</button>
+        </div>`,
+        `<button class="btn btn-primary" onclick="setEntryDate(document.getElementById('mDate').value)">決定</button>`);
+}
+
+function setEntryDate(v) {
+    if (v) entry.date = v;
+    closeModal();
+}
+
+function pickEntryProject() {
+    let h = '<div class="chips">';
+    projects.forEach((p, i) => {
+        h += `<button class="chip ${entry.project === p.name ? 'on' : ''}" onclick="setEntryProject(${i})">${esc(p.name)}</button>`;
+    });
+    h += `<button class="chip add" onclick="addMaster('project')">＋新規</button></div>`;
+    if (projects.length === 0) h = '<p style="font-size:13px;color:var(--text-sub);margin-bottom:12px;">作品がまだ登録されていません。</p>' + h;
+    openModal('作品を選ぶ', h,
+        `<button class="btn btn-ghost" onclick="setEntryProject(-1)">作品なし</button>
+         <button class="btn btn-primary" onclick="closeModal()">閉じる</button>`);
+}
+
+function setEntryProject(i) {
+    entry.project = i < 0 ? '' : projects[i].name;
+    closeModal();
+}
+
+function pickLocation() {
+    const recent = [];
+    records.slice().sort(byDateDesc).forEach(r => {
+        if (r.location && !recent.includes(r.location) && recent.length < 12) recent.push(r.location);
+    });
+    let h = `<div class="f-group">
+        <label class="f-label">現場（ロケ地名など・任意）</label>
+        <input type="text" class="f-input" id="mLoc" value="${esc(entry.location)}" placeholder="例：スタジオ／◯◯公園">
+    </div>`;
+    if (recent.length) {
+        h += `<div class="f-label">最近使った現場</div><div class="chips">` +
+             recent.map((l, i) => `<button class="chip" onclick="setEntryLocationIdx(${i})">${esc(l)}</button>`).join('') +
+             `</div>`;
+    }
+    window._recentLocs = recent;
+    openModal('現場', h,
+        `<button class="btn btn-ghost" onclick="setEntryLocation('')">クリア</button>
+         <button class="btn btn-primary" onclick="setEntryLocation(document.getElementById('mLoc').value)">決定</button>`);
+}
+
+function setEntryLocationIdx(i) { setEntryLocation(window._recentLocs[i]); }
+function setEntryLocation(v) { entry.location = (v || '').trim(); closeModal(); }
+
+function pickMemo() {
+    openModal('メモ', `
+        <div class="f-group">
+            <label class="f-label">メモ（任意）</label>
+            <textarea class="f-textarea" id="mMemo" placeholder="例：領収書あり／◯◯さん分も含む">${esc(entry.memo)}</textarea>
+        </div>`,
+        `<button class="btn btn-ghost" onclick="setEntryMemo('')">クリア</button>
+         <button class="btn btn-primary" onclick="setEntryMemo(document.getElementById('mMemo').value)">決定</button>`);
+}
+
+function setEntryMemo(v) { entry.memo = (v || '').trim(); closeModal(); }
+
+/* =====================================================================
+   マスタ（作品・相手・用途）
+   ===================================================================== */
+function addMaster(kind, backToList) {
+    window._addBack = !!backToList;
+    openModal(masterName(kind) + 'を追加', `
+        <div class="f-group">
+            <label class="f-label">${masterName(kind)}名</label>
+            <input type="text" class="f-input" id="mNew" placeholder="${kind === 'person' ? '例：進行部A' : kind === 'project' ? '例：連続ドラマ◯◯' : '例：高速代'}">
+        </div>`,
+        `<button class="btn btn-ghost" onclick="closeModal()">やめる</button>
+         <button class="btn btn-primary" onclick="commitAddMaster('${kind}')">追加</button>`);
+    setTimeout(() => { const el = document.getElementById('mNew'); if (el) el.focus(); }, 80);
+}
+
+function commitAddMaster(kind) {
+    const name = (document.getElementById('mNew').value || '').trim();
+    if (!name) { showToast('名前を入力してください'); return; }
+    const list = masterList(kind);
+    if (list.some(x => x.name === name)) { showToast('同じ名前がすでにあります'); return; }
+    list.push(kind === 'project' ? { name } : { name, count: 0 });
+    persist();
+
+    /* 追加したものはその場で選択状態にする */
+    if (entry) {
+        if (kind === 'person') {
+            if (!entry.multi) entry.sel = [{ name, amt: '' }];
+            else { entry.sel.push({ name, amt: '' }); entry.activeIdx = entry.sel.length - 1; }
+        }
+        if (kind === 'category') entry.category = name;
+        if (kind === 'project')  entry.project  = name;
+    } else if (kind === 'project') {
+        curProject = name;
+    }
+    renderProjectBar();
+    render();
+    /* マスタ管理画面から追加したときは一覧に戻る */
+    if (window._addBack) renderMasterModal(); else closeModal();
+    showToast(`「${name}」を追加しました`);
+}
+
+function openMasterModal(kind) {
+    window._masterKind = kind;
+    renderMasterModal();
+}
+
+function renderMasterModal() {
+    const kind = window._masterKind;
+    const list = kind === 'project' ? projects : sortedMaster(masterList(kind));
+    const label = masterName(kind);
+    let h = `<button class="btn btn-primary btn-full" style="margin-bottom:14px;" onclick="addMaster('${kind}', true)">${label}を追加</button>`;
+    if (list.length === 0) {
+        h += `<p style="font-size:13px;color:var(--text-light);">まだ登録がありません。</p>`;
+    } else {
+        h += list.map((it) => {
+            const used = countUsage(kind, it.name);
+            const idx  = masterList(kind).findIndex(x => x.name === it.name);
+            return `<div class="list-item">
+                <span class="list-name">${esc(it.name)}<span class="list-count"> 　${used}件</span></span>
+                <button class="icon-btn" onclick="renameMaster('${kind}',${idx})" title="名前を変更">✎</button>
+                <button class="icon-btn del" onclick="deleteMaster('${kind}',${idx})" title="削除">🗑</button>
+            </div>`;
+        }).join('');
+    }
+    openModal(label + 'マスタ', h, `<button class="btn btn-primary" onclick="closeMasterModal()">閉じる</button>`);
+}
+
+function closeMasterModal() { window._masterKind = null; closeModal(); }
+
+function countUsage(kind, name) {
+    const key = kind === 'project' ? 'project' : kind === 'person' ? 'person' : 'category';
+    return records.filter(r => r[key] === name).length;
+}
+
+function renameMaster(kind, idx) {
+    const list = masterList(kind);
+    const old  = list[idx].name;
+    openModal(masterName(kind) + '名を変更', `
+        <div class="f-group">
+            <label class="f-label">新しい名前</label>
+            <input type="text" class="f-input" id="mRen" value="${esc(old)}">
+        </div>
+        <p style="font-size:12px;color:var(--text-sub);line-height:1.7;">登録済みの記録（${countUsage(kind, old)}件）の表記もまとめて変更されます。</p>`,
+        `<button class="btn btn-ghost" onclick="renderMasterModal()">やめる</button>
+         <button class="btn btn-primary" onclick="commitRename('${kind}',${idx})">変更</button>`);
+}
+
+function commitRename(kind, idx) {
+    const list = masterList(kind);
+    const old  = list[idx].name;
+    const name = (document.getElementById('mRen').value || '').trim();
+    if (!name) { showToast('名前を入力してください'); return; }
+    if (name !== old && list.some(x => x.name === name)) { showToast('同じ名前がすでにあります'); return; }
+    const key = kind === 'project' ? 'project' : kind === 'person' ? 'person' : 'category';
+    records.forEach(r => { if (r[key] === old) r[key] = name; });
+    list[idx].name = name;
+    if (kind === 'project' && curProject === old) curProject = name;
+    persist();
+    renderProjectBar();
+    render();
+    renderMasterModal();
+    showToast('変更しました');
+}
+
+function deleteMaster(kind, idx) {
+    const list = masterList(kind);
+    const name = list[idx].name;
+    const used = countUsage(kind, name);
+    const msg  = used > 0
+        ? `「${name}」をマスタから削除します。\n登録済みの記録${used}件はそのまま残ります（選択肢から消えるだけです）。\nよろしいですか？`
+        : `「${name}」を削除します。よろしいですか？`;
+    if (!confirm(msg)) return;
+    list.splice(idx, 1);
+    if (kind === 'project' && curProject === name) curProject = null;
+    persist();
+    renderProjectBar();
+    render();
+    renderMasterModal();
+    showToast('削除しました');
+}
+
+/* =====================================================================
+   記録の詳細・編集・削除
+   ===================================================================== */
+function openDetail(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    const unsettled = r.type === 'reimburse' && !r.settled;
+    const tags = r.type === 'advance'
+        ? `<span class="tag tag-advance">仮払い</span>`
+        : `<span class="tag tag-reimburse">立替</span>` +
+          (unsettled ? `<span class="tag tag-unsettled">未精算</span>` : `<span class="tag tag-settled">精算済 ${r.settledDate ? dLabel(r.settledDate) : ''}</span>`);
+
+    const body = `
+        <div class="detail-tags">${tags}</div>
+        <div class="detail-amount num">${yen(r.amount)}</div>
+        <div class="kv"><div class="kv-k">日付</div><div class="kv-v">${dLabelFull(r.date)}</div></div>
+        <div class="kv"><div class="kv-k">相手</div><div class="kv-v">${esc(r.person)}</div></div>
+        <div class="kv"><div class="kv-k">用途</div><div class="kv-v">${esc(r.category || '—')}</div></div>
+        <div class="kv"><div class="kv-k">作品</div><div class="kv-v">${esc(r.project || '—')}</div></div>
+        <div class="kv"><div class="kv-k">現場</div><div class="kv-v">${esc(r.location || '—')}</div></div>
+        <div class="kv"><div class="kv-k">メモ</div><div class="kv-v">${esc(r.memo || '—')}</div></div>
+        ${r.type === 'reimburse' ? `<div style="margin-top:14px;">
+            <button class="btn ${unsettled ? 'btn-primary' : 'btn-ghost'} btn-full" onclick="toggleSettled('${r.id}')">
+                ${unsettled ? '精算済みにする' : '未精算に戻す'}
+            </button></div>` : ''}`;
+
+    openModal('記録の詳細', body,
+        `<button class="btn btn-danger" onclick="deleteRecord('${r.id}')">削除</button>
+         <button class="btn btn-primary" onclick="editRecord('${r.id}')">修正</button>`);
+}
+
+function editRecord(id) { closeModal(); openEntry(null, id); }
+
+function deleteRecord(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    if (!confirm(`この記録を削除します。\n\n${dLabelFull(r.date)}　${typeLabel(r.type)}\n${r.person}　${yen(r.amount)}（${r.category}）\n\n削除すると元に戻せません。よろしいですか？`)) return;
+    records = records.filter(x => x.id !== id);
+    selectedIds.delete(id);
+    persist();
+    closeModal();
+    render();
+    showToast('削除しました');
+}
+
+function toggleSettled(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    r.settled = !r.settled;
+    r.settledDate = r.settled ? todayStr() : null;
+    persist();
+    closeModal();
+    render();
+    showToast(r.settled ? '精算済みにしました' : '未精算に戻しました');
+}
+
+/* =====================================================================
+   精算（立替）
+   ===================================================================== */
+function setSettleTab(t) { settleTab = t; selectedIds.clear(); renderSettle(); }
+
+function settleTargets() {
+    return recs()
+        .filter(r => r.type === 'reimburse' && (settleTab === 'unsettled' ? !r.settled : r.settled))
+        .sort(byDateDesc);
+}
+
+function renderSettle() {
+    document.getElementById('segUnsettled').classList.toggle('on', settleTab === 'unsettled');
+    document.getElementById('segSettled').classList.toggle('on', settleTab === 'settled');
+
+    const list = settleTargets();
+    document.getElementById('settleTitle').textContent =
+        (settleTab === 'unsettled' ? '未精算の立替' : '精算済みの立替') + `　${list.length}件 / ${yen(sum(list))}`;
+
+    const allBtn = document.getElementById('selectAllBtn');
+    allBtn.style.display = list.length ? '' : 'none';
+    const allSelected = list.length > 0 && list.every(r => selectedIds.has(r.id));
+    allBtn.textContent = allSelected ? '全解除' : '全選択';
+
+    const el = document.getElementById('settleList');
+    if (list.length === 0) {
+        el.innerHTML = `<div class="empty">
+            <div class="empty-icon">${settleTab === 'unsettled' ? '🎉' : '📁'}</div>
+            <div class="empty-text">${settleTab === 'unsettled' ? '未精算の立替はありません。' : '精算済みの記録はまだありません。'}</div>
+        </div>`;
+    } else {
+        el.innerHTML = list.map(r => {
+            const on  = selectedIds.has(r.id);
+            const sub = [r.category, curProject ? null : r.project, r.location, r.memo].filter(Boolean).join('・');
+            return `<div class="settle-row ${on ? 'checked' : ''}" onclick="toggleSelect('${r.id}')">
+                <div class="cbox">✓</div>
+                <div class="rec-main">
+                    <div class="rec-line1">
+                        <span class="tag tag-reimburse">${dLabel(r.date)}</span>
+                        <span class="rec-person">${esc(r.person)}</span>
+                    </div>
+                    <div class="rec-line2">${esc(sub || '—')}${r.settled && r.settledDate ? '　／　精算 ' + dLabel(r.settledDate) : ''}</div>
+                </div>
+                <div class="rec-amount num">${yen(r.amount)}</div>
+                <button class="icon-btn" onclick="event.stopPropagation();openDetail('${r.id}')">›</button>
+            </div>`;
+        }).join('');
+    }
+    renderSettleBar();
+}
+
+function toggleSelect(id) {
+    if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+    renderSettle();
+}
+
+function toggleSelectAll() {
+    const list = settleTargets();
+    const allSelected = list.length > 0 && list.every(r => selectedIds.has(r.id));
+    if (allSelected) selectedIds.clear();
+    else list.forEach(r => selectedIds.add(r.id));
+    renderSettle();
+}
+
+function selectedRecords() {
+    return settleTargets().filter(r => selectedIds.has(r.id));
+}
+
+function renderSettleBar() {
+    const bar = document.getElementById('settleBar');
+    const sel = selectedRecords();
+    bar.classList.toggle('show', sel.length > 0 && curTab === 'settle');
+    if (sel.length === 0) return;
+    document.getElementById('settleBarCount').textContent = `${sel.length}件を選択中`;
+    document.getElementById('settleBarSum').textContent = yen(sum(sel));
+    document.getElementById('settleBarBtns').innerHTML = settleTab === 'unsettled'
+        ? `<button class="btn btn-ghost" onclick="openSettleSheet()">精算書</button>
+           <button class="btn btn-primary" onclick="markSettled(true)">精算済みにする</button>`
+        : `<button class="btn btn-ghost" onclick="openSettleSheet()">精算書</button>
+           <button class="btn btn-danger" style="flex:1;" onclick="markSettled(false)">未精算に戻す</button>`;
+}
+
+function markSettled(on) {
+    const sel = selectedRecords();
+    if (sel.length === 0) return;
+    const total = sum(sel);
+    const msg = on
+        ? `${sel.length}件（計 ${yen(total)}）を精算済みにします。よろしいですか？`
+        : `${sel.length}件（計 ${yen(total)}）を未精算に戻します。よろしいですか？`;
+    if (!confirm(msg)) return;
+    const today = todayStr();
+    sel.forEach(r => { r.settled = on; r.settledDate = on ? today : null; });
+    selectedIds.clear();
+    persist();
+    render();
+    showToast(on ? `${sel.length}件を精算済みにしました` : `${sel.length}件を未精算に戻しました`);
+}
+
+/* ---------- 精算書テキスト ---------- */
+function settleText(list) {
+    const sorted = list.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+    const projs  = [...new Set(sorted.map(r => r.project).filter(Boolean))];
+    const total  = sum(sorted);
+
+    const pad = (s, w) => {
+        /* 全角を2文字ぶんとして数え、等幅で桁を揃える */
+        let width = 0;
+        for (const ch of String(s)) width += ch.charCodeAt(0) > 0x2000 ? 2 : 1;
+        return String(s) + ' '.repeat(Math.max(w - width, 1));
+    };
+
+    let t = '立替精算書\n';
+    t += `作品：${projs.length ? projs.join('／') : '—'}\n`;
+    t += `作成日：${dLabelFull(todayStr())}\n`;
+    t += '─'.repeat(22) + '\n';
+    sorted.forEach(r => {
+        t += `${r.date.slice(5).replace('-', '/')}  ${pad(r.category || '—', 12)}${pad(r.person, 14)}${(yen(r.amount)).padStart(10)}\n`;
+    });
+    t += '─'.repeat(22) + '\n';
+    t += `合計 ${sorted.length}件${(yen(total)).padStart(20)}\n`;
+    return t;
+}
+
+function openSettleSheet() {
+    const sel = selectedRecords();
+    if (sel.length === 0) return;
+    const text = settleText(sel);
+    window._settleText = text;
+    window._settleRecs = sel;
+    openModal('精算書', `
+        <p style="font-size:12px;color:var(--text-sub);margin-bottom:10px;line-height:1.7;">
+            ${sel.length}件 / 合計 <b>${yen(sum(sel))}</b><br>コピーしてメールやメッセージに貼り付けてください。
+        </p>
+        <div class="settle-preview">${esc(text)}</div>`,
+        `<button class="btn btn-ghost" onclick="downloadSettleCSV()">CSV</button>
+         <button class="btn btn-primary" onclick="copySettleText()">テキストをコピー</button>`);
+}
+
+function copySettleText() {
+    const text = window._settleText || '';
+    const done = () => showToast('精算書をコピーしました');
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(() => legacyCopy(text, done));
+    } else {
+        legacyCopy(text, done);
+    }
+}
+
+function legacyCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) done(); else showToast('コピーできませんでした。長押しで選択してください');
+}
+
+function downloadSettleCSV() {
+    const sel = window._settleRecs || [];
+    if (!sel.length) return;
+    const rows = [['日付', '用途', '相手', '作品', '現場', '金額', 'メモ']];
+    sel.slice().sort((a, b) => a.date < b.date ? -1 : 1).forEach(r => {
+        rows.push([r.date, r.category, r.person, r.project || '', r.location || '', r.amount, r.memo || '']);
+    });
+    rows.push(['合計', '', '', '', '', sum(sel), `${sel.length}件`]);
+    downloadCSV(rows, `karibarai_seisansho_${todayStr()}.csv`);
+    showToast('CSVをダウンロードしました');
+}
+
+/* =====================================================================
+   集計
+   ===================================================================== */
+let breakType = 'all';   /* 用途別内訳の対象種別 */
+let showAllPeople = false;
+
+function setPeriod(p) {
+    period = p;
+    document.querySelectorAll('#viewStats .seg button').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+    document.getElementById('rangeRow').style.display = p === 'custom' ? 'flex' : 'none';
+    if (p === 'custom' && !document.getElementById('rangeFrom').value) {
+        const d = new Date(); d.setMonth(d.getMonth() - 1);
+        document.getElementById('rangeFrom').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+        document.getElementById('rangeTo').value   = todayStr();
+    }
+    renderStats();
+}
+
+function periodRange() {
+    const now = new Date();
+    if (period === 'all') return { from: null, to: null, label: '全期間' };
+    if (period === 'custom') {
+        const f = document.getElementById('rangeFrom').value || null;
+        const t = document.getElementById('rangeTo').value || null;
+        return { from: f, to: t, label: `${f ? f.replace(/-/g, '/') : '最初'} 〜 ${t ? t.replace(/-/g, '/') : '最新'}` };
+    }
+    const base = new Date(now.getFullYear(), now.getMonth() + (period === 'lastMonth' ? -1 : 0), 1);
+    const y = base.getFullYear(), m = base.getMonth();
+    const pad = n => String(n).padStart(2, '0');
+    return {
+        from: `${y}-${pad(m + 1)}-01`,
+        to:   `${y}-${pad(m + 1)}-${pad(new Date(y, m + 1, 0).getDate())}`,
+        label: `${y}年${m + 1}月`
+    };
+}
+
+function periodRecords() {
+    const { from, to } = periodRange();
+    return recs().filter(r => (!from || r.date >= from) && (!to || r.date <= to));
+}
+
+function setBreakType(t) { breakType = t; renderStats(); }
+function toggleAllPeople() { showAllPeople = !showAllPeople; renderStats(); }
+
+function breakdown(list, key) {
+    const map = new Map();
+    list.forEach(r => {
+        const k = r[key] || '（未設定）';
+        const e = map.get(k) || { name: k, total: 0, count: 0 };
+        e.total += r.amount; e.count++;
+        map.set(k, e);
+    });
+    return [...map.values()].sort((a, b) => b.total - a.total);
+}
+
+function breakRows(rows, cls) {
+    if (rows.length === 0) return `<p style="font-size:12px;color:var(--text-light);">対象の記録がありません。</p>`;
+    const max = rows[0].total || 1;
+    return rows.map(r => `<div class="break-row">
+        <div class="break-top">
+            <span class="break-name">${esc(r.name)}<span class="break-cnt">${r.count}件</span></span>
+            <span class="break-val num">${yen(r.total)}</span>
+        </div>
+        <div class="break-bar"><div class="break-fill ${cls}" style="width:${Math.max(Math.round(r.total / max * 100), 2)}%"></div></div>
+    </div>`).join('');
+}
+
+function renderStats() {
+    const { label } = periodRange();
+    const list = periodRecords();
+    const adv  = list.filter(r => r.type === 'advance');
+    const rei  = list.filter(r => r.type === 'reimburse');
+    const un   = rei.filter(r => !r.settled);
+    const st   = rei.filter(r => r.settled);
+
+    const catSrc = breakType === 'advance' ? adv : breakType === 'reimburse' ? rei : list;
+    const people12 = breakdown(list, 'person');
+    const shownPeople = showAllPeople ? people12 : people12.slice(0, 10);
+
+    document.getElementById('statsBody').innerHTML = `
+        <div style="font-size:12px;color:var(--text-sub);font-weight:700;margin-bottom:10px;">
+            ${esc(curProject || '全作品')}　／　${esc(label)}　／　${list.length}件
+        </div>
+
+        <div class="stat-row" style="margin-bottom:8px;">
+            <div class="stat-box" style="border-left:4px solid var(--advance);">
+                <div class="stat-box-label">仮払い 合計</div>
+                <div class="stat-box-value num">${yen(sum(adv))}<span class="list-count"> ${adv.length}件</span></div>
+            </div>
+            <div class="stat-box" style="border-left:4px solid var(--reimburse);">
+                <div class="stat-box-label">立替 合計</div>
+                <div class="stat-box-value num">${yen(sum(rei))}<span class="list-count"> ${rei.length}件</span></div>
+            </div>
+        </div>
+        <div class="stat-row">
+            <div class="stat-box" style="border-left:4px solid var(--unsettled);">
+                <div class="stat-box-label">立替 未精算</div>
+                <div class="stat-box-value num">${yen(sum(un))}<span class="list-count"> ${un.length}件</span></div>
+            </div>
+            <div class="stat-box" style="border-left:4px solid var(--success);">
+                <div class="stat-box-label">立替 精算済み</div>
+                <div class="stat-box-value num">${yen(sum(st))}<span class="list-count"> ${st.length}件</span></div>
+            </div>
+        </div>
+
+        <div class="sec-title">用途別の内訳</div>
+        <div class="seg" style="margin-bottom:12px;">
+            <button class="${breakType === 'all' ? 'on' : ''}" onclick="setBreakType('all')">全体</button>
+            <button class="${breakType === 'advance' ? 'on' : ''}" onclick="setBreakType('advance')">仮払い</button>
+            <button class="${breakType === 'reimburse' ? 'on' : ''}" onclick="setBreakType('reimburse')">立替</button>
+        </div>
+        ${breakRows(breakdown(catSrc, 'category'), breakType === 'advance' ? 'adv' : breakType === 'reimburse' ? 'rei' : '')}
+
+        <div class="sec-title">
+            <span>相手別の内訳</span>
+            ${people12.length > 10 ? `<button class="sec-act" onclick="toggleAllPeople()">${showAllPeople ? '上位のみ' : `すべて（${people12.length}人）`}</button>` : ''}
+        </div>
+        ${breakRows(shownPeople, '')}
+
+        ${curProject === null ? `<div class="sec-title">作品別の内訳</div>${breakRows(breakdown(list, 'project'), '')}` : ''}
+
+        <div class="sec-title">この条件でCSV</div>
+        <button class="btn btn-ghost btn-full" onclick="exportCSV('period')">CSVをダウンロード（${list.length}件）</button>
+        <div style="height:8px"></div>`;
+}
+
+/* =====================================================================
+   CSV
+   ===================================================================== */
+function csvEsc(v) {
+    const s = String(v == null ? '' : v);
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function downloadCSV(rows, filename) {
+    const csv  = '﻿' + rows.map(r => r.map(csvEsc).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    downloadBlob(blob, filename);
+}
+
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+function exportCSV(scope) {
+    let list, name;
+    if (scope === 'all') {
+        list = records.slice();
+        name = `karibarai_all_${todayStr()}.csv`;
+    } else if (scope === 'project') {
+        if (!curProject) { showToast('作品を選んでから実行してください'); return; }
+        list = records.filter(r => r.project === curProject);
+        name = `karibarai_sakuhin_${todayStr()}.csv`;
+    } else {
+        list = periodRecords();
+        name = `karibarai_shukei_${todayStr()}.csv`;
+    }
+    if (list.length === 0) { showToast('対象の記録がありません'); return; }
+
+    const rows = [['日付', '曜日', '種別', '作品', '現場', '相手', '用途', '金額', '精算状況', '精算日', 'メモ']];
+    list.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0).forEach(r => {
+        const d = new Date(r.date + 'T00:00:00');
+        rows.push([
+            r.date, DOW[d.getDay()], typeLabel(r.type), r.project || '', r.location || '',
+            r.person, r.category || '', r.amount,
+            r.type === 'advance' ? '—' : (r.settled ? '精算済み' : '未精算'),
+            r.settledDate || '', r.memo || ''
+        ]);
+    });
+    rows.push(['合計', '', '', '', '', '', '', sum(list), '', '', `${list.length}件`]);
+    downloadCSV(rows, name);
+    showToast(`${list.length}件のCSVをダウンロードしました`);
+}
+
+/* =====================================================================
+   管理・バックアップ
+   ===================================================================== */
+function renderData() {
+    document.getElementById('csvProjBtn').textContent =
+        curProject ? `「${curProject}」のCSV` : '選択中の作品のCSV（作品を選んでください）';
+
+    const info = document.getElementById('backupInfo');
+    info.textContent = lastBackup
+        ? `最後の書き出し：${dLabelFull(lastBackup.slice(0, 10))}`
+        : 'まだ一度も書き出していません。';
+    info.style.color = lastBackup ? 'var(--text-light)' : 'var(--danger)';
+
+    const dates = records.map(r => r.date).sort();
+    let bytes = 0;
+    try { bytes = (localStorage.getItem(STORAGE_KEY) || '').length; } catch (e) { bytes = 0; }
+    document.getElementById('dataStats').innerHTML = `
+        記録：<b>${records.length}件</b>（仮払い ${records.filter(r => r.type === 'advance').length} / 立替 ${records.filter(r => r.type === 'reimburse').length}）<br>
+        未精算：<b>${unsettledOf(records).length}件 ${yen(sum(unsettledOf(records)))}</b><br>
+        期間：${dates.length ? dates[0].replace(/-/g, '/') + ' 〜 ' + dates[dates.length - 1].replace(/-/g, '/') : '—'}<br>
+        マスタ：作品 ${projects.length} / 相手 ${people.length} / 用途 ${categories.length}<br>
+        保存サイズ：約 ${(bytes / 1024).toFixed(1)} KB`;
+}
+
+function exportJSON() {
+    lastBackup = new Date().toISOString();
+    persist();
+    const data = { app: 'karibarai', version: 1, exportedAt: lastBackup, projects, people, categories, records };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+    downloadBlob(blob, `karibarai_backup_${todayStr()}.json`);
+    renderData();
+    showToast('バックアップを書き出しました');
+}
+
+function importJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    event.target.value = '';
+    const reader = new FileReader();
+    reader.onload = e => {
+        let data;
+        try { data = JSON.parse(e.target.result); }
+        catch (err) { alert('ファイルを読み込めませんでした。正しいJSONファイルを選んでください。'); return; }
+        if (!data || !Array.isArray(data.records)) { alert('このファイルは仮払い・立替メモのバックアップではありません。'); return; }
+        if (!confirm(`読み込むと、いま端末にあるデータ（${records.length}件）は上書きされます。\n\n読み込む記録：${data.records.length}件\nよろしいですか？`)) return;
+        projects   = Array.isArray(data.projects)   ? data.projects   : [];
+        people     = Array.isArray(data.people)     ? data.people     : [];
+        categories = Array.isArray(data.categories) && data.categories.length ? data.categories : DEFAULT_CATEGORIES.map(n => ({ name: n, count: 0 }));
+        records    = data.records.map(normalizeRecord);
+        curProject = null;
+        selectedIds.clear();
+        persist();
+        renderProjectBar();
+        render();
+        showToast(`${records.length}件を読み込みました`);
+    };
+    reader.readAsText(file, 'utf-8');
+}
+
+function wipeAll() {
+    if (!confirm(`すべての記録（${records.length}件）とマスタを削除します。\n元に戻せません。よろしいですか？`)) return;
+    if (!confirm('本当に削除しますか？\n先にJSONバックアップを書き出すことをおすすめします。')) return;
+    records = []; projects = []; people = [];
+    categories = DEFAULT_CATEGORIES.map(n => ({ name: n, count: 0 }));
+    curProject = null; lastBackup = null; selectedIds.clear();
+    persist();
+    renderProjectBar();
+    render();
+    showToast('すべて削除しました');
+}
+
+/* =====================================================================
+   起動
+   ===================================================================== */
+load();
+renderProjectBar();
+render();
+document.getElementById('homeActions').style.display = 'flex';
+
+/* PWA：同じフォルダに sw.js があればオフライン用に登録する（無くても動く） */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => { /* 単体HTMLで開いた場合は何もしない */ });
+    });
+}
+
+/* 入力シートを開いている間は背面をスクロールさせない */
+document.getElementById('entrySheet').addEventListener('touchmove', e => {
+    if (!e.target.closest('.entry-body')) e.preventDefault();
+}, { passive: false });
+</script>
+</body>
+</html>

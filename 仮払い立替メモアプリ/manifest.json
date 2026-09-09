@@ -1,0 +1,17 @@
+{
+  "name": "仮払い・立替メモ",
+  "short_name": "仮払い・立替",
+  "description": "テレビドラマ制作部の現場用・現金メモ（On:Suite）",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eceff5",
+  "theme_color": "#1c2b4a",
+  "lang": "ja",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
