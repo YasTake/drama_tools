@@ -670,41 +670,6 @@
     .entry-save:disabled { background: #a9b0c4; }
     .entry-save-sum { font-size: 14px; font-weight: 700; opacity: 0.9; }
 
-    /* 画面の縦が短い端末（iPhone SE など）ではさらに詰めて、
-       相手と用途をスクロールせずに出す */
-    @media (max-height: 680px) {
-        .entry-head-inner { padding: 7px 12px; }
-        .entry-title { font-size: 14px; }
-        .amount-bar { padding: 6px 12px 5px; }
-        .amount-val { font-size: 29px; }
-        .amount-yen { font-size: 16px; }
-        .entry-body { padding: 8px 12px 4px; }
-        .pick-group { margin-bottom: 8px; }
-        .pick-head { margin-bottom: 5px; }
-        .chip { min-height: 42px; padding: 9px 12px; font-size: 14px; }
-        .quick-btn { padding: 5px 2px; font-size: 11px; }
-        .quick-row { padding-bottom: 4px; }
-        .key { padding: 6px 0; font-size: 21px; }
-        .key.fn { font-size: 16px; }
-        .entry-save { padding: 11px 10px; font-size: 15px; margin-top: 5px; }
-        .multi-row { min-height: 40px; padding: 7px 10px; }
-    }
-
-    /* iPhone SE 級（縦が特に短い端末）では精算シートをさらに詰める。
-       領収書額・返金額・差額がスクロールなしで見えるようにするため。 */
-    @media (max-height: 610px) {
-        .settle-summary { padding: 7px 10px; margin-bottom: 8px; }
-        .settle-summary-sub { display: none; }
-        .settle-summary-who { font-size: 14px; }
-        .settle-summary-amt { font-size: 19px; }
-        .diff-box { padding: 9px 12px; }
-        .diff-val { font-size: 22px; }
-        .diff-label { font-size: 11px; }
-        #settleDiff { padding: 0 12px 5px; }
-        #settleSheet .entry-body { padding: 7px 12px 4px; }
-        #settleSheet .multi-row { margin-bottom: 4px; }
-    }
-
     /* ===== MODAL (sheet) ===== */
     .modal-overlay {
         position: fixed;
@@ -1193,6 +1158,50 @@
     }
 
     .btn-copy:active { background: var(--accent); }
+
+    /* ===== 画面が短い端末向けの調整 =====
+       他のルールを確実に上書きするため、スタイルの最後に置く */
+
+    /* 画面の縦が短い端末（iPhone SE など）ではさらに詰めて、
+       相手と用途をスクロールせずに出す */
+    @media (max-height: 680px) {
+        .entry-head-inner { padding: 7px 12px; }
+        .entry-title { font-size: 14px; }
+        .amount-bar { padding: 6px 12px 5px; }
+        .amount-val { font-size: 29px; }
+        .amount-yen { font-size: 16px; }
+        .entry-body { padding: 8px 12px 4px; }
+        .pick-group { margin-bottom: 8px; }
+        .pick-head { margin-bottom: 5px; }
+        .chip { min-height: 42px; padding: 9px 12px; font-size: 14px; }
+        .quick-btn { padding: 5px 2px; font-size: 11px; }
+        .quick-row { padding-bottom: 4px; }
+        .key { padding: 6px 0; font-size: 21px; }
+        .key.fn { font-size: 16px; }
+        .entry-save { padding: 11px 10px; font-size: 15px; margin-top: 5px; }
+        .multi-row { min-height: 40px; padding: 7px 10px; }
+
+        /* 精算シートは欄が3つあるので、行をさらに詰める */
+        #settleSheet .multi-row { min-height: 38px; padding: 5px 10px; margin-bottom: 4px; }
+        .amt-field-sub { margin-top: 1px; line-height: 1.35; }
+    }
+
+    /* iPhone SE 級（縦が特に短い端末）では精算シートをさらに詰める。
+       領収書額・返金額・差額がスクロールなしで見えるようにするため。 */
+    @media (max-height: 610px) {
+        .settle-summary { padding: 7px 10px; margin-bottom: 8px; }
+        .settle-summary-sub { display: none; }
+        .settle-summary-who { font-size: 14px; }
+        .settle-summary-amt { font-size: 19px; }
+        .diff-box { padding: 9px 12px; }
+        .diff-val { font-size: 22px; }
+        .diff-label { font-size: 11px; }
+        #settleDiff { padding: 0 12px 5px; }
+        #settleSheet .entry-body { padding: 7px 12px 4px; }
+        #settleSheet .multi-row { margin-bottom: 4px; }
+        /* 欄名だけで意味は分かるので、狭い画面では補足を落とす */
+        .amt-field-sub { display: none; }
+    }
 </style>
 </head>
 <body>
@@ -1291,11 +1300,13 @@
     <div class="sec-title">バックアップ</div>
     <div class="note">
         データはこの端末のブラウザ内（localStorage）にのみ保存されます。<br>
-        ブラウザのデータ削除・機種変更で消えるため、<b>定期的にJSONを書き出して</b>メールやクラウドに保管してください。
+        ブラウザのデータ削除・機種変更で消えるため、<b>定期的にJSONを書き出して</b>メールやクラウドに保管してください。<br>
+        書き出しには記録本体に加えて、作品・相手・宛先・用途の各マスタ、並び順、通し番号も含まれます。<br>
+        復元は<b>全置換</b>です（いまのデータに追加ではなく、丸ごと入れ替わります）。
     </div>
     <div class="data-btns">
         <button class="btn btn-primary btn-full" onclick="exportJSON()">JSONバックアップを書き出す</button>
-        <button class="btn btn-ghost btn-full" onclick="document.getElementById('importFile').click()">JSONを読み込む</button>
+        <button class="btn btn-ghost btn-full" onclick="document.getElementById('importFile').click()">バックアップから復元（全置換）</button>
         <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importJSON(event)">
     </div>
     <div id="backupInfo" style="font-size:11px;color:var(--text-light);margin-top:9px;font-weight:600;"></div>
@@ -1442,6 +1453,7 @@ let nextSerial = 1;    /* 通し番号。紙の領収書に書き込んで突き
 let manualOrder = { person: false, payee: false, category: false };
 let curProject = null;
 let lastBackup = null;
+let dataCorrupt = false;   /* 保存データが壊れている間は書き込みを止める */
 
 /* ---------- 画面状態 ---------- */
 let curTab      = 'home';
@@ -1459,7 +1471,14 @@ function load() {
     try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { raw = null; }
 
     if (raw) {
-        try { apply(JSON.parse(raw)); } catch (e) { /* 壊れていたら初期状態で続行 */ }
+        try {
+            apply(JSON.parse(raw));
+        } catch (e) {
+            /* 壊れたデータを黙って上書きすると復元できなくなるので、
+               原本を退避したうえで書き込みを止める */
+            dataCorrupt = true;
+            try { localStorage.setItem(STORAGE_KEY + '_broken_' + Date.now(), raw); } catch (_) {}
+        }
     } else {
         /* v1 のデータがあれば引き継ぐ */
         let old = null;
@@ -1524,7 +1543,8 @@ function migrateFromV1(d) {
             settled: r.type === 'reimburse' ? !!r.settled : false,
             settledDate: r.type === 'reimburse' ? (r.settledDate || null) : null,
             receiptAmount: null,
-            returnAmount: null,
+            refundAmount: null,
+            additionalAmount: null,
             createdAt: r.createdAt || (r.date + 'T00:00:00.000Z')
         };
     });
@@ -1539,11 +1559,20 @@ function normalizeRecord(r) {
     r.hasReceipt = !!r.hasReceipt;
     if (!r.serial) r.serial = nextSerial++;
     if (r.type === 'advance') {
-        r.receiptAmount = r.receiptAmount == null ? null : (parseInt(r.receiptAmount, 10) || 0);
-        r.returnAmount  = r.returnAmount  == null ? null : (parseInt(r.returnAmount, 10)  || 0);
+        /* 旧形式（returnAmount 1本・マイナスは追加渡し）を2欄に分ける */
+        if (r.returnAmount != null && r.refundAmount == null && r.additionalAmount == null) {
+            const v = parseInt(r.returnAmount, 10) || 0;
+            r.refundAmount     = v >= 0 ?  v : 0;
+            r.additionalAmount = v <  0 ? -v : 0;
+        }
+        delete r.returnAmount;
+        r.receiptAmount    = r.receiptAmount    == null ? null : (parseInt(r.receiptAmount, 10) || 0);
+        r.refundAmount     = r.refundAmount     == null ? null : (parseInt(r.refundAmount, 10) || 0);
+        r.additionalAmount = r.additionalAmount == null ? null : (parseInt(r.additionalAmount, 10) || 0);
     } else {
         r.receiptAmount = null;
-        r.returnAmount  = null;
+        r.refundAmount = null;
+        r.additionalAmount = null;
     }
     if (!r.settled) r.settledDate = null;
     if (!r.createdAt) r.createdAt = r.date + 'T00:00:00.000Z';
@@ -1551,6 +1580,7 @@ function normalizeRecord(r) {
 }
 
 function persist() {
+    if (dataCorrupt) return;   /* 復元前に上書きしない */
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
             version: 2, projects, people, payees, categories, records,
@@ -1585,10 +1615,10 @@ function showToast(msg) {
     t._tid = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-/* 仮払いの差額： 渡した額 - 領収書額 - 返金額 */
+/* 仮払いの差額： 渡した額 − 領収書額 − 返金額 ＋ 追加で渡した額 */
 function diffOf(r) {
     if (r.type !== 'advance') return 0;
-    return r.amount - (r.receiptAmount || 0) - (r.returnAmount || 0);
+    return r.amount - (r.receiptAmount || 0) - (r.refundAmount || 0) + (r.additionalAmount || 0);
 }
 
 /* ---------- マスタ ---------- */
@@ -1710,6 +1740,7 @@ function renderHome() {
     } else {
         scope.textContent = '全作品';
     }
+    scope.textContent += '　／　未精算額＝まだ精算が終わっていない「渡した額・立て替えた額」の合計';
 
     /* 今月 */
     const now = new Date();
@@ -1908,6 +1939,7 @@ function openEntry(type, editId) {
         after: renderEntry
     };
 
+    entry._snap = entrySnapshot();
     const sheet = document.getElementById('entrySheet');
     sheet.classList.toggle('reimburse', entry.type === 'reimburse');
     sheet.classList.add('open');
@@ -1916,11 +1948,22 @@ function openEntry(type, editId) {
     renderEntry();
 }
 
-function closeEntry() {
+/* 入力途中で閉じるときは破棄の確認を挟む */
+function closeEntry(force) {
+    if (!force && entry && entryDirty()) {
+        if (!confirm('入力中の内容が保存されていません。\n破棄して閉じますか？')) return;
+    }
     document.getElementById('entrySheet').classList.remove('open');
+    document.getElementById('entrySave').disabled = false;
     entry = null;
     kpTarget = null;
 }
+
+function entrySnapshot() {
+    return JSON.stringify([entry.date, entry.project, entry.memo, entry.category,
+                           entry.hasReceipt, entry.amountStr, entry.sel]);
+}
+function entryDirty() { return entry._snap !== undefined && entry._snap !== entrySnapshot(); }
 
 function entryRows() {
     if (!entry.multi) {
@@ -2071,7 +2114,10 @@ function tapCategory(i) {
     renderEntry();
 }
 
+const CONFIRM_OVER = 100000;   /* この額以上は登録前に確認を挟む */
+
 function saveEntry() {
+    if (!entry || entry._saving) return;            /* 二重タップ対策 */
     const kind = peopleKindFor(entry.type);
     const rows = entryRows();
     if (rows.length === 0) { showToast(masterName(kind) + 'を選んでください'); return; }
@@ -2080,6 +2126,18 @@ function saveEntry() {
         showToast(entry.multi && entry.multiMode === 'each' ? '金額が0円の相手があります' : '金額を入力してください');
         return;
     }
+
+    /* 桁の打ち間違い（30万→300万）を止める */
+    if (rows.some(r => r.amount >= CONFIRM_OVER)) {
+        const lines = rows.map(r => `　${r.name}　${yen(r.amount)}`).join('\n');
+        const head  = `${typeLabel(entry.type)}　${dLabel(entry.date)}　${entry.category}`;
+        const tail  = rows.length > 1 ? `\n\n合計 ${rows.length}件　${yen(entryTotal())}` : '';
+        if (!confirm(`この内容で登録します。金額を確認してください。\n\n${head}\n${lines}${tail}`)) return;
+    }
+
+    entry._saving = true;
+    const saveBtn = document.getElementById('entrySave');
+    saveBtn.disabled = true;
 
     if (entry.editId) {
         const r = records.find(x => x.id === entry.editId);
@@ -2096,7 +2154,7 @@ function saveEntry() {
         bumpMaster(kind, rows[0].name);
         bumpMaster('category', entry.category);
         persist();
-        closeEntry();
+        closeEntry(true);
         render();
         showToast('修正しました');
         return;
@@ -2120,7 +2178,8 @@ function saveEntry() {
             settled: false,
             settledDate: null,
             receiptAmount: null,
-            returnAmount: null,
+            refundAmount: null,
+            additionalAmount: null,
             createdAt: now
         });
         records.push(rec);
@@ -2130,7 +2189,7 @@ function saveEntry() {
     bumpMaster('category', entry.category);
     if (entry.project && !projects.some(p => p.name === entry.project)) projects.push({ name: entry.project });
     persist();
-    closeEntry();
+    closeEntry(true);
     if (curTab !== 'home') switchTab('home'); else render();
 
     const serials = created.map(r => serialLabel(r)).join(' ');
@@ -2190,6 +2249,7 @@ function renderSettle() {
                 <div class="rec-arrow">›</div>
             </div>`).join('');
     } else if (settleTab === 'reimburse') {
+        el.dataset.note = '1';
         /* 宛先ごとにまとめる。精算書も宛先ごとに出すため */
         const groups = new Map();
         list.forEach(r => {
@@ -2225,12 +2285,16 @@ function renderSettle() {
                 </div>`;
             }).join('');
         });
-        el.innerHTML = h;
+        el.innerHTML = `<p style="font-size:12px;color:var(--text-sub);margin-bottom:10px;line-height:1.7;">
+            「精算済みにする」は<b>実際に返金を受け取った</b>ときに押します（請求しただけの段階では押しません）。
+            立替は全額返金が前提です。</p>` + h;
     } else {
         el.innerHTML = list.map(r => {
             const d = diffOf(r);
             const extra = r.type === 'advance'
-                ? `領収書 ${yen(r.receiptAmount || 0)}・返金 ${yen(r.returnAmount || 0)}` + (d !== 0 ? `・差額 ${yen(d)}` : '')
+                ? `領収書 ${yen(r.receiptAmount || 0)}・返金 ${yen(r.refundAmount || 0)}`
+                  + ((r.additionalAmount || 0) ? `・追加 ${yen(r.additionalAmount)}` : '')
+                  + (d !== 0 ? `・差額 ${yen(d)}` : '')
                 : '';
             return `<div class="settle-row" onclick="openDetail('${r.id}')">
                 <div class="rec-main">
@@ -2310,15 +2374,15 @@ function openAdvanceSettle(id) {
     if (!r) return;
     stState = {
         id: r.id,
-        receipt: r.receiptAmount == null ? '' : String(r.receiptAmount),
-        ret: r.returnAmount == null ? '' : String(Math.abs(r.returnAmount)),
-        retNegative: (r.returnAmount || 0) < 0,   /* マイナス＝追加で渡した */
+        receipt: r.receiptAmount    == null ? '' : String(r.receiptAmount),
+        refund:  r.refundAmount     == null ? '' : String(r.refundAmount),
+        extra:   r.additionalAmount == null ? '' : String(r.additionalAmount),
         field: 'receipt'
     };
     kpTarget = {
         hint: '入力する欄をタップしてください',
-        get: () => stState.field === 'receipt' ? stState.receipt : stState.ret,
-        set: v => { if (stState.field === 'receipt') stState.receipt = v; else stState.ret = v; },
+        get: () => stState[stState.field],
+        set: v => { stState[stState.field] = v; },
         after: renderAdvanceSettle
     };
     document.getElementById('settleSheet').classList.add('open');
@@ -2327,6 +2391,7 @@ function openAdvanceSettle(id) {
 
 function closeAdvanceSettle() {
     document.getElementById('settleSheet').classList.remove('open');
+    document.getElementById('settleSave').disabled = false;
     stState = null;
     kpTarget = null;
 }
@@ -2334,20 +2399,28 @@ function closeAdvanceSettle() {
 function stValues() {
     const r = records.find(x => x.id === stState.id);
     const receipt = parseInt(stState.receipt, 10) || 0;
-    const ret = (parseInt(stState.ret, 10) || 0) * (stState.retNegative ? -1 : 1);
-    return { r, receipt, ret, diff: r.amount - receipt - ret };
+    const refund  = parseInt(stState.refund, 10) || 0;
+    const extra   = parseInt(stState.extra, 10) || 0;
+    return { r, receipt, refund, extra, diff: r.amount - receipt - refund + extra };
 }
+
+const ST_FIELDS = [
+    { key: 'receipt', label: '領収書の合計額', sub: '預かった領収書の合計' },
+    { key: 'refund',  label: '返金額',        sub: '相手から戻ってきた現金' },
+    { key: 'extra',   label: '追加で渡した額', sub: '領収書が渡した額を超えたとき' }
+];
 
 function renderAdvanceSettle() {
     if (!stState) return;
-    const { r, receipt, ret, diff } = stValues();
+    const { r, diff } = stValues();
+    const vals = stValues();
 
     const s = kpTarget.get();
     const val = document.getElementById('stAmountVal');
     val.textContent = s === '' ? '0' : fmt(s);
     val.classList.toggle('placeholder', s === '');
     document.getElementById('stAmountHint').textContent =
-        stState.field === 'receipt' ? '領収書の合計額' : (stState.retNegative ? '追加で渡した額' : '返金額');
+        (ST_FIELDS.find(f => f.key === stState.field) || {}).label || '';
 
     document.getElementById('settleBody').innerHTML = `
         <div class="settle-summary">
@@ -2358,18 +2431,11 @@ function renderAdvanceSettle() {
             <div class="settle-summary-sub">渡した額　／　${dLabelFull(r.date)}・${esc(r.category || '—')}${r.project ? '・' + esc(r.project) : ''}</div>
         </div>
 
-        <div class="multi-row ${stState.field === 'receipt' ? 'active' : ''}" onclick="stField('receipt')">
-            <span class="amt-field-label">領収書の合計額</span>
-            <span class="multi-amt num ${receipt === 0 ? 'zero' : ''}">${yen(receipt)}</span>
-        </div>
-
-        <div class="multi-row ${stState.field === 'ret' ? 'active' : ''}" onclick="stField('ret')">
-            <span class="amt-field-label">${stState.retNegative ? '追加で渡した額' : '返金額'}
-                <span class="amt-field-sub">${stState.retNegative ? '領収書が渡した額を超えたとき' : '相手から戻ってきた現金'}</span>
-            </span>
-            <span class="multi-amt num ${ret === 0 ? 'zero' : ''}">${yen(ret)}</span>
-            <button class="sign-btn ${stState.retNegative ? 'on' : ''}" onclick="event.stopPropagation();stToggleSign()">${stState.retNegative ? '追加' : '返金'}</button>
-        </div>`;
+        ${ST_FIELDS.map(f => `
+        <div class="multi-row ${stState.field === f.key ? 'active' : ''}" onclick="stField('${f.key}')">
+            <span class="amt-field-label">${f.label}<span class="amt-field-sub">${f.sub}</span></span>
+            <span class="multi-amt num ${vals[f.key] === 0 ? 'zero' : ''}">${yen(vals[f.key])}</span>
+        </div>`).join('')}`;
 
     document.getElementById('settleDiff').innerHTML = `
         <div class="diff-box ${diff === 0 ? '' : 'ng'}">
@@ -2386,20 +2452,25 @@ function renderAdvanceSettle() {
 }
 
 function stField(f) { stState.field = f; renderAdvanceSettle(); }
-function stToggleSign() { stState.retNegative = !stState.retNegative; renderAdvanceSettle(); }
 
 function commitAdvanceSettle() {
-    const { r, receipt, ret, diff } = stValues();
-    if (diff !== 0) {
-        const msg = diff > 0
-            ? `差額が ${yen(diff)} 残っています（回収が足りません）。\nこのまま精算済みにしますか？`
-            : `${yen(-diff)} 多く回収しています。\nこのまま精算済みにしますか？`;
-        if (!confirm(msg)) return;
-    }
-    r.receiptAmount = receipt;
-    r.returnAmount  = ret;
-    r.settled       = true;
-    r.settledDate   = todayStr();
+    if (!stState || stState._saving) return;        /* 二重タップ対策 */
+    const { r, receipt, refund, extra, diff } = stValues();
+
+    const warn = [];
+    if (!r.hasReceipt) warn.push('・領収書を預かった記録がありません');
+    if (diff > 0)      warn.push(`・差額が ${yen(diff)} 残っています（回収が足りません）`);
+    if (diff < 0)      warn.push(`・${yen(-diff)} 多く回収しています`);
+    if (warn.length && !confirm(`${serialLabel(r)}　${r.person}\n\n${warn.join('\n')}\n\nこのまま精算済みにしますか？`)) return;
+
+    stState._saving = true;
+    document.getElementById('settleSave').disabled = true;
+    r.receiptAmount    = receipt;
+    r.refundAmount     = refund;
+    r.additionalAmount = extra;
+    r.settled          = true;
+    r.settledDate      = todayStr();
+    if (receipt > 0) r.hasReceipt = true;
     persist();
     closeAdvanceSettle();
     render();
@@ -2682,31 +2753,46 @@ function renameMaster(kind, idx) {
             <label class="f-label">新しい名前</label>
             <input type="text" class="f-input" id="mRen" value="${esc(old)}">
         </div>
-        <p style="font-size:12px;color:var(--text-sub);line-height:1.7;">登録済みの記録（${countUsage(kind, old)}件）の表記もまとめて変更されます。</p>`,
-        `<button class="btn btn-ghost" onclick="renderMasterModal()">やめる</button>
-         <button class="btn btn-primary" onclick="commitRename('${kind}',${idx})">変更</button>`);
+        <p style="font-size:12px;color:var(--text-sub);line-height:1.7;">
+            この名前を使った記録が <b>${countUsage(kind, old)}件</b> あります。<br>
+            過去の記録の表記をどうするか選んでください。
+        </p>
+        <div class="data-btns" style="margin-top:12px;">
+            <button class="btn btn-primary btn-full" onclick="commitRename('${kind}',${idx},'all')">過去の記録も変更する</button>
+            <button class="btn btn-ghost btn-full" onclick="commitRename('${kind}',${idx},'future')">これから登録する分だけ変更</button>
+        </div>
+        <p style="font-size:11px;color:var(--text-light);line-height:1.7;margin-top:10px;">
+            表記ゆれの修正なら「過去の記録も変更」、役割を別の人に付け替えるなら「これから登録する分だけ」を選びます。
+        </p>`,
+        `<button class="btn btn-ghost btn-full" onclick="renderMasterModal()">やめる</button>`);
 }
 
-function commitRename(kind, idx) {
+/* mode: 'all' = 過去の記録も書き換える / 'future' = マスタ名だけ変え、過去は登録時の名前のまま */
+function commitRename(kind, idx, mode) {
     const list = masterList(kind);
     const old = list[idx].name;
     const name = (document.getElementById('mRen').value || '').trim();
     if (!name) { showToast('名前を入力してください'); return; }
     if (name !== old && list.some(x => x.name === name)) { showToast('同じ名前がすでにあります'); return; }
 
-    if (kind === 'project')       records.forEach(r => { if (r.project === old) r.project = name; });
-    else if (kind === 'category') records.forEach(r => { if (r.category === old) r.category = name; });
-    else {
-        const type = kind === 'person' ? 'advance' : 'reimburse';
-        records.forEach(r => { if (r.type === type && r.person === old) r.person = name; });
+    if (mode === 'all') {
+        if (kind === 'project')       records.forEach(r => { if (r.project === old) r.project = name; });
+        else if (kind === 'category') records.forEach(r => { if (r.category === old) r.category = name; });
+        else {
+            const type = kind === 'person' ? 'advance' : 'reimburse';
+            records.forEach(r => { if (r.type === type && r.person === old) r.person = name; });
+        }
+        if (kind === 'project' && curProject === old) curProject = name;
+    } else {
+        /* 過去は据え置き。付け替え後の集計が混ざらないよう使用回数はリセットする */
+        if (list[idx].count != null) list[idx].count = 0;
     }
     list[idx].name = name;
-    if (kind === 'project' && curProject === old) curProject = name;
     persist();
     renderProjectBar();
     render();
     renderMasterModal();
-    showToast('変更しました');
+    showToast(mode === 'all' ? '過去の記録も変更しました' : 'これから登録する分だけ変更しました');
 }
 
 function deleteMaster(kind, idx) {
@@ -2743,7 +2829,8 @@ function openDetail(id) {
 
     const settleRows = (!isAdv || un) ? '' : `
         <div class="kv"><div class="kv-k">領収書額</div><div class="kv-v num">${yen(r.receiptAmount || 0)}</div></div>
-        <div class="kv"><div class="kv-k">${(r.returnAmount || 0) < 0 ? '追加で渡した' : '返金額'}</div><div class="kv-v num">${yen(r.returnAmount || 0)}</div></div>
+        <div class="kv"><div class="kv-k">返金額</div><div class="kv-v num">${yen(r.refundAmount || 0)}</div></div>
+        <div class="kv"><div class="kv-k">追加で渡した</div><div class="kv-v num">${yen(r.additionalAmount || 0)}</div></div>
         <div class="kv"><div class="kv-k">差額</div><div class="kv-v num" style="font-weight:800;color:${d === 0 ? 'var(--success)' : 'var(--danger)'}">${yen(d)}</div></div>`;
 
     const actions = isAdv
@@ -2796,7 +2883,7 @@ function unsettle(id) {
     if (!r) return;
     r.settled = false;
     r.settledDate = null;
-    if (r.type === 'advance') { r.receiptAmount = null; r.returnAmount = null; }
+    if (r.type === 'advance') { r.receiptAmount = null; r.refundAmount = null; r.additionalAmount = null; }
     persist();
     closeModal();
     render();
@@ -2980,7 +3067,7 @@ function exportCSV(scope) {
     }
     if (list.length === 0) { showToast('対象の記録がありません'); return; }
 
-    const rows = [['通し番号', '日付', '曜日', '種別', '作品', '相手/宛先', '用途', '金額', '領収書', '精算状況', '精算日', '領収書額', '返金額', '差額', 'メモ']];
+    const rows = [['通し番号', '日付', '曜日', '種別', '作品', '相手/宛先', '用途', '金額', '領収書', '精算状況', '精算日', '領収書額', '返金額', '追加支払額', '差額', 'メモ']];
     list.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0).forEach(r => {
         const d = new Date(r.date + 'T00:00:00');
         const isAdv = r.type === 'advance';
@@ -2989,12 +3076,13 @@ function exportCSV(scope) {
             r.person, r.category || '', r.amount, r.hasReceipt ? 'あり' : '',
             r.settled ? '精算済み' : '未精算', r.settledDate || '',
             (isAdv && r.settled) ? r.receiptAmount : '',
-            (isAdv && r.settled) ? r.returnAmount : '',
+            (isAdv && r.settled) ? r.refundAmount : '',
+            (isAdv && r.settled) ? r.additionalAmount : '',
             (isAdv && r.settled) ? diffOf(r) : '',
             r.memo || ''
         ]);
     });
-    rows.push(['合計', '', '', '', '', '', '', sum(list), '', '', '', '', '', '', `${list.length}件`]);
+    rows.push(['合計', '', '', '', '', '', '', sum(list), '', '', '', '', '', '', '', `${list.length}件`]);
     downloadCSV(rows, name);
     showToast(`${list.length}件のCSVをダウンロードしました`);
 }
@@ -3104,6 +3192,31 @@ load();
 renderProjectBar();
 render();
 document.getElementById('homeActions').style.display = 'flex';
+
+if (dataCorrupt) showCorruptNotice();
+
+function showCorruptNotice() {
+    openModal('保存データを読み込めません', `
+        <p style="font-size:13px;line-height:1.9;">
+            この端末に保存されていたデータが壊れていて読み込めませんでした。<br><br>
+            壊れたデータは<b>そのまま退避してあります</b>。上書きしないよう、
+            復元するまで保存を止めています。
+        </p>
+        <div class="note" style="margin-top:12px;">
+            JSONバックアップがあれば、下のボタンから復元してください。
+        </div>`,
+        `<button class="btn btn-ghost" onclick="startEmpty()">空で始める</button>
+         <button class="btn btn-primary" onclick="closeModal();switchTab('data');document.getElementById('importFile').click()">バックアップから復元</button>`);
+}
+
+function startEmpty() {
+    if (!confirm('空のデータで始めます。\n退避した壊れたデータは残りますが、アプリからは戻せません。\nよろしいですか？')) return;
+    dataCorrupt = false;
+    persist();
+    closeModal();
+    render();
+    showToast('空のデータで開始しました');
+}
 
 /* PWA：同じフォルダに sw.js があればオフライン用に登録する（無くても動く） */
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
